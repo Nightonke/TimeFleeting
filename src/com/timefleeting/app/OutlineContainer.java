@@ -1,5 +1,6 @@
 package com.timefleeting.app;
 
+import com.timefleeting.app.R;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;

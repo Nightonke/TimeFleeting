@@ -1,15 +1,20 @@
 package com.timefleeting.app;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.timefleeting.app.JazzyViewPager;
 import com.timefleeting.app.JazzyViewPager.TransitionEffect;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,8 +26,10 @@ import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.daimajia.swipe.util.Attributes;
 
 public class MainActivity extends Activity {
 
@@ -37,12 +44,17 @@ public class MainActivity extends Activity {
 	
 	private TimeFleetingData timeFleetingData;
 	
+	private Context mContext;
+	
+	private ListView listView;
+	private ListViewAdapter mAdapter;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
-		
+		mContext = this;
 		titleTestId = 0;
 		
 		try {
@@ -105,6 +117,10 @@ public class MainActivity extends Activity {
 			View v;
 			if (position == 0) {
 				v = layoutInflater.inflate(R.layout.layout1, null);
+				listView = (ListView)v.findViewById(R.id.listview);
+				mAdapter = new ListViewAdapter(timeFleetingData.futureRecords, mContext);
+				listView.setAdapter(mAdapter);
+				mAdapter.setMode(Attributes.Mode.Single);
 			} else if (position == 1) {
 				v = layoutInflater.inflate(R.layout.layout2, null);
 				resultTextView = (TextView)v.findViewById(R.id.result_textview);

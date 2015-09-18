@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/list_item"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/list_item_id"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:textSize="40sp"
+            android:textColor="#FFFFFF"
+            android:gravity="center"
+            android:layout_marginLeft="10dp"
+            />
+        
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="4"
+            android:orientation="vertical"
+            >
+            
+            <TextView
+                android:id="@+id/list_item_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+            
+            <TextView
+                android:id="@+id/list_item_remind_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+            
+            <TextView
+                android:id="@+id/list_item_create_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+            
+            <TextView
+                android:id="@+id/list_item_star"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+            
+        </LinearLayout>
+        
+    </TableRow>
+
+</TableLayout>
