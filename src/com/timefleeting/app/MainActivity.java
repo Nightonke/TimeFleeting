@@ -1,5 +1,6 @@
 package com.timefleeting.app;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.timefleeting.app.JazzyViewPager;
@@ -14,9 +15,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -26,15 +29,46 @@ public class MainActivity extends Activity {
 	private JazzyViewPager mJazzy;
 	private LayoutInflater layoutInflater;	
 	
+	private TextView resultTextView;
+	private Button addButton;
+	private Button deleteButton;
+	private Button queryButton;
+	private int titleTestId;
+	
+	private TimeFleetingData timeFleetingData;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
+		
+		titleTestId = 0;
+		
+		try {
+			timeFleetingData = TimeFleetingData.getInstance(this);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
 		layoutInflater = getLayoutInflater().from(this);
 		setupJazziness(TransitionEffect.Tablet);
 	}
 
+	private void show() {
+		 String resultString = "PAST: \n";
+		 for (Record c : timeFleetingData.pastRecords) {
+			 resultString += c.toString() + "\n";
+		 }
+		 resultString += "FUTURE: \n";
+		 for (Record c : timeFleetingData.futureRecords) {
+			 resultString += c.toString() + "\n";
+		 }
+		 resultTextView.setText(resultString);
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add("Toggle Fade");
@@ -73,6 +107,32 @@ public class MainActivity extends Activity {
 				v = layoutInflater.inflate(R.layout.layout1, null);
 			} else if (position == 1) {
 				v = layoutInflater.inflate(R.layout.layout2, null);
+				resultTextView = (TextView)v.findViewById(R.id.result_textview);
+				addButton = (Button)v.findViewById(R.id.add_button);
+				deleteButton = (Button)v.findViewById(R.id.delete_button);
+				queryButton = (Button)v.findViewById(R.id.query_button);
+				addButton.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						String typeString = (titleTestId % 2 == 1 ? "PAST" : "FUTURE");
+						timeFleetingData.saveRecord(new Record(-1, 
+								"Title" + String.valueOf(titleTestId), "Text", 
+								"2015-08-12", "2015-09-23", "5", typeString));
+						titleTestId++;
+						show();
+					}
+				});
+				
+				deleteButton.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						
+					}
+				});
 			} else if (position == 2) {
 				v = layoutInflater.inflate(R.layout.layout3, null);
 			} else {

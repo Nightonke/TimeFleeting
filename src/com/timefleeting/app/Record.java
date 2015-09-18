@@ -1,5 +1,11 @@
 package com.timefleeting.app;
 
+/*
+ * notice that the type of the records:
+ * one is PAST
+ * one is FUTURE
+ */
+
 public class Record {
 
 	private int id;
@@ -9,6 +15,21 @@ public class Record {
 	private String createTime;
 	private String star;
 	private String type;
+	
+	public Record() {
+		
+	}
+	
+	public Record(int id, String title, String text, String remindTime, 
+			String createTime, String star, String type) {
+		this.id = id;
+		this.title = title;
+		this.text = text;
+		this.remindTime = remindTime;
+		this.createTime = createTime;
+		this.star = star;
+		this.type = type;
+	}
 	
 	public int getId() {
 		return id;
@@ -64,6 +85,18 @@ public class Record {
 	
 	public void setType(String type) {
 		this.type = type;
+	}
+	
+	public String toString() {
+		String s = "{";
+		s += "id:" + id + ", ";
+		s += "title:" + title + ", ";
+		s += "text:" + text + ", ";
+		s += "remind_time:" + remindTime + ", ";
+		s += "create_time:" + createTime + ", ";
+		s += "star:" + star + ", ";
+		s += "type:" + type + "}";
+		return s;
 	}
 	
 }
