@@ -24,11 +24,14 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.util.Attributes;
 
 public class MainActivity extends Activity {
@@ -121,6 +124,16 @@ public class MainActivity extends Activity {
 				mAdapter = new ListViewAdapter(timeFleetingData.futureRecords, mContext);
 				listView.setAdapter(mAdapter);
 				mAdapter.setMode(Attributes.Mode.Single);
+				
+				// on list item click listener
+				listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		            @Override
+		            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//		                ((SwipeLayout)(listView.getChildAt(position - listView.getFirstVisiblePosition()))).open(true);
+		            	Toast.makeText(mContext, "Click " + position, Toast.LENGTH_SHORT).show();
+		            }
+		        });
+				
 			} else if (position == 1) {
 				v = layoutInflater.inflate(R.layout.layout2, null);
 				resultTextView = (TextView)v.findViewById(R.id.result_textview);
