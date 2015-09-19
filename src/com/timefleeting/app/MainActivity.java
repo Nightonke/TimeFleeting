@@ -9,6 +9,7 @@ import com.timefleeting.app.JazzyViewPager.TransitionEffect;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
@@ -131,8 +132,20 @@ public class MainActivity extends Activity {
 		            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 //		                ((SwipeLayout)(listView.getChildAt(position - listView.getFirstVisiblePosition()))).open(true);
 		            	Toast.makeText(mContext, "Click " + position, Toast.LENGTH_SHORT).show();
+		            	mAdapter.notifyDataSetChanged();
 		            }
 		        });
+				
+				Button newButton = (Button)v.findViewById(R.id.new_button);
+				newButton.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						Intent intent = new Intent(mContext, EditActivity.class);
+						startActivity(intent);
+					}
+				});
 				
 			} else if (position == 1) {
 				v = layoutInflater.inflate(R.layout.layout2, null);

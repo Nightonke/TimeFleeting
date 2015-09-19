@@ -1,6 +1,9 @@
 package com.timefleeting.app;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import android.content.Context;
@@ -54,6 +57,19 @@ public class TimeFleetingData {
 			futureRecords.add(record);
 		}
 		return true;
+	}
+	
+	// sort the past Records by id
+	// this is also the default sort in the database
+	public void sortPastRecordById() {
+		Collections.sort(pastRecords, new Comparator<Record>() {
+
+			@Override
+			public int compare(Record lhs, Record rhs) {
+				// TODO Auto-generated method stub
+				return Integer.valueOf(lhs.getId()).compareTo(Integer.valueOf(rhs.getId()));
+			}
+		});
 	}
 
 }
