@@ -27,11 +27,13 @@ import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.capricorn.RayMenu;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.util.Attributes;
 
@@ -53,6 +55,20 @@ public class MainActivity extends Activity {
 	private ListView listView;
 	private ListViewAdapter mAdapter;
 	
+	private boolean isSortedByCreateTimeReversely = false;
+	private boolean isSortedByRemindTime = false;
+	private boolean isSortedByTitle = false;
+	private boolean isSortedByStar = false;
+	
+	private static final int[] ITEM_DRAWABLES_FUTURE = {
+		R.drawable.create,
+		R.drawable.sort_by_title,
+		R.drawable.sort_by_remind_time,
+		R.drawable.sort_by_create_time,
+		R.drawable.sort_by_star,
+		R.drawable.search,
+		R.drawable.settings};
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -67,7 +83,8 @@ public class MainActivity extends Activity {
 			e.printStackTrace();
 		}
 		
-		
+		mAdapter = new ListViewAdapter(timeFleetingData.futureRecords, mContext);
+		mAdapter.setMode(Attributes.Mode.Single);
 		
 		layoutInflater = getLayoutInflater().from(this);
 		setupJazziness(TransitionEffect.Tablet);
@@ -104,6 +121,30 @@ public class MainActivity extends Activity {
 		}
 		return true;
 	}
+	
+	
+	// listener to listen whether the EditActivity is finished
+	// if finished, notifyDataSetChanged
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+		case 1:
+			if (resultCode == RESULT_OK) {
+				boolean isEditActivityFinished = data.getBooleanExtra("isEditActivityFinished", false);
+				if (isEditActivityFinished) {
+					timeFleetingData.sortFutureRecordByCreateTimeReversely();
+					isSortedByCreateTimeReversely = true;
+					mAdapter.notifyDataSetChanged();
+				} else {
+					Log.d("TimeFleeting", "isEditActivityFinished is false");
+				}
+			}
+			break;
+
+		default:
+			break;
+		}
+	}
 
 	private void setupJazziness(TransitionEffect effect) {
 
@@ -122,30 +163,48 @@ public class MainActivity extends Activity {
 			if (position == 0) {
 				v = layoutInflater.inflate(R.layout.layout1, null);
 				listView = (ListView)v.findViewById(R.id.listview);
-				mAdapter = new ListViewAdapter(timeFleetingData.futureRecords, mContext);
 				listView.setAdapter(mAdapter);
-				mAdapter.setMode(Attributes.Mode.Single);
+
+				// sort by the create time default
+				isSortedByCreateTimeReversely = true;
+				timeFleetingData.sortFutureRecordByCreateTimeReversely();
 				
 				// on list item click listener
 				listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 		            @Override
 		            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//		                ((SwipeLayout)(listView.getChildAt(position - listView.getFirstVisiblePosition()))).open(true);
 		            	Toast.makeText(mContext, "Click " + position, Toast.LENGTH_SHORT).show();
 		            	mAdapter.notifyDataSetChanged();
 		            }
-		        });
+		        });			
 				
-				Button newButton = (Button)v.findViewById(R.id.new_button);
-				newButton.setOnClickListener(new OnClickListener() {
-					
-					@Override
-					public void onClick(View v) {
-						// TODO Auto-generated method stub
-						Intent intent = new Intent(mContext, EditActivity.class);
-						startActivity(intent);
-					}
-				});
+				RayMenu rayMenu = (RayMenu)v.findViewById(R.id.past_layout_ray_menu);
+				for (int i = 0; i < ITEM_DRAWABLES_FUTURE.length; i++) {
+					ImageView imageView = new ImageView(mContext);
+					imageView.setImageResource(ITEM_DRAWABLES_FUTURE[i]);
+					final int menuPosition = i;
+					rayMenu.addItem(imageView, new OnClickListener() {
+						
+						@Override
+						public void onClick(View v) {
+							// TODO Auto-generated method stub
+							Toast.makeText(MainActivity.this, "Click " + menuPosition, Toast.LENGTH_SHORT).show();
+							if (menuPosition == 0) {
+								Intent intent = new Intent(mContext, EditActivity.class);
+								startActivityForResult(intent, 1);
+							} else if (menuPosition == 2) {
+								if (isSortedByCreateTimeReversely) {
+									timeFleetingData.sortFutureRecordByCreateTime();
+									isSortedByCreateTimeReversely = false;
+								} else {
+									timeFleetingData.sortFutureRecordByCreateTimeReversely();
+									isSortedByCreateTimeReversely = true;
+								}
+								mAdapter.notifyDataSetChanged();
+							}
+						}
+					});
+				}
 				
 			} else if (position == 1) {
 				v = layoutInflater.inflate(R.layout.layout2, null);
