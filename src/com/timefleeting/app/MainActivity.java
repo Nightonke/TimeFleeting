@@ -25,6 +25,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -55,10 +57,20 @@ public class MainActivity extends Activity {
 	private ListView listView;
 	private ListViewAdapter mAdapter;
 	
+	private RayMenu rayMenu;
+	
 	private boolean isSortedByCreateTimeReversely = false;
 	private boolean isSortedByRemindTime = false;
 	private boolean isSortedByTitle = false;
 	private boolean isSortedByStar = false;
+	
+	// record whether the listview is scrolling
+	private boolean scrollFlag = false;
+	private int lastVisibleItemPosition = 0;
+	
+	private View v;
+	
+	private int statusBarHeight;
 	
 	private static final int[] ITEM_DRAWABLES_FUTURE = {
 		R.drawable.create,
@@ -76,6 +88,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		mContext = this;
 		titleTestId = 0;
+		statusBarHeight = getStatusBarHeight();
 		
 		try {
 			timeFleetingData = TimeFleetingData.getInstance(this);
@@ -152,14 +165,14 @@ public class MainActivity extends Activity {
 
 		mJazzy.setTransitionEffect(TransitionEffect.valueOf("CubeOut".toString()));
 		mJazzy.setAdapter(new MainAdapter());
-		mJazzy.setPageMargin(30);
+		mJazzy.setPageMargin(0);
 	}
 
 	private class MainAdapter extends PagerAdapter {
 		@Override
 		public Object instantiateItem(ViewGroup container, final int position) {
 			View view = new View(MainActivity.this);
-			View v;
+			
 			if (position == 0) {
 				v = layoutInflater.inflate(R.layout.layout1, null);
 				listView = (ListView)v.findViewById(R.id.listview);
@@ -177,8 +190,8 @@ public class MainActivity extends Activity {
 		            	mAdapter.notifyDataSetChanged();
 		            }
 		        });			
-				
-				RayMenu rayMenu = (RayMenu)v.findViewById(R.id.past_layout_ray_menu);
+
+				rayMenu = (RayMenu)v.findViewById(R.id.past_layout_ray_menu);
 				for (int i = 0; i < ITEM_DRAWABLES_FUTURE.length; i++) {
 					ImageView imageView = new ImageView(mContext);
 					imageView.setImageResource(ITEM_DRAWABLES_FUTURE[i]);
@@ -205,6 +218,54 @@ public class MainActivity extends Activity {
 						}
 					});
 				}
+				
+				listView.setOnScrollListener(new OnScrollListener() {
+					
+					@Override
+					public void onScrollStateChanged(AbsListView view, int scrollState) {
+						// TODO Auto-generated method stub
+						switch (scrollState) {
+						case OnScrollListener.SCROLL_STATE_IDLE:
+							scrollFlag = false;
+							if (listView.getLastVisiblePosition() == (listView.getCount() - 1)) {
+								rayMenu.setVisibility(View.GONE);
+							}
+							if (listView.getFirstVisiblePosition() == 0) {
+								rayMenu.setVisibility(View.VISIBLE);
+							}
+							break;
+						case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
+							Log.d("DEBUG", "scrolling");
+							scrollFlag = true;
+							break;
+						case OnScrollListener.SCROLL_STATE_FLING:
+							scrollFlag = false;
+							break;
+						default:
+							break;
+						}
+					}
+					
+					@Override
+					public void onScroll(AbsListView view, int firstVisibleItem,
+							int visibleItemCount, int totalItemCount) {
+						// TODO Auto-generated method stub
+						if (scrollFlag && 
+								ScreenUtil.getScreenViewBottomHeight(listView) 
+								>= ScreenUtil.getScreenHeight(MainActivity.this) - statusBarHeight) {
+							if (firstVisibleItem > lastVisibleItemPosition) {
+								rayMenu.closeMenu();
+//								rayMenu.setVisibility(View.GONE);
+								
+							} else if (firstVisibleItem < lastVisibleItemPosition) {
+//								rayMenu.setVisibility(View.VISIBLE);
+							} else {
+								return;
+							}
+							lastVisibleItemPosition = firstVisibleItem;
+						}
+					}
+				});
 				
 			} else if (position == 1) {
 				v = layoutInflater.inflate(R.layout.layout2, null);
@@ -265,4 +326,14 @@ public class MainActivity extends Activity {
 			}
 		}		
 	}
+	
+	public int getStatusBarHeight() {
+	  int result = 0;
+	  int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+	  if (resourceId > 0) {
+	      result = getResources().getDimensionPixelSize(resourceId);
+	  }
+	  return result;
+	}
+	
 }

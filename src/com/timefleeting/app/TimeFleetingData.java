@@ -175,29 +175,29 @@ public class TimeFleetingData {
 	}
 	
 	// sort the future records by create time reversely
-		// if the create time is same, sort by title
-		// if the title is same, sort by remind time
-		// if the remind time is same, sort by star
-		// is the star is same, sort by id
-		public void sortFutureRecordByCreateTimeReversely() {
-			Collections.sort(futureRecords, new Comparator<Record>() {
+	// if the create time is same, sort by title
+	// if the title is same, sort by remind time
+	// if the remind time is same, sort by star
+	// is the star is same, sort by id
+	public void sortFutureRecordByCreateTimeReversely() {
+		Collections.sort(futureRecords, new Comparator<Record>() {
 
-				@Override
-				public int compare(Record lhs, Record rhs) {
-					// TODO Auto-generated method stub
-					if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
-						return rhs.getCreateTime().compareTo(lhs.getCreateTime());
-					} else if (!lhs.getTitle().equals(rhs.getTitle())) {
-						return rhs.getTitle().compareTo(lhs.getTitle());
-					} else if (!lhs.getRemindTime().equals(rhs.getRemindTime())) {
-						return lhs.getRemindTime().compareTo(rhs.getRemindTime());
-					} else if (!lhs.getStar().equals(rhs.getStar())) {
-						return lhs.getStar().compareTo(rhs.getStar());
-					} else {
-						return Integer.valueOf(lhs.getId()).compareTo(Integer.valueOf(rhs.getId()));
-					}
+			@Override
+			public int compare(Record lhs, Record rhs) {
+				// TODO Auto-generated method stub
+				if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
+					return rhs.getCreateTime().compareTo(lhs.getCreateTime());
+				} else if (!lhs.getTitle().equals(rhs.getTitle())) {
+					return rhs.getTitle().compareTo(lhs.getTitle());
+				} else if (!lhs.getRemindTime().equals(rhs.getRemindTime())) {
+					return lhs.getRemindTime().compareTo(rhs.getRemindTime());
+				} else if (!lhs.getStar().equals(rhs.getStar())) {
+					return lhs.getStar().compareTo(rhs.getStar());
+				} else {
+					return Integer.valueOf(lhs.getId()).compareTo(Integer.valueOf(rhs.getId()));
 				}
-			});
-		}
+			}
+		});
+	}
 
 }

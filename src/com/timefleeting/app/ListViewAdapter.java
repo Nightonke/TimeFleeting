@@ -79,25 +79,27 @@ public class ListViewAdapter extends BaseSwipeAdapter {
 			}
 		});
         
-        swipeLayout.setOnClickListener(new OnClickListener() {
-			
-        	boolean wasClosed = true;
-        	
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				Log.d("TimeFleeting", "CCCCCCCCCCCCc");
-				if (SwipeLayout.Status.Close == swipeLayout.getOpenStatus()) {
-					if (wasClosed) {
-						Toast.makeText(mContext, "Click " + CurrentPosition, Toast.LENGTH_SHORT).show();
-					} else {
-						wasClosed = true;
-					}
-				} else {
-					wasClosed = false;
-				}
-			}
-		});
+//        swipeLayout.setOnClickListener(new OnClickListener() {
+//			
+//        	boolean wasClosed = true;
+//        	
+//			@Override
+//			public void onClick(View v) {
+//				// TODO Auto-generated method stub
+//				Log.d("TimeFleeting", "CCCCCCCCCCCCc");
+//				if (SwipeLayout.Status.Close == swipeLayout.getOpenStatus()) {
+//					if (wasClosed) {
+//						Toast.makeText(mContext, "Click " + CurrentPosition, Toast.LENGTH_SHORT).show();
+//					} else {
+//						wasClosed = true;
+//					}
+//				} else {
+//					wasClosed = false;
+//				}
+//			}
+//		});
+        
+        
         
         swipeLayout.setOnDoubleClickListener(new SwipeLayout.DoubleClickListener() {
             @Override
