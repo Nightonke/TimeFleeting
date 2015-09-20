@@ -4,24 +4,76 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
-    <EditText
-        android:id="@+id/edit_layout_title"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:textSize="40sp"
-        android:singleLine="true"
-        android:hint="Title"
-        android:layout_gravity="center_horizontal|top"
-        />
-    
-    <EditText
-        android:id="@+id/edit_layout_content"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:singleLine="false"
-        android:textSize="30sp"
-        android:lines="100"
-        android:hint="Content"
-        />
+        android:layout_height="match_parent"
+        >
+    
+	    <ScrollView
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        >
+	        
+	        <LinearLayout
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:orientation="vertical"
+	            >
+	        
+	            <EditText
+			        android:id="@+id/edit_layout_title"
+			        android:layout_width="wrap_content"
+			        android:layout_height="50dp"
+			        android:textSize="30sp"
+			        android:singleLine="true"
+			        android:hint="标题"
+			        android:textColorHint="#78C2C4"
+			        android:background="@null"
+			        android:layout_gravity="center_horizontal|top"
+			        android:gravity="center"
+			        android:paddingTop="10dp"
+			        android:paddingLeft="20dp"
+			        android:paddingRight="20dp"
+			        />
+	            
+	            <TextView
+	                android:id="@+id/create_time_textview"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:singleLine="true"
+	                android:layout_gravity="right"
+	                android:textSize="10sp"
+	                android:textColor="#78C2C4"
+	                android:paddingRight="20dp"
+	                />
+	            
+	            <EditText
+			        android:id="@+id/edit_layout_content"
+			        android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:singleLine="false"
+			        android:textSize="20sp"
+			        android:hint="正文"
+			        android:textColorHint="#78C2C4"
+			        android:background="@null"
+			        android:paddingLeft="20dp"
+	                android:paddingRight="20dp"
+	                android:paddingBottom="20dp"
+			        />
+	            
+	        </LinearLayout>
+	        
+	    </ScrollView>
+	    
+	    <com.capricorn.RayMenu
+            android:id="@+id/edit_layout_ray_menu"
+            android:layout_width="fill_parent"
+            android:layout_height="80dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="0dp"
+            android:layout_gravity="bottom"
+            />
+	    
+	</FrameLayout>
 
 </LinearLayout>

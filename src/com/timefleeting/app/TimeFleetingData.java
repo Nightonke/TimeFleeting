@@ -45,10 +45,12 @@ public class TimeFleetingData {
 	}
 	
 	// return weather the new record is saved successfully
-	public boolean saveRecord(Record record) {
+	// if successfully, return the new id
+	// else return -1
+	public int saveRecord(Record record) {
 		int insertId = db.saveRecord(record);
 		if (insertId == -1) {
-			return false;
+			return -1;
 		}
 		record.setId(insertId);
 		if (record.getType() == "PAST") {
@@ -56,7 +58,7 @@ public class TimeFleetingData {
 		} else if (record.getType() == "FUTURE") {
 			futureRecords.add(record);
 		}
-		return true;
+		return insertId;
 	}
 	
 	// sort the past Records by id

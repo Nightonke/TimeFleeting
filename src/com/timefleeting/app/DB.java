@@ -70,6 +70,33 @@ public class DB {
 								null, null, null, null, null);
 				cursor.moveToLast();
 				return cursor.getInt(cursor.getColumnIndex("id"));
+			} else if (cursor.getCount() == 1) {
+				// change the origin record
+				ContentValues values = new ContentValues();
+				
+				// if the ID of record is -1
+				// it means there is an error
+				if (record.getId() == -1) {
+					// error
+				} else {
+					// update the data
+					values.put("id", record.getId());
+					values.put("title", record.getTitle());
+					values.put("text", record.getText());
+					values.put("remind_time", record.getRemindTime());
+					values.put("create_time", record.getCreateTime());
+					values.put("star", record.getStar());
+					values.put("type", record.getType());
+					sqliteDatabase.update(DB_NAME_STRING, 
+							values, 
+							"id = ?",
+							new String[] {String.valueOf(record.getId())});
+					
+					return record.getId();
+				}
+
+			} else {
+				return -1;
 			}
 		}
 		return -1;
