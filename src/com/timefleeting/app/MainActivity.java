@@ -25,6 +25,9 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -67,6 +70,7 @@ public class MainActivity extends Activity {
 	// record whether the listview is scrolling
 	private boolean scrollFlag = false;
 	private int lastVisibleItemPosition = 0;
+	private boolean lastIsScrollDown = false;
 	
 	private View v;
 	
@@ -228,10 +232,10 @@ public class MainActivity extends Activity {
 						case OnScrollListener.SCROLL_STATE_IDLE:
 							scrollFlag = false;
 							if (listView.getLastVisiblePosition() == (listView.getCount() - 1)) {
-								rayMenu.setVisibility(View.GONE);
+//								rayMenu.setVisibility(View.GONE);
 							}
 							if (listView.getFirstVisiblePosition() == 0) {
-								rayMenu.setVisibility(View.VISIBLE);
+//								rayMenu.setVisibility(View.VISIBLE);
 							}
 							break;
 						case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
@@ -250,15 +254,48 @@ public class MainActivity extends Activity {
 					public void onScroll(AbsListView view, int firstVisibleItem,
 							int visibleItemCount, int totalItemCount) {
 						// TODO Auto-generated method stub
+						rayMenu.closeMenu();
 						if (scrollFlag && 
 								ScreenUtil.getScreenViewBottomHeight(listView) 
 								>= ScreenUtil.getScreenHeight(MainActivity.this) - statusBarHeight) {
 							if (firstVisibleItem > lastVisibleItemPosition) {
-								rayMenu.closeMenu();
-//								rayMenu.setVisibility(View.GONE);
-								
+								// scroll down
+								// should disappear
+								if (!lastIsScrollDown) {
+									AnimationSet animationSet = new AnimationSet(true);
+									TranslateAnimation translateAnimation = 
+											new TranslateAnimation(
+													Animation.RELATIVE_TO_SELF, 0f,
+													Animation.RELATIVE_TO_SELF, 0f,
+													Animation.RELATIVE_TO_SELF, 0f,
+													Animation.RELATIVE_TO_SELF, 1f);
+									translateAnimation.setDuration(1000);
+									animationSet.addAnimation(translateAnimation);
+									animationSet.setFillAfter(true);
+	;								rayMenu.startAnimation(animationSet);
+								} else {
+									
+								}
+								lastIsScrollDown = true;
 							} else if (firstVisibleItem < lastVisibleItemPosition) {
-//								rayMenu.setVisibility(View.VISIBLE);
+								// scroll up
+								// should appear
+								if (lastIsScrollDown) {
+									AnimationSet animationSet = new AnimationSet(true);
+									TranslateAnimation translateAnimation = 
+											new TranslateAnimation(
+													Animation.RELATIVE_TO_SELF, 0f,
+													Animation.RELATIVE_TO_SELF, 0f,
+													Animation.RELATIVE_TO_SELF, 1f,
+													Animation.RELATIVE_TO_SELF, 0f);
+									translateAnimation.setDuration(1000);
+									animationSet.addAnimation(translateAnimation);
+									animationSet.setFillAfter(true);
+	;								rayMenu.startAnimation(animationSet);
+								} else {
+									
+								}
+								lastIsScrollDown = false;
 							} else {
 								return;
 							}
