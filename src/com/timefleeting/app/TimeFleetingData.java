@@ -48,15 +48,37 @@ public class TimeFleetingData {
 	// if successfully, return the new id
 	// else return -1
 	public int saveRecord(Record record) {
+		boolean isUpdate = false;
+		if (record.getId() != -1) {
+			isUpdate = true;
+		}
 		int insertId = db.saveRecord(record);
 		if (insertId == -1) {
 			return -1;
 		}
 		record.setId(insertId);
 		if (record.getType() == "PAST") {
-			pastRecords.add(record);
+			if (isUpdate) {
+				for (Record r : pastRecords) {
+					if (r.getId() == record.getId()) {
+						r = record;
+						break;
+					}
+				}
+			} else {
+				pastRecords.add(record);
+			}
 		} else if (record.getType() == "FUTURE") {
-			futureRecords.add(record);
+			if (isUpdate) {
+				for (Record r : futureRecords) {
+					if (r.getId() == record.getId()) {
+						r = record;
+						break;
+					}
+				}
+			} else {
+				futureRecords.add(record);
+			}
 		}
 		return insertId;
 	}

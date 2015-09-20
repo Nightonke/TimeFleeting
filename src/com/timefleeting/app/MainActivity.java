@@ -152,6 +152,7 @@ public class MainActivity extends Activity {
 					timeFleetingData.sortFutureRecordByCreateTimeReversely();
 					isSortedByCreateTimeReversely = true;
 					mAdapter.notifyDataSetChanged();
+					listView.smoothScrollToPosition(0);
 				} else {
 					Log.d("TimeFleeting", "isEditActivityFinished is false");
 				}

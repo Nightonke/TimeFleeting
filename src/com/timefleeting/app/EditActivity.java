@@ -55,6 +55,7 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	private boolean isSaved = false;
 	private boolean isRemind = false;
 	private boolean isStared = false;
+	private boolean afterSetTimeBack = false;
 	
 	private EditText titleEditText;
 	private EditText contentEditText;
@@ -65,6 +66,8 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.edit_layout);
+		
+		mContext = this;
 		
 		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
 		Date curDate = new Date(System.currentTimeMillis());
@@ -79,7 +82,7 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 				// TODO Auto-generated method stub
-				
+				isSaved = false;
 			}
 			
 			@Override
@@ -111,14 +114,14 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 					Toast.makeText(EditActivity.this, "Click " + menuPosition, Toast.LENGTH_SHORT).show();
 					if (menuPosition == 0) {
 						// save
-						save();
+						save(false);
 					} else if (menuPosition == 1) {
 						// set the remind time
 						setRemindTime();
 					} else if (menuPosition == 2) {
 						
 					} else if (menuPosition == 5) {
-						goBack();
+						goBack(true);
 					}
 				}
 			});
@@ -128,29 +131,25 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	
 	@Override
 	public void onBackPressed() {
-		
+		goBack(true);
 	}
 	
-	private void goBack() {
-		try {
-			timeFleetingData = TimeFleetingData.getInstance(this);
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-		
-		save();
-		
-		Intent intent = new Intent();
-		intent.putExtra("isEditActivityFinished", true);
-		setResult(RESULT_OK, intent);
+	private void goBack(boolean isBack) {
 
-		finish();
+		save(isBack);
+
 	}
 	
 	// call this function when:
 	// click the save button
 	// back button
-	private void save() {
+	private void save(boolean isBack) {
+		
+		try {
+			timeFleetingData = TimeFleetingData.getInstance(this);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 		
 		String titleString = titleEditText.getText().toString();
 		String contentString = contentEditText.getText().toString();
@@ -165,10 +164,15 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 					createTimeString,
 					starString,
 					"FUTURE"));
+			if (isBack) {
+				returnHome();
+			}
 		} else {
 			// haven't click the save button
 			if (!isRemind) {
 				// haven't click the remind button
+				afterSetTimeBack = isBack;
+				isSaved = true;
 				setRemindTime();
 			} else {
 				// haven't click the remind button
@@ -180,8 +184,11 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 						createTimeString,
 						starString,
 						"FUTURE"));
+				isSaved = true;
+				if (isBack) {
+					returnHome();
+				}
 			}
-			isSaved = true;
 		}
 	}
 	
@@ -189,7 +196,7 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		isRemind = false;
 		final Calendar calendar = Calendar.getInstance();
 		final DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), false);
-		datePickerDialog.setYearRange(2015, 2100);
+		datePickerDialog.setYearRange(2015, 2036);
         datePickerDialog.setCloseOnSingleTapDay(false);
         datePickerDialog.show(getSupportFragmentManager(), DATEPICKER_TAG);
 	}
@@ -202,6 +209,11 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		remindTimeString += "00";
 		
 		isRemind = true;
+		
+		if (afterSetTimeBack) {
+			save(true);
+			returnHome();
+		}
 	}
 
 	@Override
@@ -222,6 +234,14 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		timePickerDialog.setVibrate(false);
         timePickerDialog.setCloseOnSingleTapMinute(false);
         timePickerDialog.show(getSupportFragmentManager(), TIMEPICKER_TAG);
+	}
+	
+	private void returnHome() {
+		Intent intent = new Intent();
+		intent.putExtra("isEditActivityFinished", true);
+		setResult(RESULT_OK, intent);
+
+		finish();
 	}
 	
 }
