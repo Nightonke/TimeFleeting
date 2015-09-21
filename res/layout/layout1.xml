@@ -6,17 +6,17 @@
     android:background="#F596AA"
     android:orientation="vertical" >
     
-    <FrameLayout
+   <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         >
         
         <ListView
 	        android:id="@+id/listview"
 	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
+	        android:layout_height="match_parent"
 	        />
-        
+
         <com.capricorn.RayMenu
 	        android:id="@+id/past_layout_ray_menu"
 	        android:layout_width="fill_parent"

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.lang.Object;
 
 import com.capricorn.RayMenu;
 import com.fourmob.datetimepicker.date.DatePickerDialog;
@@ -16,12 +17,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ScrollingView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -29,7 +35,7 @@ import android.widget.Toast;
 
 
 
-public class EditActivity extends FragmentActivity implements OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+public class EditActivity extends FragmentActivity implements OnDateSetListener, TimePickerDialog.OnTimeSetListener, ScrollViewListener  {
 
 	public static final String DATEPICKER_TAG = "选择日期";
     public static final String TIMEPICKER_TAG = "选择时间";
@@ -43,6 +49,7 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	private TextView createTimeTextView;
 	
 	private RayMenu rayMenu;
+	private boolean lastIsScrollDown = false;
 	
 	private static final int[] ITEM_DRAWABLES_FUTURE = {
 		R.drawable.save,
@@ -60,6 +67,8 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	private EditText titleEditText;
 	private EditText contentEditText;
 	private int saveId = -1;
+	
+	private ObservableScrollView observableScrollView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +77,10 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		setContentView(R.layout.edit_layout);
 		
 		mContext = this;
+
+		observableScrollView = (ObservableScrollView)findViewById(R.id.editview_scrollview);
+		observableScrollView.setScrollViewListener(this);
+		
 		
 		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
 		Date curDate = new Date(System.currentTimeMillis());
@@ -223,6 +236,10 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		
 		isRemind = false;
 		
+		// a bug in the datetimepicker-library
+		// which will cause the month is month - 1
+		month++;
+		
 		remindTimeString = String.valueOf(year) + "-";
 		remindTimeString += (month < 10 ? "0" + String.valueOf(month) : String.valueOf(month)) + "-";
 		remindTimeString += (day < 10 ? "0" + String.valueOf(day) : String.valueOf(day)) + "-";
@@ -242,6 +259,51 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		setResult(RESULT_OK, intent);
 
 		finish();
+	}
+
+	@Override
+	public void onScrollChanged(ObservableScrollView scrollView, int x, int y,
+			int oldx, int oldy) {
+		// TODO Auto-generated method stub
+		if (oldy < y) {
+			// down
+			// should disappear
+			if (!lastIsScrollDown) {
+				AnimationSet animationSet = new AnimationSet(true);
+				TranslateAnimation translateAnimation = 
+						new TranslateAnimation(
+								Animation.RELATIVE_TO_SELF, 0f,
+								Animation.RELATIVE_TO_SELF, 0f,
+								Animation.RELATIVE_TO_SELF, 0f,
+								Animation.RELATIVE_TO_SELF, 1f);
+				translateAnimation.setDuration(1000);
+				animationSet.addAnimation(translateAnimation);
+				animationSet.setFillAfter(true);
+;				rayMenu.startAnimation(animationSet);
+			} else {
+				
+			}
+			lastIsScrollDown = true;
+		} else if (oldy > y) {
+			// up
+			// should appear
+			if (lastIsScrollDown) {
+				AnimationSet animationSet = new AnimationSet(true);
+				TranslateAnimation translateAnimation = 
+						new TranslateAnimation(
+								Animation.RELATIVE_TO_SELF, 0f,
+								Animation.RELATIVE_TO_SELF, 0f,
+								Animation.RELATIVE_TO_SELF, 1f,
+								Animation.RELATIVE_TO_SELF, 0f);
+				translateAnimation.setDuration(1000);
+				animationSet.addAnimation(translateAnimation);
+				animationSet.setFillAfter(true);
+;				rayMenu.startAnimation(animationSet);
+			} else {
+				
+			}
+			lastIsScrollDown = false;
+		}
 	}
 	
 }
