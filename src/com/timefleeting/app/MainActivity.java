@@ -210,6 +210,15 @@ public class MainActivity extends Activity {
 							if (menuPosition == 0) {
 								Intent intent = new Intent(mContext, EditActivity.class);
 								startActivityForResult(intent, 1);
+							} else if (menuPosition == 1) {
+								if (isSortedByTitle) {
+									timeFleetingData.sortFutureRecordByTitleReversely();
+									isSortedByTitle = false;
+								} else {
+									timeFleetingData.sortFutureRecordByTitle();
+									isSortedByTitle = true;
+								}
+								mAdapter.notifyDataSetChanged();
 							} else if (menuPosition == 2) {
 								if (isSortedByCreateTimeReversely) {
 									timeFleetingData.sortFutureRecordByCreateTime();
@@ -217,6 +226,15 @@ public class MainActivity extends Activity {
 								} else {
 									timeFleetingData.sortFutureRecordByCreateTimeReversely();
 									isSortedByCreateTimeReversely = true;
+								}
+								mAdapter.notifyDataSetChanged();
+							} else if (menuPosition == 3) {
+								if (isSortedByRemindTime) {
+									timeFleetingData.sortFutureRecordByRemindTimeReversely();
+									isSortedByRemindTime = false;
+								} else {
+									timeFleetingData.sortFutureRecordByRemindTime();
+									isSortedByRemindTime = true;
 								}
 								mAdapter.notifyDataSetChanged();
 							}
