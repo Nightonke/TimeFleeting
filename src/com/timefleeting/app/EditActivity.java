@@ -14,6 +14,8 @@ import com.sleepbot.datetimepicker.time.TimePickerDialog;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,6 +25,7 @@ import android.support.v4.view.ScrollingView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.Window;
@@ -46,7 +49,7 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	private TimeFleetingData timeFleetingData;
 	private String createTimeString;
 	private String remindTimeString;
-	private String starString = "3";
+	private String starString = "0";
 	
 	private TextView createTimeTextView;
 	
@@ -155,7 +158,7 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 						// set the remind time
 						setRemindTime();
 					} else if (menuPosition == 2) {
-						
+						setStar(false);
 					} else if (menuPosition == 5) {
 						goBack(true);
 					}
@@ -247,23 +250,28 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		} else {
 			// haven't click the save button
 			if (!isRemind) {
-				// haven't click the remind button
+				// haven't clicked the remind button
+				// set the time then go back
 				afterSetTimeBack = isBack;
 				isSaved = true;
 				setRemindTime();
 			} else {
-				// haven't click the remind button
-				saveId = timeFleetingData.saveRecord(new Record(
-						-1,
-						titleString,
-						contentString,
-						remindTimeString,
-						createTimeString,
-						starString,
-						"FUTURE"));
-				isSaved = true;
-				if (isBack) {
-					returnHome();
+				// have clicked the remind button
+				if (!isStared) {
+					setStar(isBack);
+				} else {
+					saveId = timeFleetingData.saveRecord(new Record(
+							-1,
+							titleString,
+							contentString,
+							remindTimeString,
+							createTimeString,
+							starString,
+							"FUTURE"));
+					isSaved = true;
+					if (isBack) {
+						returnHome();
+					}
 				}
 			}
 		}
@@ -286,10 +294,15 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		remindTimeString += "00";
 		
 		isRemind = true;
-		
+
 		if (afterSetTimeBack) {
-			save(true);
-			returnHome();
+			if (!isStared) {
+				setStar(true);
+			} else {
+				save(true);
+			}
+		} else {
+			
 		}
 	}
 
@@ -363,12 +376,97 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 				translateAnimation.setDuration(1000);
 				animationSet.addAnimation(translateAnimation);
 				animationSet.setFillAfter(true);
-;				rayMenu.startAnimation(animationSet);
+				rayMenu.startAnimation(animationSet);
 			} else {
 				
 			}
 			lastIsScrollDown = false;
 		}
 	}
+	
+	private void setStar(final boolean isBack) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		builder.setIcon(R.drawable.save_without_circle);
+		builder.setTitle("优先级");
+		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
+		View view = layoutInflater.inflate(R.layout.set_star, null);
+		builder.setView(view);
+		starString = "0";
+		final ImageView star1 = (ImageView)view.findViewById(R.id.star_1);
+		final ImageView star2 = (ImageView)view.findViewById(R.id.star_2);
+		final ImageView star3 = (ImageView)view.findViewById(R.id.star_3);
+		final ImageView star4 = (ImageView)view.findViewById(R.id.star_4);
+		final ImageView star5 = (ImageView)view.findViewById(R.id.star_5);
+		star1.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				star1.setImageResource(R.drawable.star_blue);
+				star2.setImageResource(R.drawable.star_blank);
+				star3.setImageResource(R.drawable.star_blank);
+				star4.setImageResource(R.drawable.star_blank);
+				star5.setImageResource(R.drawable.star_blank);
+				starString = "1";
+			}
+		});
+		star2.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				star1.setImageResource(R.drawable.star_blue);
+				star2.setImageResource(R.drawable.star_blue);
+				star3.setImageResource(R.drawable.star_blank);
+				star4.setImageResource(R.drawable.star_blank);
+				star5.setImageResource(R.drawable.star_blank);
+				starString = "2";
+			}
+		});
+		star3.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				star1.setImageResource(R.drawable.star_blue);
+				star2.setImageResource(R.drawable.star_blue);
+				star3.setImageResource(R.drawable.star_blue);
+				star4.setImageResource(R.drawable.star_blank);
+				star5.setImageResource(R.drawable.star_blank);
+				starString = "3";
+			}
+		});
+		star4.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				star1.setImageResource(R.drawable.star_blue);
+				star2.setImageResource(R.drawable.star_blue);
+				star3.setImageResource(R.drawable.star_blue);
+				star4.setImageResource(R.drawable.star_blue);
+				star5.setImageResource(R.drawable.star_blank);
+				starString = "4";
+			}
+		});
+		star5.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				star1.setImageResource(R.drawable.star_blue);
+				star2.setImageResource(R.drawable.star_blue);
+				star3.setImageResource(R.drawable.star_blue);
+				star4.setImageResource(R.drawable.star_blue);
+				star5.setImageResource(R.drawable.star_blue);
+				starString = "5";
+			}
+		});
+		builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				isStared = true;
+				if (isBack) {
+					save(true);
+				}
+			}
+		});
+		
+		builder.show();
+	}
+	
+	
 	
 }

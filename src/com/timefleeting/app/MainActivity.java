@@ -392,4 +392,11 @@ public class MainActivity extends Activity {
 	  return result;
 	}
 	
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		return;
+	}
+	
+	
 }
