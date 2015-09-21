@@ -13,7 +13,9 @@ import com.sleepbot.datetimepicker.time.RadialPickerLayout;
 import com.sleepbot.datetimepicker.time.TimePickerDialog;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -33,10 +35,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-
 public class EditActivity extends FragmentActivity implements OnDateSetListener, TimePickerDialog.OnTimeSetListener, ScrollViewListener  {
 
+	private final String dEF_TITLE_STRING = "未命名";
+	
 	public static final String DATEPICKER_TAG = "选择日期";
     public static final String TIMEPICKER_TAG = "选择时间";
 	
@@ -113,6 +115,27 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		});
 		
 		contentEditText = (EditText)findViewById(R.id.edit_layout_content);
+		contentEditText.addTextChangedListener(new TextWatcher() {
+			
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				// TODO Auto-generated method stub
+				isSaved = false;
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 
 		rayMenu = (RayMenu)findViewById(R.id.edit_layout_ray_menu);
 		for (int i = 0; i < ITEM_DRAWABLES_FUTURE.length; i++) {
@@ -149,8 +172,45 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	
 	private void goBack(boolean isBack) {
 
-		save(isBack);
-
+		String titleString = titleEditText.getText().toString();
+		String contentString = contentEditText.getText().toString();
+		
+		if ("".equals(titleString) && "".equals(contentString)) {
+			returnHome();
+		} else {
+			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+			builder.setIcon(R.drawable.save_without_circle);
+			builder.setTitle("等等！");
+			builder.setMessage("请问保存吗？");
+			builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// save
+					saveAndReturnHome();
+				}
+			});
+			builder.setNeutralButton("不保存", new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					returnHome();
+				}
+			});
+			builder.setNegativeButton("我再想想", new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+					return;
+				}
+			});
+			builder.show();
+		}
+	}
+	
+	private void saveAndReturnHome() {
+		save(true);
 	}
 	
 	// call this function when:
@@ -167,6 +227,10 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		String titleString = titleEditText.getText().toString();
 		String contentString = contentEditText.getText().toString();
 
+		if ("".equals(titleString)) {
+			titleString = dEF_TITLE_STRING; 
+		}
+		
 		if (isSaved) {
 			// have click the save button
 			timeFleetingData.saveRecord(new Record(
@@ -265,6 +329,7 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	public void onScrollChanged(ObservableScrollView scrollView, int x, int y,
 			int oldx, int oldy) {
 		// TODO Auto-generated method stub
+		rayMenu.closeMenu();
 		if (oldy < y) {
 			// down
 			// should disappear
