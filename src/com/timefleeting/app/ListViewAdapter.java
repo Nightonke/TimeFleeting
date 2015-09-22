@@ -5,6 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.datatype.Duration;
+
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.daimajia.swipe.SimpleSwipeListener;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.SwipeLayout.SwipeListener;
@@ -71,6 +75,9 @@ public class ListViewAdapter extends BaseSwipeAdapter {
 			public void onOpen(SwipeLayout arg0) {
 				// TODO Auto-generated method stub
 				Log.d("TimeFleeting", "onOpen");
+				YoYo.with(Techniques.StandUp).duration(1000).delay(500).playOn(arg0.findViewById(R.id.set_time));
+				YoYo.with(Techniques.StandUp).duration(1000).delay(500).playOn(arg0.findViewById(R.id.set_star));
+				YoYo.with(Techniques.StandUp).duration(1000).delay(500).playOn(arg0.findViewById(R.id.delete));
 			}
 			
 			@Override
@@ -85,29 +92,7 @@ public class ListViewAdapter extends BaseSwipeAdapter {
 				Log.d("TimeFleeting", "onClose");
 			}
 		});
-        
-//        swipeLayout.setOnClickListener(new OnClickListener() {
-//			
-//        	boolean wasClosed = true;
-//        	
-//			@Override
-//			public void onClick(View v) {
-//				// TODO Auto-generated method stub
-//				Log.d("TimeFleeting", "CCCCCCCCCCCCc");
-//				if (SwipeLayout.Status.Close == swipeLayout.getOpenStatus()) {
-//					if (wasClosed) {
-//						Toast.makeText(mContext, "Click " + CurrentPosition, Toast.LENGTH_SHORT).show();
-//					} else {
-//						wasClosed = true;
-//					}
-//				} else {
-//					wasClosed = false;
-//				}
-//			}
-//		});
-        
-        
-        
+
         swipeLayout.setOnDoubleClickListener(new SwipeLayout.DoubleClickListener() {
             @Override
             public void onDoubleClick(SwipeLayout layout, boolean surface) {
@@ -134,28 +119,48 @@ public class ListViewAdapter extends BaseSwipeAdapter {
     	ImageView star3 = (ImageView)convertView.findViewById(R.id.listview_item_star_3);
     	ImageView star4 = (ImageView)convertView.findViewById(R.id.listview_item_star_4);
     	ImageView star5 = (ImageView)convertView.findViewById(R.id.listview_item_star_5);
+    	star1.setImageResource(R.drawable.set_star);
+		star2.setImageResource(R.drawable.set_star);
+		star3.setImageResource(R.drawable.set_star);
+		star4.setImageResource(R.drawable.set_star);
+		star5.setImageResource(R.drawable.set_star);
+
     	if ("0".equals(starString)) {
-    		
+    		star1.setVisibility(View.INVISIBLE);
+    		star2.setVisibility(View.INVISIBLE);
+    		star3.setVisibility(View.INVISIBLE);
+    		star4.setVisibility(View.INVISIBLE);
+    		star5.setVisibility(View.INVISIBLE);
     	} else if ("1".equals(starString)) {
-    		star5.setImageResource(R.drawable.set_star);
+    		star1.setVisibility(View.INVISIBLE);
+    		star2.setVisibility(View.INVISIBLE);
+    		star3.setVisibility(View.INVISIBLE);
+    		star4.setVisibility(View.INVISIBLE);
+    		star5.setVisibility(View.VISIBLE);
     	} else if ("2".equals(starString)) {
-    		star4.setImageResource(R.drawable.set_star);
-    		star5.setImageResource(R.drawable.set_star);
+    		star1.setVisibility(View.INVISIBLE);
+    		star2.setVisibility(View.INVISIBLE);
+    		star3.setVisibility(View.INVISIBLE);
+    		star4.setVisibility(View.VISIBLE);
+    		star5.setVisibility(View.VISIBLE);
     	} else if ("3".equals(starString)) {
-    		star3.setImageResource(R.drawable.set_star);
-    		star4.setImageResource(R.drawable.set_star);
-    		star5.setImageResource(R.drawable.set_star);
+    		star1.setVisibility(View.INVISIBLE);
+    		star2.setVisibility(View.INVISIBLE);
+    		star3.setVisibility(View.VISIBLE);
+    		star4.setVisibility(View.VISIBLE);
+    		star5.setVisibility(View.VISIBLE);
     	} else if ("4".equals(starString)) {
-    		star2.setImageResource(R.drawable.set_star);
-    		star3.setImageResource(R.drawable.set_star);
-    		star4.setImageResource(R.drawable.set_star);
-    		star5.setImageResource(R.drawable.set_star);
+    		star1.setVisibility(View.INVISIBLE);
+    		star2.setVisibility(View.VISIBLE);
+    		star3.setVisibility(View.VISIBLE);
+    		star4.setVisibility(View.VISIBLE);
+    		star5.setVisibility(View.VISIBLE);
     	} else if ("5".equals(starString)) {
-    		star1.setImageResource(R.drawable.set_star);
-    		star2.setImageResource(R.drawable.set_star);
-    		star3.setImageResource(R.drawable.set_star);
-    		star4.setImageResource(R.drawable.set_star);
-    		star5.setImageResource(R.drawable.set_star);
+    		star1.setVisibility(View.VISIBLE);
+    		star2.setVisibility(View.VISIBLE);
+    		star3.setVisibility(View.VISIBLE);
+    		star4.setVisibility(View.VISIBLE);
+    		star5.setVisibility(View.VISIBLE);
     	}
     	
     	WaveView waveView = (WaveView)convertView.findViewById(R.id.wave_view);
@@ -169,7 +174,6 @@ public class ListViewAdapter extends BaseSwipeAdapter {
 			p.printStackTrace();
 		}
 		long diff = remindDate.getTime() - curDate.getTime();
-		Log.d("TimeFleeting", diff + "");
 		if (diff < 0) {
 			diff = 0;
 		} else if (diff > ALL_TIME) {

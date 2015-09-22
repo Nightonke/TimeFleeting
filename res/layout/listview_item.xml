@@ -58,21 +58,21 @@
 		        <ImageView
 		            android:id="@+id/set_time"
 		            android:layout_width="0dp"
-		            android:layout_height="50dp"
+		            android:layout_height="40dp"
 		            android:layout_weight="1"
 		            android:src="@drawable/set_time" />
 		        
 		        <ImageView
 		            android:id="@+id/set_star"
 		            android:layout_width="0dp"
-		            android:layout_height="50dp"
+		            android:layout_height="40dp"
 		            android:layout_weight="1"
 		            android:src="@drawable/set_star" />
 		        
 		        <ImageView
 		            android:id="@+id/delete"
 		            android:layout_width="0dp"
-		            android:layout_height="50dp"
+		            android:layout_height="40dp"
 		            android:layout_weight="1"
 		            android:src="@drawable/delete" />
 		    </LinearLayout>
@@ -96,8 +96,8 @@
 	           android:layout_width="match_parent"
 	           android:layout_height="80dp"
 	           android:background="#70E1FF"
-	           wave:above_wave_color="@android:color/white"
-	           wave:blow_wave_color="@android:color/white"
+	           wave:above_wave_color="#CD69C9"
+	           wave:blow_wave_color="#8B4789"
 	           wave:progress="20"
 	           wave:wave_height="little"
 	           wave:wave_hz="normal"

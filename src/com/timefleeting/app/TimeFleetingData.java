@@ -60,29 +60,28 @@ public class TimeFleetingData {
 			return -1;
 		}
 		record.setId(insertId);
-		if (record.getType() == "PAST") {
+		if (record.getType().equals("PAST")) {
 			if (isUpdate) {
-				for (Record r : pastRecords) {
-					if (r.getId() == record.getId()) {
-						r = record;
-						break;
+				for (int i = 0; i < pastRecords.size(); i++) {
+					if (pastRecords.get(i).getId() == record.getId()) {
+						pastRecords.get(i).set(record);
 					}
 				}
 			} else {
 				pastRecords.add(record);
 			}
-		} else if (record.getType() == "FUTURE") {
+		} else if (record.getType().equals("FUTURE")) {
 			if (isUpdate) {
-				for (Record r : futureRecords) {
-					if (r.getId() == record.getId()) {
-						r = record;
-						break;
+				for (int i = 0; i < futureRecords.size(); i++) {
+					if (futureRecords.get(i).getId() == record.getId()) {
+						futureRecords.get(i).set(record);
 					}
 				}
 			} else {
 				futureRecords.add(record);
 			}
 		}
+
 		return insertId;
 	}
 	

@@ -152,7 +152,11 @@ public class MainActivity extends Activity {
 					timeFleetingData.sortFutureRecordByCreateTimeReversely();
 					isSortedByCreateTimeReversely = true;
 					mAdapter.notifyDataSetChanged();
-					listView.smoothScrollToPosition(0);
+					if (data.getBooleanExtra("isOld", false)) {
+						// don't scroll
+					} else {
+						listView.smoothScrollToPosition(0);
+					}
 				} else {
 					Log.d("TimeFleeting", "isEditActivityFinished is false");
 				}
@@ -191,8 +195,15 @@ public class MainActivity extends Activity {
 				listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 		            @Override
 		            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		            	Toast.makeText(mContext, "Click " + position, Toast.LENGTH_SHORT).show();
-		            	mAdapter.notifyDataSetChanged();
+		            	Intent intent = new Intent(mContext, EditActivity.class);
+		            	intent.putExtra("isOld", true);
+		            	intent.putExtra("Title", timeFleetingData.futureRecords.get(position).getTitle());
+		            	intent.putExtra("Content", timeFleetingData.futureRecords.get(position).getText());
+		            	intent.putExtra("CreateTime", timeFleetingData.futureRecords.get(position).getCreateTime());
+		            	intent.putExtra("RemindTime", timeFleetingData.futureRecords.get(position).getRemindTime());
+		            	intent.putExtra("Star", timeFleetingData.futureRecords.get(position).getStar());
+		            	intent.putExtra("ID", timeFleetingData.futureRecords.get(position).getId());
+						startActivityForResult(intent, 1);
 		            }
 		        });			
 
@@ -209,6 +220,7 @@ public class MainActivity extends Activity {
 							Toast.makeText(MainActivity.this, "Click " + menuPosition, Toast.LENGTH_SHORT).show();
 							if (menuPosition == 0) {
 								Intent intent = new Intent(mContext, EditActivity.class);
+								intent.putExtra("isOld", false);
 								startActivityForResult(intent, 1);
 							} else if (menuPosition == 1) {
 								if (isSortedByTitle) {

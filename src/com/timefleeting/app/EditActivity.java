@@ -47,6 +47,9 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	
 	private Context mContext;
 	private TimeFleetingData timeFleetingData;
+	private boolean isOld = false;
+	private String oldTitleString;
+	private String oldContentString;
 	private String createTimeString;
 	private String remindTimeString;
 	private String starString = "0";
@@ -82,19 +85,40 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		setContentView(R.layout.edit_layout);
 		
 		mContext = this;
+		
+		Intent intent = getIntent();
+		isOld = intent.getBooleanExtra("isOld", false);
+		
+		if (isOld) {
+			oldTitleString = intent.getStringExtra("Title");
+			oldContentString = intent.getStringExtra("Content");
+			createTimeString = intent.getStringExtra("CreateTime");
+			remindTimeString = intent.getStringExtra("RemindTime");
+			starString = intent.getStringExtra("Star");
+			isSaved = true;
+			isRemind = true;
+			isStared = true;
+			saveId = intent.getIntExtra("ID", -1);
+		}
 
 		observableScrollView = (ObservableScrollView)findViewById(R.id.editview_scrollview);
 		observableScrollView.setScrollViewListener(this);
 		
-		
-		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
-		Date curDate = new Date(System.currentTimeMillis());
-		createTimeString = formatter.format(curDate);  
+		if (!isOld) {
+			SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
+			Date curDate = new Date(System.currentTimeMillis());
+			createTimeString = formatter.format(curDate); 
+		} 
 		
 		createTimeTextView = (TextView)findViewById(R.id.create_time_textview);
 		createTimeTextView.setText("---" + createTimeString);
 		
 		titleEditText = (EditText)findViewById(R.id.edit_layout_title);
+		
+		if (isOld) {
+			titleEditText.setText(oldTitleString);
+		}
+		
 		titleEditText.addTextChangedListener(new TextWatcher() {
 			
 			@Override
@@ -118,6 +142,11 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		});
 		
 		contentEditText = (EditText)findViewById(R.id.edit_layout_content);
+		
+		if (isOld) {
+			contentEditText.setText(oldContentString);
+		}
+		
 		contentEditText.addTextChangedListener(new TextWatcher() {
 			
 			@Override
@@ -139,6 +168,18 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 				
 			}
 		});
+		
+		if (isOld) {
+			if (!titleEditText.getText().toString().equals("")) {
+				contentEditText.setFocusable(true);
+				contentEditText.setFocusableInTouchMode(true);
+				contentEditText.requestFocus();
+			} else {
+				titleEditText.setFocusable(true);
+				titleEditText.setFocusableInTouchMode(true);
+				titleEditText.requestFocus();
+			}
+		}
 
 		rayMenu = (RayMenu)findViewById(R.id.edit_layout_ray_menu);
 		for (int i = 0; i < ITEM_DRAWABLES_FUTURE.length; i++) {
@@ -178,7 +219,7 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		String titleString = titleEditText.getText().toString();
 		String contentString = contentEditText.getText().toString();
 		
-		if ("".equals(titleString) && "".equals(contentString)) {
+		if (("".equals(titleString) && "".equals(contentString)) || isSaved) {
 			returnHome();
 		} else {
 			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -236,6 +277,7 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		
 		if (isSaved) {
 			// have click the save button
+			Log.d("TimeFleeting", saveId + "");
 			timeFleetingData.saveRecord(new Record(
 					saveId,
 					titleString,
@@ -249,28 +291,46 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 			}
 		} else {
 			// haven't click the save button
-			if (!isRemind) {
-				// haven't clicked the remind button
-				// set the time then go back
-				afterSetTimeBack = isBack;
+			if (saveId != -1) {
+				// but is from old
+				Log.d("TimeFleeting", titleString);
+				Log.d("TimeFleeting", contentString);
+				saveId = timeFleetingData.saveRecord(new Record(
+						saveId,
+						titleString,
+						contentString,
+						remindTimeString,
+						createTimeString,
+						starString,
+						"FUTURE"));
 				isSaved = true;
-				setRemindTime();
+				if (isBack) {
+					returnHome();
+				}
 			} else {
-				// have clicked the remind button
-				if (!isStared) {
-					setStar(isBack);
-				} else {
-					saveId = timeFleetingData.saveRecord(new Record(
-							-1,
-							titleString,
-							contentString,
-							remindTimeString,
-							createTimeString,
-							starString,
-							"FUTURE"));
+				if (!isRemind) {
+					// haven't clicked the remind button
+					// set the time then go back
+					afterSetTimeBack = isBack;
 					isSaved = true;
-					if (isBack) {
-						returnHome();
+					setRemindTime();
+				} else {
+					// have clicked the remind button
+					if (!isStared) {
+						setStar(isBack);
+					} else {
+						saveId = timeFleetingData.saveRecord(new Record(
+								-1,
+								titleString,
+								contentString,
+								remindTimeString,
+								createTimeString,
+								starString,
+								"FUTURE"));
+						isSaved = true;
+						if (isBack) {
+							returnHome();
+						}
 					}
 				}
 			}
@@ -333,6 +393,9 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	private void returnHome() {
 		Intent intent = new Intent();
 		intent.putExtra("isEditActivityFinished", true);
+		if (isOld) {
+			intent.putExtra("isOld", true);
+		}
 		setResult(RESULT_OK, intent);
 
 		finish();

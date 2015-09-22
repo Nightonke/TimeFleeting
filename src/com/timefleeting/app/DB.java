@@ -8,6 +8,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class DB {
 
@@ -71,6 +72,7 @@ public class DB {
 				cursor.moveToLast();
 				return cursor.getInt(cursor.getColumnIndex("id"));
 			} else if (cursor.getCount() == 1) {
+				Log.d("TimeFleeting", "isupdate2");
 				// change the origin record
 				ContentValues values = new ContentValues();
 				

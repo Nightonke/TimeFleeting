@@ -31,6 +31,16 @@ public class Record {
 		this.type = type;
 	}
 	
+	public void set(Record record) {
+		this.id = record.id;
+		this.title = record.title;
+		this.text = record.text;
+		this.remindTime = record.remindTime;
+		this.createTime = record.createTime;
+		this.star = record.star;
+		this.type = record.type;
+	}
+	
 	public int getId() {
 		return id;
 	}
