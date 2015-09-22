@@ -24,27 +24,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
+                android:orientation="horizontal"
                 >
                 
                 <LinearLayout
+                    android:id="@+id/set_time_ly"
                     android:layout_width="0dp"
                     android:background="#C5DA01"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:orientation="horizontal"
                     />
                 
                 <LinearLayout
+                    android:id="@+id/set_star_ly"
                     android:layout_width="0dp"
                     android:background="#A2B700"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:orientation="horizontal"
                     />
                 
                 <LinearLayout
+                    android:id="@+id/delete_ly"
                     android:layout_width="0dp"
                     android:background="#43A102"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:orientation="horizontal"
                     />
                 
             </LinearLayout>

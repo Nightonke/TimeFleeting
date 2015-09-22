@@ -2,6 +2,7 @@ package com.timefleeting.app;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -13,7 +14,12 @@ import com.daimajia.swipe.SimpleSwipeListener;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.SwipeLayout.SwipeListener;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
+import com.fourmob.datetimepicker.date.DatePickerDialog;
+import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
+import com.sleepbot.datetimepicker.time.RadialPickerLayout;
+import com.sleepbot.datetimepicker.time.TimePickerDialog;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,15 +30,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-
 public class ListViewAdapter extends BaseSwipeAdapter {
 
+	public static final String DATEPICKER_TAG = "选择日期";
+    public static final String TIMEPICKER_TAG = "选择时间";
+	
 	private final int ALL_TIME = 7 * 1000 * 60 * 60 * 24;
 	
     private Context mContext;
     private List<Record> list;
     private int CurrentPosition;
+    
+    public Boolean isOpened = false;
+    
+    private String remindTimeString;
     
     SwipeLayout swipeLayout;
 
@@ -63,21 +74,24 @@ public class ListViewAdapter extends BaseSwipeAdapter {
 			public void onStartOpen(SwipeLayout arg0) {
 				// TODO Auto-generated method stub
 				Log.d("TimeFleeting", "onStartOpen");
+				isOpened = false;
 			}
 			
 			@Override
 			public void onStartClose(SwipeLayout arg0) {
 				// TODO Auto-generated method stub
 				Log.d("TimeFleeting", "onStartClose");
+				isOpened = false;
 			}
 			
 			@Override
 			public void onOpen(SwipeLayout arg0) {
 				// TODO Auto-generated method stub
 				Log.d("TimeFleeting", "onOpen");
-				YoYo.with(Techniques.StandUp).duration(1000).delay(500).playOn(arg0.findViewById(R.id.set_time));
-				YoYo.with(Techniques.StandUp).duration(1000).delay(500).playOn(arg0.findViewById(R.id.set_star));
-				YoYo.with(Techniques.StandUp).duration(1000).delay(500).playOn(arg0.findViewById(R.id.delete));
+				YoYo.with(Techniques.Shake).duration(1000).delay(500).playOn(arg0.findViewById(R.id.set_time));
+				YoYo.with(Techniques.Shake).duration(1000).delay(500).playOn(arg0.findViewById(R.id.set_star));
+				YoYo.with(Techniques.Shake).duration(1000).delay(500).playOn(arg0.findViewById(R.id.delete));
+				isOpened = true;
 			}
 			
 			@Override
@@ -90,6 +104,7 @@ public class ListViewAdapter extends BaseSwipeAdapter {
 			public void onClose(SwipeLayout arg0) {
 				// TODO Auto-generated method stub
 				Log.d("TimeFleeting", "onClose");
+				isOpened = false;
 			}
 		});
 
@@ -206,4 +221,5 @@ public class ListViewAdapter extends BaseSwipeAdapter {
     public long getItemId(int position) {
         return position;
     }
+    
 }

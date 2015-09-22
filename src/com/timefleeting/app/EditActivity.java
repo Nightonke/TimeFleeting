@@ -293,8 +293,6 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 			// haven't click the save button
 			if (saveId != -1) {
 				// but is from old
-				Log.d("TimeFleeting", titleString);
-				Log.d("TimeFleeting", contentString);
 				saveId = timeFleetingData.saveRecord(new Record(
 						saveId,
 						titleString,

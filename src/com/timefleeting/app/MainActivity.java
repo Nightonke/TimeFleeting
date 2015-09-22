@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -39,10 +40,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.capricorn.RayMenu;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.util.Attributes;
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
 
 	private JazzyViewPager mJazzy;
 	private LayoutInflater layoutInflater;	
@@ -84,6 +87,10 @@ public class MainActivity extends Activity {
 		R.drawable.sort_by_star,
 		R.drawable.search,
 		R.drawable.settings};
+	
+	ImageView setTimeImageView;
+	ImageView setStarImageView;
+	ImageView deleteImageView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -195,15 +202,50 @@ public class MainActivity extends Activity {
 				listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 		            @Override
 		            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		            	Intent intent = new Intent(mContext, EditActivity.class);
-		            	intent.putExtra("isOld", true);
-		            	intent.putExtra("Title", timeFleetingData.futureRecords.get(position).getTitle());
-		            	intent.putExtra("Content", timeFleetingData.futureRecords.get(position).getText());
-		            	intent.putExtra("CreateTime", timeFleetingData.futureRecords.get(position).getCreateTime());
-		            	intent.putExtra("RemindTime", timeFleetingData.futureRecords.get(position).getRemindTime());
-		            	intent.putExtra("Star", timeFleetingData.futureRecords.get(position).getStar());
-		            	intent.putExtra("ID", timeFleetingData.futureRecords.get(position).getId());
-						startActivityForResult(intent, 1);
+		            	if (mAdapter.isOpen(position)) {
+		                    SwipeLayout swipeLayout = (SwipeLayout)view.findViewById(mAdapter.getSwipeLayoutResourceId(position));
+		                    setTimeImageView = (ImageView)swipeLayout.findViewById(R.id.set_time);
+		                    LinearLayout setTimeLinearLayout = (LinearLayout)swipeLayout.findViewById(R.id.set_time_ly);
+		                    setTimeLinearLayout.setOnClickListener(new OnClickListener() {
+								
+								@Override
+								public void onClick(View v) {
+									YoYo.with(Techniques.Shake).duration(1000).delay(500).playOn(setTimeImageView);
+									Toast.makeText(mContext, "Click setTime", Toast.LENGTH_LONG).show();
+								}
+							});
+		                    setStarImageView = (ImageView)swipeLayout.findViewById(R.id.set_star);
+		                    LinearLayout setStarLinearLayout = (LinearLayout)swipeLayout.findViewById(R.id.set_star_ly);
+		                    setStarLinearLayout.setOnClickListener(new OnClickListener() {
+								
+								@Override
+								public void onClick(View v) {
+									YoYo.with(Techniques.Shake).duration(1000).delay(500).playOn(setStarImageView);
+									Toast.makeText(mContext, "Click setStar", Toast.LENGTH_LONG).show();
+								}
+							});
+		                    deleteImageView = (ImageView)swipeLayout.findViewById(R.id.delete);
+		                    LinearLayout deleteLinearLayout = (LinearLayout)swipeLayout.findViewById(R.id.delete_ly);
+		                    deleteLinearLayout.setOnClickListener(new OnClickListener() {
+								
+								@Override
+								public void onClick(View v) {
+									YoYo.with(Techniques.Shake).duration(1000).delay(500).playOn(deleteImageView);
+									Toast.makeText(mContext, "Click delete", Toast.LENGTH_LONG).show();
+								}
+							});
+		                    return;
+		            	} else {
+		            		Intent intent = new Intent(mContext, EditActivity.class);
+			            	intent.putExtra("isOld", true);
+			            	intent.putExtra("Title", timeFleetingData.futureRecords.get(position).getTitle());
+			            	intent.putExtra("Content", timeFleetingData.futureRecords.get(position).getText());
+			            	intent.putExtra("CreateTime", timeFleetingData.futureRecords.get(position).getCreateTime());
+			            	intent.putExtra("RemindTime", timeFleetingData.futureRecords.get(position).getRemindTime());
+			            	intent.putExtra("Star", timeFleetingData.futureRecords.get(position).getStar());
+			            	intent.putExtra("ID", timeFleetingData.futureRecords.get(position).getId());
+							startActivityForResult(intent, 1);
+		            	}
 		            }
 		        });			
 
@@ -337,32 +379,7 @@ public class MainActivity extends Activity {
 				
 			} else if (position == 1) {
 				v = layoutInflater.inflate(R.layout.layout2, null);
-				resultTextView = (TextView)v.findViewById(R.id.result_textview);
-				addButton = (Button)v.findViewById(R.id.add_button);
-				deleteButton = (Button)v.findViewById(R.id.delete_button);
-				queryButton = (Button)v.findViewById(R.id.query_button);
-				addButton.setOnClickListener(new OnClickListener() {
-					
-					@Override
-					public void onClick(View v) {
-						// TODO Auto-generated method stub
-						String typeString = (titleTestId % 2 == 1 ? "PAST" : "FUTURE");
-						timeFleetingData.saveRecord(new Record(-1, 
-								"Title" + String.valueOf(titleTestId), "Text", 
-								"2015-08-12", "2015-09-23", "5", typeString));
-						titleTestId++;
-						show();
-					}
-				});
 				
-				deleteButton.setOnClickListener(new OnClickListener() {
-					
-					@Override
-					public void onClick(View v) {
-						// TODO Auto-generated method stub
-						
-					}
-				});
 			} else if (position == 2) {
 				v = layoutInflater.inflate(R.layout.layout3, null);
 			} else {
