@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/layout_2"
-    android:background="#F17800"
+    xmlns:wave="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_4"
+    android:background="#FFFFFF"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="layout4"
-        android:textColor="#FFFFFF"
-        />
+    <com.timefleeting.app.WaveView
+        android:id="@+id/wave_view_4"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#A5DEE4"
+        wave:above_wave_color="@android:color/white"
+        wave:blow_wave_color="@android:color/white"
+        wave:progress="50"
+        wave:wave_height="little"
+        wave:wave_hz="normal"
+        wave:wave_length="middle" />
 
 </LinearLayout>

@@ -12,6 +12,7 @@ import com.timefleeting.app.JazzyViewPager.TransitionEffect;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -75,10 +76,17 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 	
 	private RayMenu rayMenu;
 	
-	private boolean isSortedByCreateTimeReversely = false;
+	// according which to sort
+	private boolean isSortByCreateTime = true;
 	private boolean isSortedByRemindTime = false;
 	private boolean isSortedByTitle = false;
 	private boolean isSortedByStar = false;
+	
+	// the direction of the sort
+	private boolean isSortedByCreateTimeReversely = false;
+	private boolean isSortedByRemindTimeReversely = false;
+	private boolean isSortedByTitleReversely = false;
+	private boolean isSortedByStarReversely = false;
 	
 	// record whether the listview is scrolling
 	private boolean scrollFlag = false;
@@ -88,15 +96,16 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 	private View v;
 	
 	private int statusBarHeight;
+	private LinearLayout layout1TitleLinearLayout;
+	
+	private boolean layout1RayMenuAppeared = false;
+	private boolean layout1RayMenuShown = true;
 	
 	private static final int[] ITEM_DRAWABLES_FUTURE = {
 		R.drawable.create,
-		R.drawable.sort_by_title,
-		R.drawable.sort_by_remind_time,
-		R.drawable.sort_by_create_time,
-		R.drawable.sort_by_star,
 		R.drawable.search,
-		R.drawable.settings};
+		R.drawable.over_due,
+		};
 	
 	ImageView setTimeImageView;
 	ImageView setStarImageView;
@@ -144,27 +153,6 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 		 resultTextView.setText(resultString);
 	}
 	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add("Toggle Fade");
-		String[] effects = this.getResources().getStringArray(R.array.jazzy_effects);
-		for (String effect : effects)
-			menu.add(effect);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getTitle().toString().equals("Toggle Fade")) {
-			mJazzy.setFadeEnabled(!mJazzy.getFadeEnabled());
-		} else {
-			TransitionEffect effect = TransitionEffect.valueOf(item.getTitle().toString());
-			setupJazziness(effect);
-		}
-		return true;
-	}
-	
-	
 	// listener to listen whether the EditActivity is finished
 	// if finished, notifyDataSetChanged
 	@Override
@@ -175,7 +163,7 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 				boolean isEditActivityFinished = data.getBooleanExtra("isEditActivityFinished", false);
 				if (isEditActivityFinished) {
 					timeFleetingData.sortFutureRecordByCreateTimeReversely();
-					isSortedByCreateTimeReversely = true;
+					setSortParameter(false, false, true, true, false, false, false, false);
 					mAdapter.notifyDataSetChanged();
 					if (data.getBooleanExtra("isOld", false)) {
 						// don't scroll
@@ -213,7 +201,7 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 				listView.setAdapter(mAdapter);
 
 				// sort by the create time default
-				isSortedByCreateTimeReversely = true;
+				setSortParameter(false, false, true, true, false, false, false, false);
 				timeFleetingData.sortFutureRecordByCreateTimeReversely();
 				
 				// on list item click listener
@@ -272,7 +260,18 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 		            }
 		        });			
 
+				ImageView sortImageView = (ImageView)v.findViewById(R.id.layout_1_sort);
+				sortImageView.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						setSort();
+					}
+				});
+				
 				rayMenu = (RayMenu)v.findViewById(R.id.past_layout_ray_menu);
+				
+				layout1RayMenuAppeared = true;
+				
 				for (int i = 0; i < ITEM_DRAWABLES_FUTURE.length; i++) {
 					ImageView imageView = new ImageView(mContext);
 					imageView.setImageResource(ITEM_DRAWABLES_FUTURE[i]);
@@ -281,57 +280,67 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 						
 						@Override
 						public void onClick(View v) {
-							// TODO Auto-generated method stub
-							Toast.makeText(MainActivity.this, "Click " + menuPosition, Toast.LENGTH_SHORT).show();
 							if (menuPosition == 0) {
+								// new
 								Intent intent = new Intent(mContext, EditActivity.class);
 								intent.putExtra("isOld", false);
 								startActivityForResult(intent, 1);
 							} else if (menuPosition == 1) {
-								if (isSortedByTitle) {
-									timeFleetingData.sortFutureRecordByTitleReversely();
-									isSortedByTitle = false;
-								} else {
-									timeFleetingData.sortFutureRecordByTitle();
-									isSortedByTitle = true;
-								}
-								mAdapter.notifyDataSetChanged();
+								// search
 							} else if (menuPosition == 2) {
-								if (isSortedByCreateTimeReversely) {
-									timeFleetingData.sortFutureRecordByCreateTime();
-									isSortedByCreateTimeReversely = false;
+								// overdue
+								if (timeFleetingData.getOverdueSort()) {
+									timeFleetingData.setOverdueSortFalse();
 								} else {
-									timeFleetingData.sortFutureRecordByCreateTimeReversely();
-									isSortedByCreateTimeReversely = true;
+									timeFleetingData.setOverdueSortTrue();
+								}
+								// after set the overdue
+								// found the origin sort style to sort
+								if (isSortedByTitle) {
+									if (!isSortedByTitleReversely) {
+										timeFleetingData.sortFutureRecordByTitle();
+									} else {
+										timeFleetingData.sortFutureRecordByTitleReversely();
+									}
+								} else if (isSortByCreateTime) {
+									if (!isSortedByCreateTimeReversely) {
+										timeFleetingData.sortFutureRecordByCreateTime();
+									} else {
+										timeFleetingData.sortFutureRecordByCreateTimeReversely();
+									}
+								} else if (isSortedByRemindTime) {
+									if (!isSortedByRemindTimeReversely) {
+										timeFleetingData.sortFutureRecordByRemindTime();
+									} else {
+										timeFleetingData.sortFutureRecordByRemindTimeReversely();
+									}
+								} else if (isSortedByStar) {
+									if (!isSortedByStarReversely) {
+										timeFleetingData.sortFutureRecordByStar();
+									} else {
+										timeFleetingData.sortFutureRecordByStarReversely();
+									}
 								}
 								mAdapter.notifyDataSetChanged();
-							} else if (menuPosition == 3) {
-								if (isSortedByRemindTime) {
-									timeFleetingData.sortFutureRecordByRemindTimeReversely();
-									isSortedByRemindTime = false;
-								} else {
-									timeFleetingData.sortFutureRecordByRemindTime();
-									isSortedByRemindTime = true;
-								}
-								mAdapter.notifyDataSetChanged();
-							}
+							} 
 						}
 					});
 				}
+				
+				layout1TitleLinearLayout = (LinearLayout)v.findViewById(R.id.layout_1_title_ly);
 				
 				listView.setOnScrollListener(new OnScrollListener() {
 					
 					@Override
 					public void onScrollStateChanged(AbsListView view, int scrollState) {
-						// TODO Auto-generated method stub
 						switch (scrollState) {
 						case OnScrollListener.SCROLL_STATE_IDLE:
 							scrollFlag = false;
 							if (listView.getLastVisiblePosition() == (listView.getCount() - 1)) {
-//								rayMenu.setVisibility(View.GONE);
+
 							}
 							if (listView.getFirstVisiblePosition() == 0) {
-//								rayMenu.setVisibility(View.VISIBLE);
+
 							}
 							break;
 						case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
@@ -349,11 +358,10 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 					@Override
 					public void onScroll(AbsListView view, int firstVisibleItem,
 							int visibleItemCount, int totalItemCount) {
-						// TODO Auto-generated method stub
 						rayMenu.closeMenu();
 						if (scrollFlag && 
 								ScreenUtil.getScreenViewBottomHeight(listView) 
-								>= ScreenUtil.getScreenHeight(MainActivity.this) - statusBarHeight) {
+								>= ScreenUtil.getScreenHeight(MainActivity.this) - statusBarHeight - layout1TitleLinearLayout.getHeight()) {
 							if (firstVisibleItem > lastVisibleItemPosition) {
 								// scroll down
 								// should disappear
@@ -368,7 +376,8 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 									translateAnimation.setDuration(1000);
 									animationSet.addAnimation(translateAnimation);
 									animationSet.setFillAfter(true);
-	;								rayMenu.startAnimation(animationSet);
+									rayMenu.startAnimation(animationSet);
+									layout1RayMenuShown = false;
 								} else {
 									
 								}
@@ -387,7 +396,8 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 									translateAnimation.setDuration(1000);
 									animationSet.addAnimation(translateAnimation);
 									animationSet.setFillAfter(true);
-	;								rayMenu.startAnimation(animationSet);
+									rayMenu.startAnimation(animationSet);
+									layout1RayMenuShown = true;
 								} else {
 									
 								}
@@ -401,11 +411,13 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 				});
 				
 			} else if (position == 1) {
+				layout1RayMenuAppeared = false;
 				v = layoutInflater.inflate(R.layout.layout2, null);
-				
 			} else if (position == 2) {
+				layout1RayMenuAppeared = false;
 				v = layoutInflater.inflate(R.layout.layout3, null);
 			} else {
+				layout1RayMenuAppeared = false;
 				v = layoutInflater.inflate(R.layout.layout4, null);
 			}
 			
@@ -422,7 +434,7 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 		
 		@Override
 		public int getCount() {
-			return 4;
+			return 1;
 		}
 		
 		@Override
@@ -448,6 +460,80 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 	public void onBackPressed() {
 		super.onBackPressed();
 		return;
+	}
+	
+	private void setSort() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
+		View view = layoutInflater.inflate(R.layout.set_sort, null);
+		builder.setView(view);
+		builder.setCancelable(true);
+		final AlertDialog dialog = builder.show();
+		dialog.setCanceledOnTouchOutside(true);
+		YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_title_logo));
+		YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_create_time_logo));
+		YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_remind_time_logo));
+		YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_star_logo));
+		LinearLayout sortByTitleLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_title_ly);
+		sortByTitleLinearLayout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (!isSortedByTitleReversely) {
+					timeFleetingData.sortFutureRecordByTitleReversely();
+					setSortParameter(true, true, false, false, false, false, false, false);
+				} else {
+					timeFleetingData.sortFutureRecordByTitle();
+					setSortParameter(true, false, false, false, false, false, false, false);
+				}
+				mAdapter.notifyDataSetChanged();
+				dialog.dismiss();
+			}
+		});
+		LinearLayout sortByCreateTimeLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_create_time_ly);
+		sortByCreateTimeLinearLayout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (isSortedByCreateTimeReversely) {
+					timeFleetingData.sortFutureRecordByCreateTime();
+					setSortParameter(false, false, true, false, false, false, false, false);
+				} else {
+					timeFleetingData.sortFutureRecordByCreateTimeReversely();
+					setSortParameter(false, false, true, true, false, false, false, false);
+				}
+				mAdapter.notifyDataSetChanged();
+				dialog.dismiss();
+			}
+		});
+		LinearLayout sortByRemindTimeLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_remind_time_ly);
+		sortByRemindTimeLinearLayout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (!isSortedByRemindTimeReversely) {
+					timeFleetingData.sortFutureRecordByRemindTimeReversely();
+					setSortParameter(false, false, false, false, true, true, false, false);
+				} else {
+					timeFleetingData.sortFutureRecordByRemindTime();
+					setSortParameter(false, false, false, false, true, false, false, false);
+				}
+				mAdapter.notifyDataSetChanged();
+				dialog.dismiss();
+			}
+		});
+		LinearLayout sortByStarLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_star_ly);
+		sortByStarLinearLayout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (!isSortedByStarReversely) {
+					timeFleetingData.sortFutureRecordByStarReversely();
+					setSortParameter(false, false, false, false, false, false, true, true);
+				} else {
+					timeFleetingData.sortFutureRecordByStar();
+					setSortParameter(false, false, false, false, false, false, true, false);
+				}
+				mAdapter.notifyDataSetChanged();
+				dialog.dismiss();
+			}
+		});
 	}
 	
 	private void setRemindTime(int position) {
@@ -604,5 +690,24 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 			}
 		});
 		builder.show();
+	}
+	
+	private void setSortParameter(
+			boolean isSortedByTitle,
+			boolean isSortedByTitleReversely,
+			boolean isSortByCreateTime,
+			boolean isSortedByCreateTimeReversely,
+			boolean isSortedByRemindTime,
+			boolean isSortedByRemindTimeReversely,
+			boolean isSortedByStar,
+			boolean isSortedByStarReversely) {
+		this.isSortedByTitle = isSortedByTitle;
+		this.isSortedByTitleReversely = isSortedByTitleReversely;
+		this.isSortByCreateTime = isSortByCreateTime;
+		this.isSortedByCreateTimeReversely = isSortedByCreateTimeReversely;
+		this.isSortedByRemindTime = isSortedByRemindTime;
+		this.isSortedByRemindTimeReversely = isSortedByRemindTimeReversely;
+		this.isSortedByStar = isSortedByStar;
+		this.isSortedByStarReversely = isSortedByStarReversely;
 	}
 }

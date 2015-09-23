@@ -88,9 +88,9 @@ public class ListViewAdapter extends BaseSwipeAdapter {
 			public void onOpen(SwipeLayout arg0) {
 				// TODO Auto-generated method stub
 				Log.d("TimeFleeting", "onOpen");
-				YoYo.with(Techniques.Shake).duration(1000).delay(500).playOn(arg0.findViewById(R.id.set_time));
-				YoYo.with(Techniques.Shake).duration(1000).delay(500).playOn(arg0.findViewById(R.id.set_star));
-				YoYo.with(Techniques.Shake).duration(1000).delay(500).playOn(arg0.findViewById(R.id.delete));
+				YoYo.with(Techniques.Shake).duration(1000).delay(0).playOn(arg0.findViewById(R.id.set_time));
+				YoYo.with(Techniques.Shake).duration(1000).delay(0).playOn(arg0.findViewById(R.id.set_star));
+				YoYo.with(Techniques.Shake).duration(1000).delay(0).playOn(arg0.findViewById(R.id.delete));
 				isOpened = true;
 			}
 			

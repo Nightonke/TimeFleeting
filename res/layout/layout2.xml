@@ -9,7 +9,7 @@
     android:orientation="vertical" >
     
     <com.timefleeting.app.WaveView
-        android:id="@+id/wave_view"
+        android:id="@+id/wave_view_2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#A5DEE4"

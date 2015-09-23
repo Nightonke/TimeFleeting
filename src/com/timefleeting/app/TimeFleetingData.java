@@ -143,6 +143,10 @@ public class TimeFleetingData {
 		return -1;
 	}
 	
+	public boolean getOverdueSort() {
+		return overdueSort;
+	}
+	
 	public void setOverdueSortTrue() {
 		overdueSort = true;
 	}
@@ -548,4 +552,112 @@ public class TimeFleetingData {
 		});
 	}
 
+	// sort the future records by star
+	// if the star is same, sort by create time
+	// if the create time is same, sort by title 
+	// if the title is same, sort by remind time
+	// is the remind time is same, sort by id
+	public void sortFutureRecordByStar() {
+		final String currentTimeString;
+		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
+		Date curDate = new Date(System.currentTimeMillis());
+		currentTimeString = formatter.format(curDate);
+		Collections.sort(futureRecords, new Comparator<Record>() {
+			@Override
+			public int compare(Record lhs, Record rhs) {
+				if (overdueSort) {
+					// lhs is negative means the lhs is overdue
+					int lhsIsOverdue = lhs.getRemindTime().compareTo(currentTimeString);
+					// rhs is negative means the rhs is overdue
+					int rhsIsOverdue = rhs.getRemindTime().compareTo(currentTimeString);
+					if ((lhsIsOverdue < 0 && rhsIsOverdue < 0) || (lhsIsOverdue >= 0 && rhsIsOverdue >= 0)) {
+						// both are overdue or both are not overdue
+						if (!lhs.getStar().equals(rhs.getStar())) {
+							return rhs.getStar().compareTo(lhs.getStar());
+						} else if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
+							return rhs.getCreateTime().compareTo(lhs.getCreateTime());
+						} else if (!lhs.getTitle().equals(rhs.getTitle())) {
+							return lhs.getTitle().compareTo(rhs.getTitle());
+						} else if (!lhs.getRemindTime().equals(rhs.getRemindTime())) {
+							return lhs.getRemindTime().compareTo(rhs.getRemindTime());
+						} else {
+							return Integer.valueOf(lhs.getId()).compareTo(Integer.valueOf(rhs.getId()));
+						}
+					} else if (lhsIsOverdue < 0 && rhsIsOverdue >= 0) {
+						return 1;
+					} else {
+						// lhsIsOverdue >= 0 && rhsIsOverdue < 0
+						return -1;
+					}
+				} else {
+					if (!lhs.getStar().equals(rhs.getStar())) {
+						return rhs.getStar().compareTo(lhs.getStar());
+					} else if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
+						return rhs.getCreateTime().compareTo(lhs.getCreateTime());
+					} else if (!lhs.getTitle().equals(rhs.getTitle())) {
+						return lhs.getTitle().compareTo(rhs.getTitle());
+					} else if (!lhs.getRemindTime().equals(rhs.getRemindTime())) {
+						return lhs.getRemindTime().compareTo(rhs.getRemindTime());
+					} else {
+						return Integer.valueOf(lhs.getId()).compareTo(Integer.valueOf(rhs.getId()));
+					}
+				}
+			}
+		});
+	}
+	
+	// sort the future records by star reversely
+	// if the star is same, sort by create time
+	// if the create time is same, sort by title 
+	// if the title is same, sort by remind time
+	// is the remind time is same, sort by id
+	public void sortFutureRecordByStarReversely() {
+		final String currentTimeString;
+		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
+		Date curDate = new Date(System.currentTimeMillis());
+		currentTimeString = formatter.format(curDate);
+		Collections.sort(futureRecords, new Comparator<Record>() {
+			@Override
+			public int compare(Record lhs, Record rhs) {
+				if (overdueSort) {
+					// lhs is negative means the lhs is overdue
+					int lhsIsOverdue = lhs.getRemindTime().compareTo(currentTimeString);
+					// rhs is negative means the rhs is overdue
+					int rhsIsOverdue = rhs.getRemindTime().compareTo(currentTimeString);
+					if ((lhsIsOverdue < 0 && rhsIsOverdue < 0) || (lhsIsOverdue >= 0 && rhsIsOverdue >= 0)) {
+						// both are overdue or both are not overdue
+						if (!lhs.getStar().equals(rhs.getStar())) {
+							return lhs.getStar().compareTo(rhs.getStar());
+						} else if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
+							return rhs.getCreateTime().compareTo(lhs.getCreateTime());
+						} else if (!lhs.getTitle().equals(rhs.getTitle())) {
+							return lhs.getTitle().compareTo(rhs.getTitle());
+						} else if (!lhs.getRemindTime().equals(rhs.getRemindTime())) {
+							return lhs.getRemindTime().compareTo(rhs.getRemindTime());
+						} else {
+							return Integer.valueOf(lhs.getId()).compareTo(Integer.valueOf(rhs.getId()));
+						}
+					} else if (lhsIsOverdue < 0 && rhsIsOverdue >= 0) {
+						return 1;
+					} else {
+						// lhsIsOverdue >= 0 && rhsIsOverdue < 0
+						return -1;
+					}
+				} else {
+					if (!lhs.getStar().equals(rhs.getStar())) {
+						return rhs.getStar().compareTo(lhs.getStar());
+					} else if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
+						return rhs.getCreateTime().compareTo(lhs.getCreateTime());
+					} else if (!lhs.getTitle().equals(rhs.getTitle())) {
+						return lhs.getTitle().compareTo(rhs.getTitle());
+					} else if (!lhs.getRemindTime().equals(rhs.getRemindTime())) {
+						return lhs.getRemindTime().compareTo(rhs.getRemindTime());
+					} else {
+						return Integer.valueOf(lhs.getId()).compareTo(Integer.valueOf(rhs.getId()));
+					}
+				}
+			}
+		});
+	}
+	
 }

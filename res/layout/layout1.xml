@@ -6,6 +6,37 @@
     android:background="#FFFFFF"
     android:orientation="vertical" >
     
+    <LinearLayout
+        android:id="@+id/layout_1_title_ly"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#1E90FF"
+        android:orientation="horizontal"
+        >
+        
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textColor="#FFFFFF"
+            android:text="Time Fleeting"
+            android:textSize="25sp"
+            android:layout_marginLeft="10dp"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            />
+        
+        <ImageView
+            android:id="@+id/layout_1_sort"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/sort"
+            />
+        
+    </LinearLayout>
+    
    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -21,10 +52,10 @@
 
         <com.capricorn.RayMenu
 	        android:id="@+id/past_layout_ray_menu"
-	        android:layout_width="fill_parent"
+	        android:layout_width="400dp"
 	        android:layout_height="80dp"
 	        android:paddingLeft="5dp"
-	        android:paddingRight="0dp"
+	        android:paddingRight="150dp"
 	        android:layout_gravity="bottom"
 	        />
         
