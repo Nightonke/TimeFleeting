@@ -72,7 +72,6 @@ public class DB {
 				cursor.moveToLast();
 				return cursor.getInt(cursor.getColumnIndex("id"));
 			} else if (cursor.getCount() == 1) {
-				Log.d("TimeFleeting", "isupdate2");
 				// change the origin record
 				ContentValues values = new ContentValues();
 				
@@ -102,6 +101,27 @@ public class DB {
 			}
 		}
 		return -1;
+	}
+	
+	public int deleteRecord(int id) {
+		Cursor cursor = sqliteDatabase.query(
+				DB_NAME_STRING, 
+				null, 
+				"id = ?", 
+				new String[] {String.valueOf(id)}, 
+				null,
+				null, 
+				null);
+		
+		if (cursor.getCount() == 0) {
+			// the record to be deleted is not existed
+			return -1;
+		} else if (cursor.getCount() == 1) {
+			sqliteDatabase.delete(DB_NAME_STRING, "id = ?", new String[] {String.valueOf(id)});
+			return id;
+		} else {
+			return -1;
+		}
 	}
 	
 	public List<Record> loadPastRecords() {

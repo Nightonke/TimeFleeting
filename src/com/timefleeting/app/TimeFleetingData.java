@@ -85,6 +85,64 @@ public class TimeFleetingData {
 		return insertId;
 	}
 	
+	public int deleteRecord(int id) {
+		int deletePositionInFuture = -1;
+		int deletePositionInPast = -1;
+		for (int i = 0; i < futureRecords.size(); i++) {
+			if (futureRecords.get(i).getId() == id) {
+				if (deletePositionInFuture == -1) {
+					// first found
+					deletePositionInFuture = i;
+				} else {
+					// second or more found
+					// it means error
+					Log.d("TimeFleeting", "Found more than one record to be deleted in the futureRecords");
+					return -1;
+				}
+			}
+		}
+		for (int i = 0; i < pastRecords.size(); i++) {
+			if (pastRecords.get(i).getId() == id) {
+				if (deletePositionInPast == -1) {
+					// first found
+					deletePositionInPast = i;
+				} else {
+					// second or more found
+					// it means error
+					Log.d("TimeFleeting", "Found more than one record to be deleted in the pastRecords");
+					return -1;
+				}
+			}
+		}
+		if ((deletePositionInFuture != -1 && deletePositionInPast != -1) 
+				|| (deletePositionInFuture == -1 && deletePositionInPast == -1)) {
+			// not found or found more than one
+			Log.d("TimeFleeting", "Not found or found more than one");
+			return -1;
+		} else {
+			if (deletePositionInFuture != -1) {
+				// the record to be deleted is a future record
+				futureRecords.remove(deletePositionInFuture);
+				int idToBeDeleted = db.deleteRecord(id);
+				if (idToBeDeleted == -1) {
+					return -1;
+				} else {
+					return idToBeDeleted;
+				}
+			} else if (deletePositionInPast != -1) {
+				// the record to be deleted is a past record
+				pastRecords.remove(deletePositionInPast);
+				int idToBeDeleted = db.deleteRecord(id);
+				if (idToBeDeleted == -1) {
+					return -1;
+				} else {
+					return idToBeDeleted;
+				}
+			}
+		}
+		return -1;
+	}
+	
 	public void setOverdueSortTrue() {
 		overdueSort = true;
 	}

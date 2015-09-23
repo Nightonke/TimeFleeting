@@ -2,13 +2,18 @@ package com.timefleeting.app;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
+import com.sleepbot.datetimepicker.time.RadialPickerLayout;
+import com.sleepbot.datetimepicker.time.TimePickerDialog;
 import com.timefleeting.app.JazzyViewPager;
 import com.timefleeting.app.JazzyViewPager.TransitionEffect;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -44,9 +49,14 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.util.Attributes;
+import com.fourmob.datetimepicker.date.DatePickerDialog;
+import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
+	public static final String DATEPICKER_TAG = "选择日期";
+    public static final String TIMEPICKER_TAG = "选择时间";
+	
 	private JazzyViewPager mJazzy;
 	private LayoutInflater layoutInflater;	
 	
@@ -91,6 +101,14 @@ public class MainActivity extends FragmentActivity {
 	ImageView setTimeImageView;
 	ImageView setStarImageView;
 	ImageView deleteImageView;
+	
+	private int clickPosition;
+	
+	private String setStarString;
+	private Record setStarRecord;
+	
+	private String newRemindTimeString;
+	private Record setTimeRecord;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -203,35 +221,40 @@ public class MainActivity extends FragmentActivity {
 		            @Override
 		            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		            	if (mAdapter.isOpen(position)) {
+		            		clickPosition = position;
 		                    SwipeLayout swipeLayout = (SwipeLayout)view.findViewById(mAdapter.getSwipeLayoutResourceId(position));
 		                    setTimeImageView = (ImageView)swipeLayout.findViewById(R.id.set_time);
+		                    setTimeImageView.setClickable(false);
 		                    LinearLayout setTimeLinearLayout = (LinearLayout)swipeLayout.findViewById(R.id.set_time_ly);
 		                    setTimeLinearLayout.setOnClickListener(new OnClickListener() {
 								
 								@Override
 								public void onClick(View v) {
 									YoYo.with(Techniques.Shake).duration(1000).delay(500).playOn(setTimeImageView);
-									Toast.makeText(mContext, "Click setTime", Toast.LENGTH_LONG).show();
+									setRemindTime(clickPosition);
 								}
 							});
 		                    setStarImageView = (ImageView)swipeLayout.findViewById(R.id.set_star);
+		                    setStarImageView.setClickable(false);
 		                    LinearLayout setStarLinearLayout = (LinearLayout)swipeLayout.findViewById(R.id.set_star_ly);
 		                    setStarLinearLayout.setOnClickListener(new OnClickListener() {
 								
 								@Override
 								public void onClick(View v) {
 									YoYo.with(Techniques.Shake).duration(1000).delay(500).playOn(setStarImageView);
-									Toast.makeText(mContext, "Click setStar", Toast.LENGTH_LONG).show();
+									setStar(clickPosition);
 								}
 							});
 		                    deleteImageView = (ImageView)swipeLayout.findViewById(R.id.delete);
+		                    deleteImageView.setClickable(false);
 		                    LinearLayout deleteLinearLayout = (LinearLayout)swipeLayout.findViewById(R.id.delete_ly);
 		                    deleteLinearLayout.setOnClickListener(new OnClickListener() {
 								
 								@Override
 								public void onClick(View v) {
 									YoYo.with(Techniques.Shake).duration(1000).delay(500).playOn(deleteImageView);
-									Toast.makeText(mContext, "Click delete", Toast.LENGTH_LONG).show();
+									int idToBeDeleted = timeFleetingData.futureRecords.get(clickPosition).getId();
+									whetherDelete(idToBeDeleted, clickPosition);
 								}
 							});
 		                    return;
@@ -427,5 +450,159 @@ public class MainActivity extends FragmentActivity {
 		return;
 	}
 	
+	private void setRemindTime(int position) {
+		
+		setTimeRecord = timeFleetingData.futureRecords.get(position);
+		
+		final Calendar calendar = Calendar.getInstance();
+		final DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), false);
+		datePickerDialog.setYearRange(2015, 2036);
+        datePickerDialog.setCloseOnSingleTapDay(false);
+        datePickerDialog.show(getSupportFragmentManager(), DATEPICKER_TAG);
+	}
+
+	@Override
+	public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
+		// TODO Auto-generated method stub
+		newRemindTimeString += (hourOfDay < 10 ? "0" + String.valueOf(hourOfDay) : String.valueOf(hourOfDay)) + ":";
+		newRemindTimeString += (minute < 10 ? "0" + String.valueOf(minute) : String.valueOf(minute)) + ":";
+		newRemindTimeString += "00";
+
+		setTimeRecord.setRemindTime(newRemindTimeString);
+		timeFleetingData.saveRecord(setTimeRecord);
+		mAdapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void onDateSet(DatePickerDialog datePickerDialog, int year,
+			int month, int day) {
+		// TODO Auto-generated method stub
+
+		// a bug in the datetimepicker-library
+		// which will cause the month is month - 1
+		month++;
+		
+		newRemindTimeString = String.valueOf(year) + "-";
+		newRemindTimeString += (month < 10 ? "0" + String.valueOf(month) : String.valueOf(month)) + "-";
+		newRemindTimeString += (day < 10 ? "0" + String.valueOf(day) : String.valueOf(day)) + "-";
+		
+		final Calendar calendar = Calendar.getInstance();
+		
+	    final TimePickerDialog timePickerDialog = TimePickerDialog.newInstance(this, calendar.get(Calendar.HOUR_OF_DAY) ,calendar.get(Calendar.MINUTE), false, false);
+		
+		timePickerDialog.setVibrate(false);
+        timePickerDialog.setCloseOnSingleTapMinute(false);
+        timePickerDialog.show(getSupportFragmentManager(), TIMEPICKER_TAG);
+	}
 	
+	private void setStar(int position) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		builder.setIcon(R.drawable.save_without_circle);
+		builder.setTitle("优先级");
+		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
+		View view = layoutInflater.inflate(R.layout.set_star, null);
+		builder.setView(view);
+		setStarString = "0";
+		setStarRecord= timeFleetingData.futureRecords.get(position);
+		final ImageView star1 = (ImageView)view.findViewById(R.id.star_1);
+		final ImageView star2 = (ImageView)view.findViewById(R.id.star_2);
+		final ImageView star3 = (ImageView)view.findViewById(R.id.star_3);
+		final ImageView star4 = (ImageView)view.findViewById(R.id.star_4);
+		final ImageView star5 = (ImageView)view.findViewById(R.id.star_5);
+		star1.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				star1.setImageResource(R.drawable.star_blue);
+				star2.setImageResource(R.drawable.star_blank);
+				star3.setImageResource(R.drawable.star_blank);
+				star4.setImageResource(R.drawable.star_blank);
+				star5.setImageResource(R.drawable.star_blank);
+				setStarString = "1";
+			}
+		});
+		star2.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				star1.setImageResource(R.drawable.star_blue);
+				star2.setImageResource(R.drawable.star_blue);
+				star3.setImageResource(R.drawable.star_blank);
+				star4.setImageResource(R.drawable.star_blank);
+				star5.setImageResource(R.drawable.star_blank);
+				setStarString = "2";
+			}
+		});
+		star3.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				star1.setImageResource(R.drawable.star_blue);
+				star2.setImageResource(R.drawable.star_blue);
+				star3.setImageResource(R.drawable.star_blue);
+				star4.setImageResource(R.drawable.star_blank);
+				star5.setImageResource(R.drawable.star_blank);
+				setStarString = "3";
+			}
+		});
+		star4.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				star1.setImageResource(R.drawable.star_blue);
+				star2.setImageResource(R.drawable.star_blue);
+				star3.setImageResource(R.drawable.star_blue);
+				star4.setImageResource(R.drawable.star_blue);
+				star5.setImageResource(R.drawable.star_blank);
+				setStarString = "4";
+			}
+		});
+		star5.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				star1.setImageResource(R.drawable.star_blue);
+				star2.setImageResource(R.drawable.star_blue);
+				star3.setImageResource(R.drawable.star_blue);
+				star4.setImageResource(R.drawable.star_blue);
+				star5.setImageResource(R.drawable.star_blue);
+				setStarString = "5";
+			}
+		});
+		builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				setStarRecord.setStar(setStarString);
+				timeFleetingData.saveRecord(setStarRecord);
+				mAdapter.notifyDataSetChanged();
+			}
+		});
+		
+		builder.show();
+	}
+	
+	private void whetherDelete(final int id, final int position) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		String messageString = "Are u sure to delete this record?\n";
+		messageString += timeFleetingData.futureRecords.get(position).getTitle() + "\n";
+		messageString += "Create time: " + timeFleetingData.futureRecords.get(position).getCreateTime().substring(5, 16);
+		builder.setMessage(messageString);
+		builder.setPositiveButton("Yeah~", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				int returnId = timeFleetingData.deleteRecord(id);
+				if (returnId != -1) {
+					// delete successfully
+					Log.d("TimeFleeting", "Delete successfully");
+				} else {
+					// delete failed
+					Log.d("TimeFleeting", "Delete failed");
+				}
+				mAdapter.closeItem(position);
+				mAdapter.notifyDataSetChanged();
+			}
+		});
+		builder.setNegativeButton("Oh no", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				return;
+			}
+		});
+		builder.show();
+	}
 }
