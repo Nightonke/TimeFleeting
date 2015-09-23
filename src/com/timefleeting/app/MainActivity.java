@@ -204,6 +204,14 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 				setSortParameter(false, false, true, true, false, false, false, false);
 				timeFleetingData.sortFutureRecordByCreateTimeReversely();
 				
+				if (timeFleetingData.futureRecords.size() > 0) {
+					TextView tipsTextView = (TextView)v.findViewById(R.id.layout_1_tips);
+					tipsTextView.setVisibility(View.INVISIBLE);
+				} else {
+					TextView tipsTextView = (TextView)v.findViewById(R.id.layout_1_tips);
+					tipsTextView.setVisibility(View.VISIBLE);
+				}
+				
 				// on list item click listener
 				listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 		            @Override

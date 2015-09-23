@@ -20,7 +20,7 @@
             android:layout_weight="1"
             android:textColor="#FFFFFF"
             android:text="Time Fleeting"
-            android:textSize="25sp"
+            android:textSize="20sp"
             android:layout_marginLeft="10dp"
             android:layout_gravity="center_vertical"
             android:gravity="center_vertical"
@@ -42,6 +42,17 @@
         android:layout_height="match_parent"
         >
         
+        <TextView
+            android:id="@+id/layout_1_tips"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:textColor="#1E90FF"
+            android:paddingTop="20dp"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:text="Such a blank here...\nClick the button below to create our future!"
+            />
+       
         <ListView
 	        android:id="@+id/listview"
 	        android:layout_width="match_parent"

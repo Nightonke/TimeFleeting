@@ -40,7 +40,7 @@ import android.widget.Toast;
 
 public class EditActivity extends FragmentActivity implements OnDateSetListener, TimePickerDialog.OnTimeSetListener, ScrollViewListener  {
 
-	private final String dEF_TITLE_STRING = "未命名";
+	private final String dEF_TITLE_STRING = "Unnaming";
 	
 	public static final String DATEPICKER_TAG = "选择日期";
     public static final String TIMEPICKER_TAG = "选择时间";
@@ -190,8 +190,6 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 				
 				@Override
 				public void onClick(View v) {
-					// TODO Auto-generated method stub
-					Toast.makeText(EditActivity.this, "Click " + menuPosition, Toast.LENGTH_SHORT).show();
 					if (menuPosition == 0) {
 						// save
 						save(false);

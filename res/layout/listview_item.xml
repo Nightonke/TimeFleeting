@@ -103,9 +103,8 @@
 	           android:layout_width="match_parent"
 	           android:layout_height="80dp"
 	           android:background="#70E1FF"
-	           wave:above_wave_color="#CD69C9"
-	           wave:blow_wave_color="#8B4789"
-	           wave:progress="20"
+	           wave:above_wave_color="#4B0082"
+	           wave:blow_wave_color="#8A2BE2"
 	           wave:wave_height="little"
 	           wave:wave_hz="normal"
 	           wave:wave_length="middle" />
@@ -179,7 +178,18 @@
 		               android:layout_width="match_parent"
 		               android:layout_height="0dp"
 		               android:layout_weight="1"
-		               />
+		               >
+		               
+		               <TextView
+		                   android:id="@+id/listview_item_content"
+		                   android:layout_width="match_parent"
+		                   android:layout_height="match_parent"
+		                   android:textColor="#8B8878"
+		                   android:singleLine="true"
+		                   android:layout_marginTop="10dp"
+		                   />
+		               
+		           </LinearLayout>
 		           
 		       </LinearLayout>
 		        

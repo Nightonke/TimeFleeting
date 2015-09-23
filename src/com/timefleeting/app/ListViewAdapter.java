@@ -21,6 +21,7 @@ import com.sleepbot.datetimepicker.time.TimePickerDialog;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.support.v4.widget.TextViewCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -124,6 +125,8 @@ public class ListViewAdapter extends BaseSwipeAdapter {
     	idTextView.setText(list.get(position).getId() + "");
     	TextView titleTextView = (TextView)convertView.findViewById(R.id.listview_item_title);
     	titleTextView.setText(list.get(position).getTitle());
+    	TextView contentTextView = (TextView)convertView.findViewById(R.id.listview_item_content);
+    	contentTextView.setText(list.get(position).getText());
     	TextView remindTimeTextView = (TextView)convertView.findViewById(R.id.listview_item_remind_time);
     	remindTimeTextView.setText(list.get(position).getRemindTime().substring(5, 16));
     	TextView createTimeTextView = (TextView)convertView.findViewById(R.id.listview_item_create_time);
