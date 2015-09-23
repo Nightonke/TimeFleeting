@@ -67,28 +67,23 @@ public class ListViewAdapter extends BaseSwipeAdapter {
 
 			@Override
 			public void onUpdate(SwipeLayout arg0, int arg1, int arg2) {
-				// TODO Auto-generated method stub
-				Log.d("TimeFleeting", "onUpdate");
+
 			}
 			
 			@Override
 			public void onStartOpen(SwipeLayout arg0) {
-				// TODO Auto-generated method stub
-				Log.d("TimeFleeting", "onStartOpen");
+
 				isOpened = false;
 			}
 			
 			@Override
 			public void onStartClose(SwipeLayout arg0) {
-				// TODO Auto-generated method stub
-				Log.d("TimeFleeting", "onStartClose");
+
 				isOpened = false;
 			}
 			
 			@Override
 			public void onOpen(SwipeLayout arg0) {
-				// TODO Auto-generated method stub
-				Log.d("TimeFleeting", "onOpen");
 				YoYo.with(Techniques.Shake).duration(1000).delay(0).playOn(arg0.findViewById(R.id.set_time));
 				YoYo.with(Techniques.Shake).duration(1000).delay(0).playOn(arg0.findViewById(R.id.set_star));
 				YoYo.with(Techniques.Shake).duration(1000).delay(0).playOn(arg0.findViewById(R.id.delete));
@@ -97,32 +92,20 @@ public class ListViewAdapter extends BaseSwipeAdapter {
 			
 			@Override
 			public void onHandRelease(SwipeLayout arg0, float arg1, float arg2) {
-				// TODO Auto-generated method stub
-				Log.d("TimeFleeting", "onHandRelease");
+
 			}
 			
 			@Override
 			public void onClose(SwipeLayout arg0) {
-				// TODO Auto-generated method stub
-				Log.d("TimeFleeting", "onClose");
 				isOpened = false;
 			}
 		});
-
-        swipeLayout.setOnDoubleClickListener(new SwipeLayout.DoubleClickListener() {
-            @Override
-            public void onDoubleClick(SwipeLayout layout, boolean surface) {
-                Toast.makeText(mContext, "DoubleClick", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         return v;
     }
 
     @Override
     public void fillValues(int position, View convertView) {
-    	TextView idTextView = (TextView)convertView.findViewById(R.id.listview_id);
-    	idTextView.setText(list.get(position).getId() + "");
     	TextView titleTextView = (TextView)convertView.findViewById(R.id.listview_item_title);
     	titleTextView.setText(list.get(position).getTitle());
     	TextView contentTextView = (TextView)convertView.findViewById(R.id.listview_item_content);

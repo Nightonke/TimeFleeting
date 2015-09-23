@@ -27,8 +27,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
@@ -42,6 +44,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,10 +66,6 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 	private LayoutInflater layoutInflater;	
 	
 	private TextView resultTextView;
-	private Button addButton;
-	private Button deleteButton;
-	private Button queryButton;
-	private int titleTestId;
 	
 	private TimeFleetingData timeFleetingData;
 	
@@ -101,6 +101,9 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 	private boolean layout1RayMenuAppeared = false;
 	private boolean layout1RayMenuShown = true;
 	
+	private float pressDownY = 0;
+	private int moveDirection = -1;
+	
 	private static final int[] ITEM_DRAWABLES_FUTURE = {
 		R.drawable.create,
 		R.drawable.search,
@@ -125,7 +128,6 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
 		mContext = this;
-		titleTestId = 0;
 		statusBarHeight = getStatusBarHeight();
 		
 		try {
@@ -337,6 +339,22 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 				
 				layout1TitleLinearLayout = (LinearLayout)v.findViewById(R.id.layout_1_title_ly);
 				
+				listView.setOnTouchListener(new OnTouchListener() {
+					
+					@Override
+					public boolean onTouch(View v, MotionEvent event) {
+						if (event.getAction() == MotionEvent.ACTION_MOVE) {
+							if (event.getY() > pressDownY) {
+								moveDirection = 1;
+							} else if (event.getY() < pressDownY) {
+								moveDirection = -1;
+							}
+							pressDownY = event.getY();
+						}
+						return false;
+					}
+				});
+				
 				listView.setOnScrollListener(new OnScrollListener() {
 					
 					@Override
@@ -345,14 +363,15 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 						case OnScrollListener.SCROLL_STATE_IDLE:
 							scrollFlag = false;
 							if (listView.getLastVisiblePosition() == (listView.getCount() - 1)) {
-
+								// to bottom 
+								
 							}
 							if (listView.getFirstVisiblePosition() == 0) {
+								// to top
 
 							}
 							break;
 						case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
-							Log.d("DEBUG", "scrolling");
 							scrollFlag = true;
 							break;
 						case OnScrollListener.SCROLL_STATE_FLING:
@@ -366,11 +385,16 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 					@Override
 					public void onScroll(AbsListView view, int firstVisibleItem,
 							int visibleItemCount, int totalItemCount) {
+						Log.d("TimeFleeting", "scrolling");
+						Log.d("TimeFleeting", scrollFlag + "");
+						Log.d("TimeFleeting", ScreenUtil.getScreenViewBottomHeight(listView) + "");
+						Log.d("TimeFleeting", ScreenUtil.getScreenHeight(MainActivity.this) - statusBarHeight - layout1TitleLinearLayout.getHeight() + "");
 						rayMenu.closeMenu();
 						if (scrollFlag && 
 								ScreenUtil.getScreenViewBottomHeight(listView) 
 								>= ScreenUtil.getScreenHeight(MainActivity.this) - statusBarHeight - layout1TitleLinearLayout.getHeight()) {
 							if (firstVisibleItem > lastVisibleItemPosition) {
+								Log.d("TimeFleeting", "Down");
 								// scroll down
 								// should disappear
 								if (!lastIsScrollDown) {
@@ -411,7 +435,46 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 								}
 								lastIsScrollDown = false;
 							} else {
-								return;
+								if (moveDirection == -1) {
+									// down
+									if (!lastIsScrollDown) {
+										AnimationSet animationSet = new AnimationSet(true);
+										TranslateAnimation translateAnimation = 
+												new TranslateAnimation(
+														Animation.RELATIVE_TO_SELF, 0f,
+														Animation.RELATIVE_TO_SELF, 0f,
+														Animation.RELATIVE_TO_SELF, 0f,
+														Animation.RELATIVE_TO_SELF, 1f);
+										translateAnimation.setDuration(1000);
+										animationSet.addAnimation(translateAnimation);
+										animationSet.setFillAfter(true);
+										rayMenu.startAnimation(animationSet);
+										layout1RayMenuShown = false;
+									} else {
+										
+									}
+									lastIsScrollDown = true;
+								} else if (moveDirection == 1) {
+									// scroll up
+									// should appear
+									if (lastIsScrollDown) {
+										AnimationSet animationSet = new AnimationSet(true);
+										TranslateAnimation translateAnimation = 
+												new TranslateAnimation(
+														Animation.RELATIVE_TO_SELF, 0f,
+														Animation.RELATIVE_TO_SELF, 0f,
+														Animation.RELATIVE_TO_SELF, 1f,
+														Animation.RELATIVE_TO_SELF, 0f);
+										translateAnimation.setDuration(1000);
+										animationSet.addAnimation(translateAnimation);
+										animationSet.setFillAfter(true);
+										rayMenu.startAnimation(animationSet);
+										layout1RayMenuShown = true;
+									} else {
+										
+									}
+									lastIsScrollDown = false;
+								}
 							}
 							lastVisibleItemPosition = firstVisibleItem;
 						}
@@ -442,7 +505,7 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 		
 		@Override
 		public int getCount() {
-			return 1;
+			return 2;
 		}
 		
 		@Override
@@ -478,6 +541,7 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 		builder.setCancelable(true);
 		final AlertDialog dialog = builder.show();
 		dialog.setCanceledOnTouchOutside(true);
+		dialog.getWindow().setLayout(600, 400);
 		YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_title_logo));
 		YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_create_time_logo));
 		YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_remind_time_logo));
@@ -589,85 +653,96 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
         timePickerDialog.show(getSupportFragmentManager(), TIMEPICKER_TAG);
 	}
 	
-	private void setStar(int position) {
+	private void setStar(final int position) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		builder.setIcon(R.drawable.save_without_circle);
-		builder.setTitle("优先级");
 		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
 		View view = layoutInflater.inflate(R.layout.set_star, null);
 		builder.setView(view);
+		final AlertDialog dialog = builder.show();
+		dialog.getWindow().setLayout(600, 450);
+		dialog.setCanceledOnTouchOutside(true);
+		
 		setStarString = "0";
 		setStarRecord= timeFleetingData.futureRecords.get(position);
+		
+		final TextView okTextView = (TextView)view.findViewById(R.id.set_star_ok);
+
 		final ImageView star1 = (ImageView)view.findViewById(R.id.star_1);
 		final ImageView star2 = (ImageView)view.findViewById(R.id.star_2);
 		final ImageView star3 = (ImageView)view.findViewById(R.id.star_3);
 		final ImageView star4 = (ImageView)view.findViewById(R.id.star_4);
 		final ImageView star5 = (ImageView)view.findViewById(R.id.star_5);
-		star1.setOnClickListener(new OnClickListener() {
+		star4.setVisibility(View.INVISIBLE);
+		star5.setVisibility(View.INVISIBLE);
+		final SeekBar seekBar = (SeekBar)view.findViewById(R.id.star_seekbar);
+		seekBar.setProgress(2);
+		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			
 			@Override
-			public void onClick(View v) {
-				star1.setImageResource(R.drawable.star_blue);
-				star2.setImageResource(R.drawable.star_blank);
-				star3.setImageResource(R.drawable.star_blank);
-				star4.setImageResource(R.drawable.star_blank);
-				star5.setImageResource(R.drawable.star_blank);
-				setStarString = "1";
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				
 			}
-		});
-		star2.setOnClickListener(new OnClickListener() {
+			
 			@Override
-			public void onClick(View v) {
-				star1.setImageResource(R.drawable.star_blue);
-				star2.setImageResource(R.drawable.star_blue);
-				star3.setImageResource(R.drawable.star_blank);
-				star4.setImageResource(R.drawable.star_blank);
-				star5.setImageResource(R.drawable.star_blank);
-				setStarString = "2";
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				
 			}
-		});
-		star3.setOnClickListener(new OnClickListener() {
+			
 			@Override
-			public void onClick(View v) {
-				star1.setImageResource(R.drawable.star_blue);
-				star2.setImageResource(R.drawable.star_blue);
-				star3.setImageResource(R.drawable.star_blue);
-				star4.setImageResource(R.drawable.star_blank);
-				star5.setImageResource(R.drawable.star_blank);
-				setStarString = "3";
-			}
-		});
-		star4.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				star1.setImageResource(R.drawable.star_blue);
-				star2.setImageResource(R.drawable.star_blue);
-				star3.setImageResource(R.drawable.star_blue);
-				star4.setImageResource(R.drawable.star_blue);
-				star5.setImageResource(R.drawable.star_blank);
-				setStarString = "4";
-			}
-		});
-		star5.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				star1.setImageResource(R.drawable.star_blue);
-				star2.setImageResource(R.drawable.star_blue);
-				star3.setImageResource(R.drawable.star_blue);
-				star4.setImageResource(R.drawable.star_blue);
-				star5.setImageResource(R.drawable.star_blue);
-				setStarString = "5";
-			}
-		});
-		builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				setStarRecord.setStar(setStarString);
-				timeFleetingData.saveRecord(setStarRecord);
-				mAdapter.notifyDataSetChanged();
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				if (progress == 0) {
+					star1.setVisibility(View.VISIBLE);
+					star2.setVisibility(View.INVISIBLE);
+					star3.setVisibility(View.INVISIBLE);
+					star4.setVisibility(View.INVISIBLE);
+					star5.setVisibility(View.INVISIBLE);
+				} else if (progress == 1) {
+					star1.setVisibility(View.VISIBLE);
+					star2.setVisibility(View.VISIBLE);
+					star3.setVisibility(View.INVISIBLE);
+					star4.setVisibility(View.INVISIBLE);
+					star5.setVisibility(View.INVISIBLE);
+				} else if (progress == 2) {
+					star1.setVisibility(View.VISIBLE);
+					star2.setVisibility(View.VISIBLE);
+					star3.setVisibility(View.VISIBLE);
+					star4.setVisibility(View.INVISIBLE);
+					star5.setVisibility(View.INVISIBLE);
+				} else if (progress == 3) {
+					star1.setVisibility(View.VISIBLE);
+					star2.setVisibility(View.VISIBLE);
+					star3.setVisibility(View.VISIBLE);
+					star4.setVisibility(View.VISIBLE);
+					star5.setVisibility(View.INVISIBLE);
+				} else if (progress == 4) {
+					star1.setVisibility(View.VISIBLE);
+					star2.setVisibility(View.VISIBLE);
+					star3.setVisibility(View.VISIBLE);
+					star4.setVisibility(View.VISIBLE);
+					star5.setVisibility(View.VISIBLE);
+				}
+				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star1);
+				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star2);
+				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star3);
+				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star4);
+				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star5);
+				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(okTextView);
 			}
 		});
 		
-		builder.show();
+		okTextView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Record record = timeFleetingData.futureRecords.get(position);
+				record.setStar(String.valueOf(seekBar.getProgress() + 1));
+				timeFleetingData.saveRecord(record);
+				mAdapter.notifyDataSetChanged();
+				dialog.dismiss();
+			}
+		});
+		
 	}
 	
 	private void whetherDelete(final int id, final int position) {

@@ -2,5 +2,6 @@
 <resources>
 
     <color name="holo_blue">#FF33E5B5</color>
-
+    <color name="future_listview_item_create_time">#065FB9</color>
+    
 </resources>

@@ -7,6 +7,8 @@ import java.util.Date;
 import java.lang.Object;
 
 import com.capricorn.RayMenu;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.fourmob.datetimepicker.date.DatePickerDialog;
 import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 import com.sleepbot.datetimepicker.time.RadialPickerLayout;
@@ -35,8 +37,11 @@ import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class EditActivity extends FragmentActivity implements OnDateSetListener, TimePickerDialog.OnTimeSetListener, ScrollViewListener  {
 
@@ -60,12 +65,10 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	private boolean lastIsScrollDown = false;
 	
 	private static final int[] ITEM_DRAWABLES_FUTURE = {
-		R.drawable.save,
 		R.drawable.sort_by_remind_time,
 		R.drawable.sort_by_star,
 		R.drawable.copy,
-		R.drawable.statistics,
-		R.drawable.home};
+		R.drawable.statistics};
 	
 	private boolean isSaved = false;
 	private boolean isRemind = false;
@@ -191,15 +194,15 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 				@Override
 				public void onClick(View v) {
 					if (menuPosition == 0) {
-						// save
-						save(false);
-					} else if (menuPosition == 1) {
-						// set the remind time
+						// set remind time
 						setRemindTime();
-					} else if (menuPosition == 2) {
+					} else if (menuPosition == 1) {
+						// set star
 						setStar(false);
-					} else if (menuPosition == 5) {
-						goBack(true);
+					} else if (menuPosition == 2) {
+						// copy all
+					} else if (menuPosition == 3) {
+						// statis
 					}
 				}
 			});
@@ -221,33 +224,50 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 			returnHome();
 		} else {
 			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-			builder.setIcon(R.drawable.save_without_circle);
-			builder.setTitle("等等！");
-			builder.setMessage("请问保存吗？");
-			builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+			LayoutInflater layoutInflater = LayoutInflater.from(mContext);
+			View view = layoutInflater.inflate(R.layout.whether_save, null);
+			builder.setView(view);
+			final AlertDialog dialog = builder.show();
+			dialog.getWindow().setLayout(600, 450);
+			dialog.setCanceledOnTouchOutside(true);
+			
+			LinearLayout whetherSaveLinearLayout = (LinearLayout)view.findViewById(R.id.whether_save_logo);
+			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(whetherSaveLinearLayout);
+			
+			TextView cancelTextView = (TextView)view.findViewById(R.id.whether_save_cancel);
+			TextView noTextView = (TextView)view.findViewById(R.id.whether_save_no);
+			TextView sureTextView = (TextView)view.findViewById(R.id.whether_save_sure);
+			
+			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(cancelTextView);
+			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(noTextView);
+			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(sureTextView);
+			
+			cancelTextView.setOnClickListener(new OnClickListener() {
 				
 				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					// save
-					saveAndReturnHome();
-				}
-			});
-			builder.setNeutralButton("不保存", new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					returnHome();
-				}
-			});
-			builder.setNegativeButton("我再想想", new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					// TODO Auto-generated method stub
+				public void onClick(View v) {
+					dialog.dismiss();
 					return;
 				}
 			});
-			builder.show();
+			
+			noTextView.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					dialog.dismiss();
+					returnHome();
+				}
+			});
+			
+			sureTextView.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					dialog.dismiss();
+					saveAndReturnHome();
+				}
+			});
 		}
 	}
 	
@@ -350,7 +370,7 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		remindTimeString += "00";
 		
 		isRemind = true;
-
+		
 		if (afterSetTimeBack) {
 			if (!isStared) {
 				setStar(true);
@@ -445,87 +465,92 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	
 	private void setStar(final boolean isBack) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		builder.setIcon(R.drawable.save_without_circle);
-		builder.setTitle("优先级");
 		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
 		View view = layoutInflater.inflate(R.layout.set_star, null);
 		builder.setView(view);
+		final AlertDialog dialog = builder.show();
+		dialog.getWindow().setLayout(600, 450);
+		dialog.setCanceledOnTouchOutside(true);
+		
 		starString = "0";
+		
+		final TextView okTextView = (TextView)view.findViewById(R.id.set_star_ok);
+
 		final ImageView star1 = (ImageView)view.findViewById(R.id.star_1);
 		final ImageView star2 = (ImageView)view.findViewById(R.id.star_2);
 		final ImageView star3 = (ImageView)view.findViewById(R.id.star_3);
 		final ImageView star4 = (ImageView)view.findViewById(R.id.star_4);
 		final ImageView star5 = (ImageView)view.findViewById(R.id.star_5);
-		star1.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				star1.setImageResource(R.drawable.star_blue);
-				star2.setImageResource(R.drawable.star_blank);
-				star3.setImageResource(R.drawable.star_blank);
-				star4.setImageResource(R.drawable.star_blank);
-				star5.setImageResource(R.drawable.star_blank);
-				starString = "1";
-			}
-		});
-		star2.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				star1.setImageResource(R.drawable.star_blue);
-				star2.setImageResource(R.drawable.star_blue);
-				star3.setImageResource(R.drawable.star_blank);
-				star4.setImageResource(R.drawable.star_blank);
-				star5.setImageResource(R.drawable.star_blank);
-				starString = "2";
-			}
-		});
-		star3.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				star1.setImageResource(R.drawable.star_blue);
-				star2.setImageResource(R.drawable.star_blue);
-				star3.setImageResource(R.drawable.star_blue);
-				star4.setImageResource(R.drawable.star_blank);
-				star5.setImageResource(R.drawable.star_blank);
-				starString = "3";
-			}
-		});
-		star4.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				star1.setImageResource(R.drawable.star_blue);
-				star2.setImageResource(R.drawable.star_blue);
-				star3.setImageResource(R.drawable.star_blue);
-				star4.setImageResource(R.drawable.star_blue);
-				star5.setImageResource(R.drawable.star_blank);
-				starString = "4";
-			}
-		});
-		star5.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				star1.setImageResource(R.drawable.star_blue);
-				star2.setImageResource(R.drawable.star_blue);
-				star3.setImageResource(R.drawable.star_blue);
-				star4.setImageResource(R.drawable.star_blue);
-				star5.setImageResource(R.drawable.star_blue);
-				starString = "5";
-			}
-		});
-		builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+		star4.setVisibility(View.INVISIBLE);
+		star5.setVisibility(View.INVISIBLE);
+		final SeekBar seekBar = (SeekBar)view.findViewById(R.id.star_seekbar);
+		seekBar.setProgress(2);
+		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 			
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				
+			}
+			
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				
+			}
+			
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				if (progress == 0) {
+					star1.setVisibility(View.VISIBLE);
+					star2.setVisibility(View.INVISIBLE);
+					star3.setVisibility(View.INVISIBLE);
+					star4.setVisibility(View.INVISIBLE);
+					star5.setVisibility(View.INVISIBLE);
+				} else if (progress == 1) {
+					star1.setVisibility(View.VISIBLE);
+					star2.setVisibility(View.VISIBLE);
+					star3.setVisibility(View.INVISIBLE);
+					star4.setVisibility(View.INVISIBLE);
+					star5.setVisibility(View.INVISIBLE);
+				} else if (progress == 2) {
+					star1.setVisibility(View.VISIBLE);
+					star2.setVisibility(View.VISIBLE);
+					star3.setVisibility(View.VISIBLE);
+					star4.setVisibility(View.INVISIBLE);
+					star5.setVisibility(View.INVISIBLE);
+				} else if (progress == 3) {
+					star1.setVisibility(View.VISIBLE);
+					star2.setVisibility(View.VISIBLE);
+					star3.setVisibility(View.VISIBLE);
+					star4.setVisibility(View.VISIBLE);
+					star5.setVisibility(View.INVISIBLE);
+				} else if (progress == 4) {
+					star1.setVisibility(View.VISIBLE);
+					star2.setVisibility(View.VISIBLE);
+					star3.setVisibility(View.VISIBLE);
+					star4.setVisibility(View.VISIBLE);
+					star5.setVisibility(View.VISIBLE);
+				}
+				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star1);
+				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star2);
+				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star3);
+				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star4);
+				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star5);
+				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(okTextView);
+			}
+		});
+		
+		okTextView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				starString = String.valueOf(seekBar.getProgress() + 1);
 				isStared = true;
 				if (isBack) {
 					save(true);
 				}
 			}
 		});
-		
-		builder.show();
 	}
-	
-	
-	
+
 }

@@ -2,11 +2,20 @@
 <LinearLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:wave="http://schemas.android.com/apk/res-auto"
+    xmlns:seekarc="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout_2"
     android:background="#D0104C"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
+     
+    <SeekBar
+        android:id="@+id/seekbar_self"
+        android:layout_width="400dp"  
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="20"
+        /> 
     
     <com.timefleeting.app.WaveView
         android:id="@+id/wave_view_2"
