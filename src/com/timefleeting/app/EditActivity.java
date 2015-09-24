@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -58,6 +59,7 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	private String createTimeString;
 	private String remindTimeString;
 	private String starString = "0";
+	private String wordNumberString;
 	
 	private TextView createTimeTextView;
 	
@@ -67,14 +69,15 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	private static final int[] ITEM_DRAWABLES_FUTURE = {
 		R.drawable.sort_by_remind_time,
 		R.drawable.sort_by_star,
-		R.drawable.copy,
-		R.drawable.statistics};
+		R.drawable.copy_c,
+		R.drawable.copy_v};
 	
 	private boolean isSaved = false;
 	private boolean isRemind = false;
 	private boolean isStared = false;
 	private boolean afterSetTimeBack = false;
 	
+	private TextView wordNumberTextView;
 	private EditText titleEditText;
 	private EditText contentEditText;
 	private int saveId = -1;
@@ -116,6 +119,8 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		createTimeTextView = (TextView)findViewById(R.id.create_time_textview);
 		createTimeTextView.setText("---" + createTimeString);
 		
+		wordNumberTextView = (TextView)findViewById(R.id.word_number_textview);
+		
 		titleEditText = (EditText)findViewById(R.id.edit_layout_title);
 		
 		if (isOld) {
@@ -148,13 +153,18 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		
 		if (isOld) {
 			contentEditText.setText(oldContentString);
+			wordNumberString = String.valueOf(oldContentString.length()) + "---";
+			wordNumberTextView.setText(wordNumberString);
+		} else {
+			wordNumberTextView.setText("0 Words---");
 		}
 		
 		contentEditText.addTextChangedListener(new TextWatcher() {
 			
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				// TODO Auto-generated method stub
+				wordNumberString = String.valueOf(contentEditText.getText().toString().length()) + "---";
+				wordNumberTextView.setText(wordNumberString);
 				isSaved = false;
 			}
 			
@@ -201,8 +211,34 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 						setStar(false);
 					} else if (menuPosition == 2) {
 						// copy all
+						ClipboardManager cmb = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+						cmb.setText(contentEditText.getText().toString());
+						Toast.makeText(mContext, "Copied", Toast.LENGTH_SHORT).show();
 					} else if (menuPosition == 3) {
 						// statis
+						if (contentEditText.isFocused()) {
+							// if focused
+							ClipboardManager cmb = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+							int cursorPosition = contentEditText.getSelectionEnd();
+							String newString = contentEditText.getText().toString().substring(0, cursorPosition)
+									+ cmb.getText().toString()
+									+ contentEditText.getText().toString().substring(cursorPosition, contentEditText.getText().toString().length());
+							contentEditText.setText(newString);
+							contentEditText.setSelection(cursorPosition + cmb.getText().toString().length());
+							wordNumberString = String.valueOf(contentEditText.getText().toString().length()) + "---";
+							wordNumberTextView.setText(wordNumberString);
+							isSaved = false;
+						} else if (titleEditText.isFocused()) {
+							// if focused
+							ClipboardManager cmb = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+							int cursorPosition = titleEditText.getSelectionEnd();
+							String newString = titleEditText.getText().toString().substring(0, cursorPosition)
+									+ cmb.getText().toString()
+									+ titleEditText.getText().toString().substring(cursorPosition, titleEditText.getText().toString().length());
+							titleEditText.setText(newString);
+							titleEditText.setSelection(cursorPosition + cmb.getText().toString().length());
+							isSaved = false;
+						}
 					}
 				}
 			});
@@ -228,19 +264,19 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 			View view = layoutInflater.inflate(R.layout.whether_save, null);
 			builder.setView(view);
 			final AlertDialog dialog = builder.show();
-			dialog.getWindow().setLayout(600, 450);
+			dialog.getWindow().setLayout(600, 300);
 			dialog.setCanceledOnTouchOutside(true);
 			
 			LinearLayout whetherSaveLinearLayout = (LinearLayout)view.findViewById(R.id.whether_save_logo);
-			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(whetherSaveLinearLayout);
+			YoYo.with(Techniques.Tada).duration(1000).playOn(whetherSaveLinearLayout);
 			
 			TextView cancelTextView = (TextView)view.findViewById(R.id.whether_save_cancel);
 			TextView noTextView = (TextView)view.findViewById(R.id.whether_save_no);
 			TextView sureTextView = (TextView)view.findViewById(R.id.whether_save_sure);
 			
-			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(cancelTextView);
-			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(noTextView);
-			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(sureTextView);
+			YoYo.with(Techniques.Tada).duration(1000).playOn(cancelTextView);
+			YoYo.with(Techniques.Tada).duration(1000).playOn(noTextView);
+			YoYo.with(Techniques.Tada).duration(1000).playOn(sureTextView);
 			
 			cancelTextView.setOnClickListener(new OnClickListener() {
 				

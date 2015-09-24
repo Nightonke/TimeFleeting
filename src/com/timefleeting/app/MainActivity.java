@@ -101,8 +101,9 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 	private boolean layout1RayMenuAppeared = false;
 	private boolean layout1RayMenuShown = true;
 	
-	private float pressDownY = 0;
+	private float pressDownY = -1;
 	private int moveDirection = -1;
+	private int lastDirection = 1;
 	
 	private static final int[] ITEM_DRAWABLES_FUTURE = {
 		R.drawable.create,
@@ -344,12 +345,21 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 					@Override
 					public boolean onTouch(View v, MotionEvent event) {
 						if (event.getAction() == MotionEvent.ACTION_MOVE) {
+							Log.d("TimeFleeting", "OLD: " + pressDownY + "");
+							Log.d("TimeFleeting", "NEW: " + event.getY() + "");
+							if (pressDownY == -1) {
+								// don't calculate
+								pressDownY = event.getY();
+								return false;
+							}
 							if (event.getY() > pressDownY) {
 								moveDirection = 1;
 							} else if (event.getY() < pressDownY) {
 								moveDirection = -1;
 							}
 							pressDownY = event.getY();
+						} else if (event.getAction() == MotionEvent.ACTION_UP) {
+							pressDownY = -1;
 						}
 						return false;
 					}
@@ -385,10 +395,6 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 					@Override
 					public void onScroll(AbsListView view, int firstVisibleItem,
 							int visibleItemCount, int totalItemCount) {
-						Log.d("TimeFleeting", "scrolling");
-						Log.d("TimeFleeting", scrollFlag + "");
-						Log.d("TimeFleeting", ScreenUtil.getScreenViewBottomHeight(listView) + "");
-						Log.d("TimeFleeting", ScreenUtil.getScreenHeight(MainActivity.this) - statusBarHeight - layout1TitleLinearLayout.getHeight() + "");
 						rayMenu.closeMenu();
 						if (scrollFlag && 
 								ScreenUtil.getScreenViewBottomHeight(listView) 
@@ -437,7 +443,8 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 							} else {
 								if (moveDirection == -1) {
 									// down
-									if (!lastIsScrollDown) {
+									if (lastDirection == 1) {
+										Log.d("TimeFleeting", "DOWN");
 										AnimationSet animationSet = new AnimationSet(true);
 										TranslateAnimation translateAnimation = 
 												new TranslateAnimation(
@@ -450,14 +457,16 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 										animationSet.setFillAfter(true);
 										rayMenu.startAnimation(animationSet);
 										layout1RayMenuShown = false;
+										lastDirection = -1;
 									} else {
 										
 									}
-									lastIsScrollDown = true;
+									
 								} else if (moveDirection == 1) {
 									// scroll up
 									// should appear
-									if (lastIsScrollDown) {
+									if (lastDirection == -1) {
+										Log.d("TimeFleeting", "UP");
 										AnimationSet animationSet = new AnimationSet(true);
 										TranslateAnimation translateAnimation = 
 												new TranslateAnimation(
@@ -470,10 +479,11 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 										animationSet.setFillAfter(true);
 										rayMenu.startAnimation(animationSet);
 										layout1RayMenuShown = true;
+										lastDirection = 1;
 									} else {
 										
 									}
-									lastIsScrollDown = false;
+									
 								}
 							}
 							lastVisibleItemPosition = firstVisibleItem;
@@ -722,12 +732,12 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 					star4.setVisibility(View.VISIBLE);
 					star5.setVisibility(View.VISIBLE);
 				}
-				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star1);
-				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star2);
-				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star3);
-				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star4);
-				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star5);
-				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(okTextView);
+				YoYo.with(Techniques.Tada).duration(1000).playOn(star1);
+				YoYo.with(Techniques.Tada).duration(1000).playOn(star2);
+				YoYo.with(Techniques.Tada).duration(1000).playOn(star3);
+				YoYo.with(Techniques.Tada).duration(1000).playOn(star4);
+				YoYo.with(Techniques.Tada).duration(1000).playOn(star5);
+				YoYo.with(Techniques.Tada).duration(1000).playOn(okTextView);
 			}
 		});
 		
@@ -746,14 +756,37 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 	}
 	
 	private void whetherDelete(final int id, final int position) {
+		
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		String messageString = "Are u sure to delete this record?\n";
-		messageString += timeFleetingData.futureRecords.get(position).getTitle() + "\n";
-		messageString += "Create time: " + timeFleetingData.futureRecords.get(position).getCreateTime().substring(5, 16);
-		builder.setMessage(messageString);
-		builder.setPositiveButton("Yeah~", new DialogInterface.OnClickListener() {
+		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
+		View view = layoutInflater.inflate(R.layout.whether_delete, null);
+		builder.setView(view);
+		final AlertDialog dialog = builder.show();
+		dialog.getWindow().setLayout(600, 300);
+		dialog.setCanceledOnTouchOutside(true);
+		
+		LinearLayout whetherSaveLinearLayout = (LinearLayout)view.findViewById(R.id.whether_delete_logo);
+		YoYo.with(Techniques.Tada).duration(1000).playOn(whetherSaveLinearLayout);
+		
+		TextView cancelTextView = (TextView)view.findViewById(R.id.whether_delete_cancel);
+		TextView yesTextView = (TextView)view.findViewById(R.id.whether_delete_yes);
+		
+		YoYo.with(Techniques.Tada).duration(1000).playOn(cancelTextView);
+		YoYo.with(Techniques.Tada).duration(1000).playOn(yesTextView);
+		
+		cancelTextView.setOnClickListener(new OnClickListener() {
+			
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
+			public void onClick(View v) {
+				dialog.dismiss();
+				return;
+			}
+		});
+		
+		yesTextView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
 				int returnId = timeFleetingData.deleteRecord(id);
 				if (returnId != -1) {
 					// delete successfully
@@ -764,15 +797,9 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 				}
 				mAdapter.closeItem(position);
 				mAdapter.notifyDataSetChanged();
+				dialog.dismiss();
 			}
 		});
-		builder.setNegativeButton("Oh no", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				return;
-			}
-		});
-		builder.show();
 	}
 	
 	private void setSortParameter(

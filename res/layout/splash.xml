@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:wave="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#A5DEE4"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+    
+	    
+	    
+	    <com.timefleeting.app.WaveView
+	        android:id="@+id/wave_view_splash"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:background="#A5DEE4"
+	        wave:progress="90"
+	        wave:above_wave_color="#0000FF"
+	        wave:blow_wave_color="#0000FF"
+	        wave:wave_height="little"
+            wave:wave_hz="normal"
+            wave:wave_length="middle"/>
+	    
+	    <LinearLayout
+	        android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:paddingBottom="80dp"
+	        >
+	        
+	        <ImageView
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:gravity="center"
+	            android:layout_gravity="center"
+	            android:scaleX="0.7"
+	            android:scaleY="0.7"
+	            android:src="@drawable/timefleeting_logo_2"
+	            />
+	    
+		    <TextView
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:textColor="#A5DEE4"
+	            android:gravity="center"
+	            android:layout_gravity="center"
+	            android:textSize="20sp"
+	            android:text="Time Fleeting"
+	            />
+		    
+		    <TextView
+		        android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#A5DEE4"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:textSize="10sp"
+                android:text="© Weiping HUANG"
+		        />
+		    
+		    </LinearLayout>
+    
+    </FrameLayout>
+
+</LinearLayout>
