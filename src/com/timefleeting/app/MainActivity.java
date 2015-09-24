@@ -551,7 +551,6 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 		builder.setCancelable(true);
 		final AlertDialog dialog = builder.show();
 		dialog.setCanceledOnTouchOutside(true);
-		dialog.getWindow().setLayout(600, 400);
 		YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_title_logo));
 		YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_create_time_logo));
 		YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_remind_time_logo));
@@ -669,7 +668,6 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 		View view = layoutInflater.inflate(R.layout.set_star, null);
 		builder.setView(view);
 		final AlertDialog dialog = builder.show();
-		dialog.getWindow().setLayout(600, 450);
 		dialog.setCanceledOnTouchOutside(true);
 		
 		setStarString = "0";
@@ -762,17 +760,25 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 		View view = layoutInflater.inflate(R.layout.whether_delete, null);
 		builder.setView(view);
 		final AlertDialog dialog = builder.show();
-		dialog.getWindow().setLayout(600, 300);
 		dialog.setCanceledOnTouchOutside(true);
 		
 		LinearLayout whetherSaveLinearLayout = (LinearLayout)view.findViewById(R.id.whether_delete_logo);
-		YoYo.with(Techniques.Tada).duration(1000).playOn(whetherSaveLinearLayout);
+		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+		.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+		.playOn(whetherSaveLinearLayout);
 		
 		TextView cancelTextView = (TextView)view.findViewById(R.id.whether_delete_cancel);
 		TextView yesTextView = (TextView)view.findViewById(R.id.whether_delete_yes);
 		
-		YoYo.with(Techniques.Tada).duration(1000).playOn(cancelTextView);
-		YoYo.with(Techniques.Tada).duration(1000).playOn(yesTextView);
+		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+		.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+		.playOn(cancelTextView);
+		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+		.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+		.playOn(yesTextView);
 		
 		cancelTextView.setOnClickListener(new OnClickListener() {
 			

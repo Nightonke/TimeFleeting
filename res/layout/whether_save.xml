@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:background="#CC4876FF"
         >
 
@@ -19,7 +19,6 @@
             android:layout_gravity="center|center_vertical|center_horizontal"
             android:gravity="center|center_vertical|center_horizontal"
             android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
             android:orientation="horizontal"
             >
         
@@ -34,9 +33,21 @@
 	            android:layout_height="wrap_content"
 	            android:textColor="#FFFFFF"
 	            android:text="Save?"
+	            android:textSize="20sp"
 	            />
 	        
 	    </LinearLayout>
+        
+        <TextView
+            android:id="@+id/whether_save_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:text="Use default remind time and star"
+            android:layout_gravity="center|center_vertical|center_horizontal"
+            android:gravity="center|center_vertical|center_horizontal"
+            android:layout_marginBottom="10dp"
+            />
         
     </LinearLayout>
     

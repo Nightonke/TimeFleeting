@@ -32,19 +32,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ListViewAdapter extends BaseSwipeAdapter {
-
-	public static final String DATEPICKER_TAG = "选择日期";
-    public static final String TIMEPICKER_TAG = "选择时间";
-	
-	private final int ALL_TIME = 7 * 1000 * 60 * 60 * 24;
 	
     private Context mContext;
     private List<Record> list;
-    private int CurrentPosition;
-    
-    public Boolean isOpened = false;
-    
-    private String remindTimeString;
     
     SwipeLayout swipeLayout;
 
@@ -60,7 +50,6 @@ public class ListViewAdapter extends BaseSwipeAdapter {
 
     @Override
     public View generateView(int position, ViewGroup parent) {
-    	CurrentPosition = position;
         View v = LayoutInflater.from(mContext).inflate(R.layout.listview_item, null);
         swipeLayout = (SwipeLayout)v.findViewById(getSwipeLayoutResourceId(position));
         swipeLayout.addSwipeListener(new SwipeListener() {
@@ -73,21 +62,30 @@ public class ListViewAdapter extends BaseSwipeAdapter {
 			@Override
 			public void onStartOpen(SwipeLayout arg0) {
 
-				isOpened = false;
 			}
 			
 			@Override
 			public void onStartClose(SwipeLayout arg0) {
 
-				isOpened = false;
 			}
 			
 			@Override
 			public void onOpen(SwipeLayout arg0) {
-				YoYo.with(Techniques.Shake).duration(1000).delay(0).playOn(arg0.findViewById(R.id.set_time));
-				YoYo.with(Techniques.Shake).duration(1000).delay(0).playOn(arg0.findViewById(R.id.set_star));
-				YoYo.with(Techniques.Shake).duration(1000).delay(0).playOn(arg0.findViewById(R.id.delete));
-				isOpened = true;
+				// while open, set the animations of the 3 buttons
+				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+				.playOn(arg0.findViewById(R.id.set_time));
+				
+				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+				.playOn(arg0.findViewById(R.id.set_star));
+				
+				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+				.playOn(arg0.findViewById(R.id.delete));
 			}
 			
 			@Override
@@ -97,7 +95,7 @@ public class ListViewAdapter extends BaseSwipeAdapter {
 			
 			@Override
 			public void onClose(SwipeLayout arg0) {
-				isOpened = false;
+
 			}
 		});
 
@@ -166,22 +164,27 @@ public class ListViewAdapter extends BaseSwipeAdapter {
     	
     	WaveView waveView = (WaveView)convertView.findViewById(R.id.wave_view);
     	
-    	SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
+    	SimpleDateFormat formatter = new SimpleDateFormat (GlobalSettings.FULL_DATE_FORMAT);     
 		Date curDate = new Date(System.currentTimeMillis());
 		Date remindDate = new Date(System.currentTimeMillis());;
+		
 		try {
 			remindDate = formatter.parse(list.get(position).getRemindTime());
 		} catch (ParseException p) {
 			p.printStackTrace();
 		}
+		
 		long diff = remindDate.getTime() - curDate.getTime();
-		if (diff < 0) {
+		if (diff <= 0) {
+			// this record is overdue
 			diff = 0;
-		} else if (diff > ALL_TIME) {
-			diff = ALL_TIME;
+		} else if (diff > GlobalSettings.REMIND_TIME) {
+			// the record still gets a long time to be overdue
+			diff = GlobalSettings.REMIND_TIME;
 		}
-		diff = ALL_TIME - diff;
-		int progress = (int)(diff * 1.0 / ALL_TIME * 100) + 10;
+		diff = GlobalSettings.REMIND_TIME - diff;
+		// add a default height to make the wave be able to be seen
+		int progress = (int)(diff * 1.0 / GlobalSettings.REMIND_TIME * 100) + GlobalSettings.DEFAULT_WAVE_HEIGHT;
 		waveView.setProgress(progress);
     }
 

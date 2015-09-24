@@ -1,6 +1,7 @@
 package com.timefleeting.app;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -46,7 +47,8 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class EditActivity extends FragmentActivity implements OnDateSetListener, TimePickerDialog.OnTimeSetListener, ScrollViewListener  {
 
-	private final String dEF_TITLE_STRING = "Unnaming";
+	private final String DEF_TITLE_STRING = "Unnaming";
+	private final String DEFAULT_STAR = "3";
 	
 	public static final String DATEPICKER_TAG = "选择日期";
     public static final String TIMEPICKER_TAG = "选择时间";
@@ -67,6 +69,7 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	private boolean lastIsScrollDown = false;
 	
 	private static final int[] ITEM_DRAWABLES_FUTURE = {
+		R.drawable.save,
 		R.drawable.sort_by_remind_time,
 		R.drawable.sort_by_star,
 		R.drawable.copy_c,
@@ -92,12 +95,22 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		
 		mContext = this;
 		
+		titleEditText = (EditText)findViewById(R.id.edit_layout_title);
+		wordNumberTextView = (TextView)findViewById(R.id.word_number_textview);
+		createTimeTextView = (TextView)findViewById(R.id.create_time_textview);
+		contentEditText = (EditText)findViewById(R.id.edit_layout_content);
+		
+		observableScrollView = (ObservableScrollView)findViewById(R.id.editview_scrollview);
+		observableScrollView.setScrollViewListener(this);
+		
 		Intent intent = getIntent();
 		isOld = intent.getBooleanExtra("isOld", false);
-		
+
 		if (isOld) {
 			oldTitleString = intent.getStringExtra("Title");
+			titleEditText.setText(oldTitleString);
 			oldContentString = intent.getStringExtra("Content");
+			contentEditText.setText(oldContentString);
 			createTimeString = intent.getStringExtra("CreateTime");
 			remindTimeString = intent.getStringExtra("RemindTime");
 			starString = intent.getStringExtra("Star");
@@ -105,59 +118,40 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 			isRemind = true;
 			isStared = true;
 			saveId = intent.getIntExtra("ID", -1);
-		}
-
-		observableScrollView = (ObservableScrollView)findViewById(R.id.editview_scrollview);
-		observableScrollView.setScrollViewListener(this);
-		
-		if (!isOld) {
+			
+			wordNumberString = String.valueOf(oldContentString.length()) + "words---";
+			wordNumberTextView.setText(wordNumberString);
+		} else {
 			SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
 			Date curDate = new Date(System.currentTimeMillis());
 			createTimeString = formatter.format(curDate); 
-		} 
-		
-		createTimeTextView = (TextView)findViewById(R.id.create_time_textview);
-		createTimeTextView.setText("---" + createTimeString);
-		
-		wordNumberTextView = (TextView)findViewById(R.id.word_number_textview);
-		
-		titleEditText = (EditText)findViewById(R.id.edit_layout_title);
-		
-		if (isOld) {
-			titleEditText.setText(oldTitleString);
+			remindTimeString = calculateDefaultRemindTime();
+			starString = DEFAULT_STAR;
+			isSaved = false;
+			isRemind = false;
+			isStared = false;
+			wordNumberTextView.setText("0 words---");
 		}
+
+		createTimeTextView.setText("---" + createTimeString);
 		
 		titleEditText.addTextChangedListener(new TextWatcher() {
 			
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				// TODO Auto-generated method stub
 				isSaved = false;
 			}
 			
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
 					int after) {
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override
 			public void afterTextChanged(Editable s) {
-				// TODO Auto-generated method stub
 				
 			}
 		});
-		
-		contentEditText = (EditText)findViewById(R.id.edit_layout_content);
-		
-		if (isOld) {
-			contentEditText.setText(oldContentString);
-			wordNumberString = String.valueOf(oldContentString.length()) + "---";
-			wordNumberTextView.setText(wordNumberString);
-		} else {
-			wordNumberTextView.setText("0 Words---");
-		}
 		
 		contentEditText.addTextChangedListener(new TextWatcher() {
 			
@@ -171,13 +165,11 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
 					int after) {
-				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void afterTextChanged(Editable s) {
-				// TODO Auto-generated method stub
 				
 			}
 		});
@@ -204,17 +196,20 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 				@Override
 				public void onClick(View v) {
 					if (menuPosition == 0) {
+						// save
+						save(false);
+					} else if (menuPosition == 1) {
 						// set remind time
 						setRemindTime();
-					} else if (menuPosition == 1) {
-						// set star
-						setStar(false);
 					} else if (menuPosition == 2) {
+						// set star
+						setStar();
+					} else if (menuPosition == 3) {
 						// copy all
 						ClipboardManager cmb = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 						cmb.setText(contentEditText.getText().toString());
 						Toast.makeText(mContext, "Copied", Toast.LENGTH_SHORT).show();
-					} else if (menuPosition == 3) {
+					} else if (menuPosition == 4) {
 						// statis
 						if (contentEditText.isFocused()) {
 							// if focused
@@ -248,11 +243,6 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	
 	@Override
 	public void onBackPressed() {
-		goBack(true);
-	}
-	
-	private void goBack(boolean isBack) {
-
 		String titleString = titleEditText.getText().toString();
 		String contentString = contentEditText.getText().toString();
 		
@@ -264,19 +254,45 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 			View view = layoutInflater.inflate(R.layout.whether_save, null);
 			builder.setView(view);
 			final AlertDialog dialog = builder.show();
-			dialog.getWindow().setLayout(600, 300);
 			dialog.setCanceledOnTouchOutside(true);
 			
 			LinearLayout whetherSaveLinearLayout = (LinearLayout)view.findViewById(R.id.whether_save_logo);
-			YoYo.with(Techniques.Tada).duration(1000).playOn(whetherSaveLinearLayout);
 			
+			TextView tipTextView = (TextView)view.findViewById(R.id.whether_save_tip);
 			TextView cancelTextView = (TextView)view.findViewById(R.id.whether_save_cancel);
 			TextView noTextView = (TextView)view.findViewById(R.id.whether_save_no);
 			TextView sureTextView = (TextView)view.findViewById(R.id.whether_save_sure);
 			
-			YoYo.with(Techniques.Tada).duration(1000).playOn(cancelTextView);
-			YoYo.with(Techniques.Tada).duration(1000).playOn(noTextView);
-			YoYo.with(Techniques.Tada).duration(1000).playOn(sureTextView);
+			if (isRemind && isStared) {
+				tipTextView.setText(GlobalSettings.TIP_WHETHER_SAVE_ISREMIND_ISSTARED);
+			} else if (!isRemind && isStared) {
+				tipTextView.setText(GlobalSettings.TIP_WHETHER_SAVE_ISNOTREMIND_ISSTARED);
+			} else if (isRemind && !isStared) {
+				tipTextView.setText(GlobalSettings.TIP_WHETHER_SAVE_ISREMIND_ISNOTSTARED);
+			} else {
+				tipTextView.setText(GlobalSettings.TIP_WHETHER_SAVE_ISNOTREMIND_ISNOTSTARED);
+			}
+			
+			YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+			.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+			.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+			.playOn(whetherSaveLinearLayout);
+			YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+			.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+			.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+			.playOn(tipTextView);
+			YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+			.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+			.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+			.playOn(cancelTextView);
+			YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+			.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+			.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+			.playOn(noTextView);
+			YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+			.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+			.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+			.playOn(sureTextView);
 			
 			cancelTextView.setOnClickListener(new OnClickListener() {
 				
@@ -301,14 +317,10 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 				@Override
 				public void onClick(View v) {
 					dialog.dismiss();
-					saveAndReturnHome();
+					save(true);
 				}
 			});
 		}
-	}
-	
-	private void saveAndReturnHome() {
-		save(true);
 	}
 	
 	// call this function when:
@@ -326,12 +338,11 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		String contentString = contentEditText.getText().toString();
 
 		if ("".equals(titleString)) {
-			titleString = dEF_TITLE_STRING; 
+			titleString = DEF_TITLE_STRING; 
 		}
 		
 		if (isSaved) {
 			// have click the save button
-			Log.d("TimeFleeting", saveId + "");
 			timeFleetingData.saveRecord(new Record(
 					saveId,
 					titleString,
@@ -360,30 +371,17 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 					returnHome();
 				}
 			} else {
-				if (!isRemind) {
-					// haven't clicked the remind button
-					// set the time then go back
-					afterSetTimeBack = isBack;
-					isSaved = true;
-					setRemindTime();
-				} else {
-					// have clicked the remind button
-					if (!isStared) {
-						setStar(isBack);
-					} else {
-						saveId = timeFleetingData.saveRecord(new Record(
-								-1,
-								titleString,
-								contentString,
-								remindTimeString,
-								createTimeString,
-								starString,
-								"FUTURE"));
-						isSaved = true;
-						if (isBack) {
-							returnHome();
-						}
-					}
+				saveId = timeFleetingData.saveRecord(new Record(
+						-1,
+						titleString,
+						contentString,
+						remindTimeString,
+						createTimeString,
+						starString,
+						"FUTURE"));
+				isSaved = true;
+				if (isBack) {
+					returnHome();
 				}
 			}
 		}
@@ -406,16 +404,6 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		remindTimeString += "00";
 		
 		isRemind = true;
-		
-		if (afterSetTimeBack) {
-			if (!isStared) {
-				setStar(true);
-			} else {
-				save(true);
-			}
-		} else {
-			
-		}
 	}
 
 	@Override
@@ -453,6 +441,19 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		finish();
 	}
 
+	private String calculateDefaultRemindTime() {
+		SimpleDateFormat formatter = new SimpleDateFormat (GlobalSettings.FULL_DATE_FORMAT);     
+		Date curDate = new Date(System.currentTimeMillis());
+		Date createDate = new Date(System.currentTimeMillis());
+		try {
+			createDate = formatter.parse(createTimeString);
+		} catch (ParseException p) {
+			p.printStackTrace();
+		}
+		createDate.setTime(createDate.getTime() + GlobalSettings.REMIND_TIME);
+		return formatter.format(createDate);
+	}
+	
 	@Override
 	public void onScrollChanged(ObservableScrollView scrollView, int x, int y,
 			int oldx, int oldy) {
@@ -499,16 +500,13 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		}
 	}
 	
-	private void setStar(final boolean isBack) {
+	private void setStar() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
 		View view = layoutInflater.inflate(R.layout.set_star, null);
 		builder.setView(view);
 		final AlertDialog dialog = builder.show();
-		dialog.getWindow().setLayout(600, 450);
 		dialog.setCanceledOnTouchOutside(true);
-		
-		starString = "0";
 		
 		final TextView okTextView = (TextView)view.findViewById(R.id.set_star_ok);
 
@@ -580,11 +578,9 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 			
 			@Override
 			public void onClick(View v) {
+				dialog.dismiss();
 				starString = String.valueOf(seekBar.getProgress() + 1);
 				isStared = true;
-				if (isBack) {
-					save(true);
-				}
 			}
 		});
 	}

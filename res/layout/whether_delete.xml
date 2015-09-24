@@ -34,6 +34,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="#FFFFFF"
                 android:text="Delete?"
+                android:textSize="20sp"
                 />
             
         </LinearLayout>

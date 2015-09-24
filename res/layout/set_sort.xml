@@ -1,140 +1,149 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="200dp"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" 
     android:background="#FFFFFF"
     >
     
-    <LinearLayout
-        android:id="@+id/sort_by_title_ly"
+    <TableRow
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="horizontal"
-        android:background="#CC4876FF"
         >
         
-        <ImageView
-            android:id="@+id/sort_by_title_logo"
+        <LinearLayout
+	        android:id="@+id/sort_by_title_ly"
+	        android:layout_width="0dp"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+	        android:orientation="vertical"
+	        android:background="#CC4876FF"
+	        >
+	        
+	        <ImageView
+	            android:id="@+id/sort_by_title_logo"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:src="@drawable/sort_by_title_logo"
+	            />
+	        
+	        <TextView
+	            android:layout_height="wrap_content"
+	            android:layout_width="wrap_content"
+	            android:text="By title"
+	            android:textColor="#FFFFFF"
+	            android:textSize="10sp"
+	            android:layout_gravity="center_vertical|left"
+	            />
+	        
+	    </LinearLayout>
+	    
+        <TextView
+	        android:layout_width="1dp"
+	        android:layout_height="match_parent"
+	        />
+        
+        <LinearLayout
+            android:id="@+id/sort_by_create_time_ly"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/sort_by_title_logo"
-            />
+            android:orientation="vertical"
+            android:background="#CC4876FF"
+            >
+            
+            <ImageView
+                android:id="@+id/sort_by_create_time_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/remind_time"
+                />
+            
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="By create time"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:layout_gravity="center_vertical|left"
+                />
+            
+        </LinearLayout>
         
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:text="Sort by title"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:layout_gravity="center_vertical|left"
-            />
-        
-    </LinearLayout>
-    
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        />
-    
-    <LinearLayout
-        android:id="@+id/sort_by_create_time_ly"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal"
-        android:background="#CC4876FF"
-        >
-        
-        <ImageView
-            android:id="@+id/sort_by_create_time_logo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/remind_time"
-            />
-        
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:text="Sort by create time"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:layout_gravity="center_vertical|left"
-            />
-        
-    </LinearLayout>
-    
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        />
-    
-    <LinearLayout
-        android:id="@+id/sort_by_remind_time_ly"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal"
-        android:background="#CC4876FF"
-        >
-        
-        <ImageView
-            android:id="@+id/sort_by_remind_time_logo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/remind_time_2"
-            />
-        
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:text="Sort by remind time"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:layout_gravity="center_vertical|left"
-            />
-        
-    </LinearLayout>
-    
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        />
-    
-    <LinearLayout
-        android:id="@+id/sort_by_star_ly"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal"
-        android:background="#CC4876FF"
-        >
-        
-        <ImageView
-            android:id="@+id/sort_by_star_logo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/star_logo"
-            />
-        
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:text="Sort by star"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:layout_gravity="center_vertical|left"
-            />
-        
-    </LinearLayout>
+    </TableRow>
 
-</LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        />
+    
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        >
+        
+        <LinearLayout
+            android:id="@+id/sort_by_remind_time_ly"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="#CC4876FF"
+            >
+            
+            <ImageView
+                android:id="@+id/sort_by_remind_time_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/remind_time_2"
+                />
+            
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="By remind time"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:layout_gravity="center_vertical|left"
+                />
+            
+        </LinearLayout>
+        
+        <TextView
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            />
+        
+        <LinearLayout
+            android:id="@+id/sort_by_star_ly"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="#CC4876FF"
+            >
+            
+            <ImageView
+                android:id="@+id/sort_by_star_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/star_logo"
+                />
+            
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="By star"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:layout_gravity="center_vertical|left"
+                />
+            
+        </LinearLayout>
+        
+    </TableRow>
+
+</TableLayout>
