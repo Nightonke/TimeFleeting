@@ -18,7 +18,7 @@
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
 	        android:orientation="vertical"
-	        android:background="#CC4876FF"
+	        android:background="@color/set_sort_background"
 	        >
 	        
 	        <ImageView
@@ -26,6 +26,7 @@
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:src="@drawable/sort_by_title_logo"
+	            android:layout_gravity="center_horizontal"
 	            />
 	        
 	        <TextView
@@ -34,7 +35,8 @@
 	            android:text="By title"
 	            android:textColor="#FFFFFF"
 	            android:textSize="10sp"
-	            android:layout_gravity="center_vertical|left"
+	            android:layout_gravity="center_horizontal"
+	            android:paddingBottom="10dp"
 	            />
 	        
 	    </LinearLayout>
@@ -50,7 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:background="#CC4876FF"
+            android:background="@color/set_sort_background"
             >
             
             <ImageView
@@ -58,6 +60,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/remind_time"
+                android:layout_gravity="center_horizontal"
                 />
             
             <TextView
@@ -66,7 +69,8 @@
                 android:text="By create time"
                 android:textColor="#FFFFFF"
                 android:textSize="10sp"
-                android:layout_gravity="center_vertical|left"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="10dp"
                 />
             
         </LinearLayout>
@@ -91,7 +95,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:background="#CC4876FF"
+            android:background="@color/set_sort_background"
             >
             
             <ImageView
@@ -99,6 +103,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/remind_time_2"
+                android:layout_gravity="center_horizontal"
                 />
             
             <TextView
@@ -107,7 +112,8 @@
                 android:text="By remind time"
                 android:textColor="#FFFFFF"
                 android:textSize="10sp"
-                android:layout_gravity="center_vertical|left"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="10dp"
                 />
             
         </LinearLayout>
@@ -123,7 +129,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:background="#CC4876FF"
+            android:background="@color/set_sort_background"
             >
             
             <ImageView
@@ -131,6 +137,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/star_logo"
+                android:layout_gravity="center_horizontal"
                 />
             
             <TextView
@@ -139,7 +146,8 @@
                 android:text="By star"
                 android:textColor="#FFFFFF"
                 android:textSize="10sp"
-                android:layout_gravity="center_vertical|left"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="10dp"
                 />
             
         </LinearLayout>

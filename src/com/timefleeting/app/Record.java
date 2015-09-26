@@ -15,13 +15,16 @@ public class Record {
 	private String createTime;
 	private String star;
 	private String type;
+	private String status;
+	private int beTop;
 	
 	public Record() {
 		
 	}
 	
 	public Record(int id, String title, String text, String remindTime, 
-			String createTime, String star, String type) {
+			String createTime, String star, String type,
+			String status, int beTop) {
 		this.id = id;
 		this.title = title;
 		this.text = text;
@@ -29,6 +32,8 @@ public class Record {
 		this.createTime = createTime;
 		this.star = star;
 		this.type = type;
+		this.status = status;
+		this.beTop = beTop;
 	}
 	
 	public void set(Record record) {
@@ -39,6 +44,8 @@ public class Record {
 		this.createTime = record.createTime;
 		this.star = record.star;
 		this.type = record.type;
+		this.status = record.status;
+		this.beTop = record.beTop;
 	}
 	
 	public int getId() {
@@ -95,6 +102,22 @@ public class Record {
 	
 	public void setType(String type) {
 		this.type = type;
+	}
+	
+	public String getStatus() {
+		return status;
+	}
+	
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+	public int getBeTop() {
+		return beTop;
+	}
+	
+	public void setBeTop(int beTop) {
+		this.beTop = beTop;
 	}
 	
 	public String toString() {

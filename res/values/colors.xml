@@ -2,6 +2,28 @@
 <resources>
 
     <color name="holo_blue">#FF33E5B5</color>
-    <color name="future_listview_item_create_time">#065FB9</color>
+    
+    <color name="layout_title">#66CC69</color>
+    
+    <color name="future_listview_divider">#f4f4f4</color>
+    
+    <color name="future_listview_background">#99FF99</color>
+    <color name="future_listview_title">#040</color>
+    <color name="future_listview_content">#aaaaaa</color>
+    <color name="future_listview_create_time">#060</color>
+    <color name="future_listview_remind_time">#060</color>
+    
+    <color name="future_listview_be_top">#77DD77</color>
+    <color name="future_listview_set_remind_time">#55BB55</color>
+    <color name="future_listview_set_star">#339933</color>
+    <color name="future_listview_delete">#117711</color>
+    
+    <color name="future_listview_above_wave">#009E10</color>
+    <color name="future_listview_below_wave">#009E10</color>
+    
+    <color name="set_sort_background">#66CC69</color>
+    <color name="whether_save_background">#66CC69</color>
+    <color name="whether_delete_background">#66CC69</color>
+    <color name="set_star_background">#66CC69</color>
     
 </resources>

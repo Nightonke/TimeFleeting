@@ -14,7 +14,9 @@ public class DBHelper extends SQLiteOpenHelper {
 			"remind_time text," +
 			"create_time text," +
 			"star text," +
-			"type text)";
+			"type text," +
+			"status text," +
+			"beTop integer)";
 
 	public DBHelper(Context context, String name, CursorFactory factory,
 			int version) {

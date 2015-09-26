@@ -1,6 +1,7 @@
 package com.timefleeting.app;
 
 import java.io.IOException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -20,9 +21,11 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.TimingLogger;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -57,13 +60,15 @@ import com.daimajia.swipe.util.Attributes;
 import com.fourmob.datetimepicker.date.DatePickerDialog;
 import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 
-public class MainActivity extends FragmentActivity implements OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+public class MainActivity extends FragmentActivity {
 
 	public static final String DATEPICKER_TAG = "选择日期";
     public static final String TIMEPICKER_TAG = "选择时间";
 	
 	private JazzyViewPager mJazzy;
 	private LayoutInflater layoutInflater;	
+	
+	private List<View> mViewList;
 	
 	private TextView resultTextView;
 	
@@ -73,6 +78,8 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 	
 	private ListView listView;
 	private ListViewAdapter mAdapter;
+	
+	private PagerAdapter mainAdapter;
 	
 	private RayMenu rayMenu;
 	
@@ -111,14 +118,11 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 		R.drawable.over_due,
 		};
 	
-	ImageView setTimeImageView;
-	ImageView setStarImageView;
-	ImageView deleteImageView;
 	
-	private int clickPosition;
+	private LinearLayout layoutTitleLinearLayout;
+	private TextView layoutTitleTextView;
+	private ImageView layoutTitleImageView;
 	
-	private String setStarString;
-	private Record setStarRecord;
 	
 	private String newRemindTimeString;
 	private Record setTimeRecord;
@@ -137,23 +141,22 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 			e.printStackTrace();
 		}
 		
-		mAdapter = new ListViewAdapter(timeFleetingData.futureRecords, mContext);
+		mAdapter = new ListViewAdapter(TimeFleetingData.futureRecords, mContext);
 		mAdapter.setMode(Attributes.Mode.Single);
 		
 		layoutInflater = getLayoutInflater().from(this);
 		setupJazziness(TransitionEffect.Tablet);
-	}
-
-	private void show() {
-		 String resultString = "PAST: \n";
-		 for (Record c : timeFleetingData.pastRecords) {
-			 resultString += c.toString() + "\n";
-		 }
-		 resultString += "FUTURE: \n";
-		 for (Record c : timeFleetingData.futureRecords) {
-			 resultString += c.toString() + "\n";
-		 }
-		 resultTextView.setText(resultString);
+		
+		layoutTitleLinearLayout = (LinearLayout)findViewById(R.id.layout_title);
+		layoutTitleTextView = (TextView)findViewById(R.id.layout_title_text);
+		layoutTitleImageView = (ImageView)findViewById(R.id.layout_title_imageview);
+		
+		layoutTitleImageView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				setSort();
+			}
+		});
 	}
 	
 	// listener to listen whether the EditActivity is finished
@@ -165,8 +168,7 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 			if (resultCode == RESULT_OK) {
 				boolean isEditActivityFinished = data.getBooleanExtra("isEditActivityFinished", false);
 				if (isEditActivityFinished) {
-					timeFleetingData.sortFutureRecordByCreateTimeReversely();
-					setSortParameter(false, false, true, true, false, false, false, false);
+					TimeFleetingData.sortFutureRecordByCreateTimeReversely();
 					mAdapter.notifyDataSetChanged();
 					if (data.getBooleanExtra("isOld", false)) {
 						// don't scroll
@@ -186,224 +188,241 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 
 	private void setupJazziness(TransitionEffect effect) {
 
+		initView();
+		
 		mJazzy = (JazzyViewPager) findViewById(R.id.jazzy_pager);
 
-		mJazzy.setTransitionEffect(TransitionEffect.valueOf("CubeOut".toString()));
-		mJazzy.setAdapter(new MainAdapter());
+		mJazzy.setTransitionEffect(TransitionEffect.valueOf("ZoomIn".toString()));
+		mainAdapter = new MainAdapter();
+		mJazzy.setAdapter(mainAdapter);
+		mJazzy.setCurrentItem(1);
 		mJazzy.setPageMargin(0);
+		mJazzy.addOnPageChangeListener(new OnPageChangeListener() {
+			
+			@Override
+			public void onPageSelected(int position) {
+				// TODO Auto-generated method stub
+			}
+			
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onPageScrollStateChanged(int arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 	}
 
 	private class MainAdapter extends PagerAdapter {
 		@Override
 		public Object instantiateItem(ViewGroup container, final int position) {
-			View view = new View(MainActivity.this);
 			
-			if (position == 0) {
-				v = layoutInflater.inflate(R.layout.layout1, null);
-				listView = (ListView)v.findViewById(R.id.listview);
-				listView.setAdapter(mAdapter);
+//			container.addView(mViewList.get(position));
+//			return mViewList.get(position);
+//			
+			mJazzy.setObjectForPosition(mViewList.get(position), position);
+			container.addView(mViewList.get(position), LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+			
+			return mViewList.get(position);
+		}
+		
+		@Override
+		public void destroyItem(ViewGroup container, int position, Object obj) {
+			container.removeView(mJazzy.findViewFromObject(position));
+//			container.removeView(mViewList.get(position));
+		}
+		
+		@Override
+		public int getCount() {
+			return mViewList.size();
+		}
+		
+		@Override
+		public boolean isViewFromObject(View view, Object obj) {
+			return view == obj;
+//			if (view instanceof OutlineContainer) {
+//				return ((OutlineContainer) view).getChildAt(0) == obj;
+//			} else {
+//				return view == obj;
+//			}
+		}		
+	}
+	
+	private void initView() {
+			View v1 = layoutInflater.inflate(R.layout.layout1, null);
+			listView = (ListView)v1.findViewById(R.id.listview);
+			listView.setAdapter(mAdapter);
 
-				// sort by the create time default
-				setSortParameter(false, false, true, true, false, false, false, false);
-				timeFleetingData.sortFutureRecordByCreateTimeReversely();
-				
-				if (timeFleetingData.futureRecords.size() > 0) {
-					TextView tipsTextView = (TextView)v.findViewById(R.id.layout_1_tips);
-					tipsTextView.setVisibility(View.INVISIBLE);
-				} else {
-					TextView tipsTextView = (TextView)v.findViewById(R.id.layout_1_tips);
-					tipsTextView.setVisibility(View.VISIBLE);
-				}
-				
-				// on list item click listener
-				listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-		            @Override
-		            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		            	if (mAdapter.isOpen(position)) {
-		            		clickPosition = position;
-		                    SwipeLayout swipeLayout = (SwipeLayout)view.findViewById(mAdapter.getSwipeLayoutResourceId(position));
-		                    setTimeImageView = (ImageView)swipeLayout.findViewById(R.id.set_time);
-		                    setTimeImageView.setClickable(false);
-		                    LinearLayout setTimeLinearLayout = (LinearLayout)swipeLayout.findViewById(R.id.set_time_ly);
-		                    setTimeLinearLayout.setOnClickListener(new OnClickListener() {
-								
-								@Override
-								public void onClick(View v) {
-									YoYo.with(Techniques.Shake).duration(1000).delay(500).playOn(setTimeImageView);
-									setRemindTime(clickPosition);
-								}
-							});
-		                    setStarImageView = (ImageView)swipeLayout.findViewById(R.id.set_star);
-		                    setStarImageView.setClickable(false);
-		                    LinearLayout setStarLinearLayout = (LinearLayout)swipeLayout.findViewById(R.id.set_star_ly);
-		                    setStarLinearLayout.setOnClickListener(new OnClickListener() {
-								
-								@Override
-								public void onClick(View v) {
-									YoYo.with(Techniques.Shake).duration(1000).delay(500).playOn(setStarImageView);
-									setStar(clickPosition);
-								}
-							});
-		                    deleteImageView = (ImageView)swipeLayout.findViewById(R.id.delete);
-		                    deleteImageView.setClickable(false);
-		                    LinearLayout deleteLinearLayout = (LinearLayout)swipeLayout.findViewById(R.id.delete_ly);
-		                    deleteLinearLayout.setOnClickListener(new OnClickListener() {
-								
-								@Override
-								public void onClick(View v) {
-									YoYo.with(Techniques.Shake).duration(1000).delay(500).playOn(deleteImageView);
-									int idToBeDeleted = timeFleetingData.futureRecords.get(clickPosition).getId();
-									whetherDelete(idToBeDeleted, clickPosition);
-								}
-							});
-		                    return;
-		            	} else {
-		            		Intent intent = new Intent(mContext, EditActivity.class);
-			            	intent.putExtra("isOld", true);
-			            	intent.putExtra("Title", timeFleetingData.futureRecords.get(position).getTitle());
-			            	intent.putExtra("Content", timeFleetingData.futureRecords.get(position).getText());
-			            	intent.putExtra("CreateTime", timeFleetingData.futureRecords.get(position).getCreateTime());
-			            	intent.putExtra("RemindTime", timeFleetingData.futureRecords.get(position).getRemindTime());
-			            	intent.putExtra("Star", timeFleetingData.futureRecords.get(position).getStar());
-			            	intent.putExtra("ID", timeFleetingData.futureRecords.get(position).getId());
-							startActivityForResult(intent, 1);
-		            	}
-		            }
-		        });			
+			// sort by the create time default
+			TimeFleetingData.sortFutureRecordByCreateTimeReversely();
+			
+			if (TimeFleetingData.futureRecords.size() > 0) {
+				TextView tipsTextView = (TextView)v1.findViewById(R.id.layout_1_tips);
+				tipsTextView.setVisibility(View.INVISIBLE);
+			} else {
+				TextView tipsTextView = (TextView)v1.findViewById(R.id.layout_1_tips);
+				tipsTextView.setVisibility(View.VISIBLE);
+			}
+			
+			// on list item click listener
+			listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+	            @Override
+	            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	            	if (mAdapter.isOpen(position)) {
+	                    return;
+	            	} else {
+	            		mAdapter.closeAllItems();
+	            		Intent intent = new Intent(mContext, EditActivity.class);
+		            	intent.putExtra("isOld", true);
+		            	intent.putExtra("Title", TimeFleetingData.futureRecords.get(position).getTitle());
+		            	intent.putExtra("Content", TimeFleetingData.futureRecords.get(position).getText());
+		            	intent.putExtra("CreateTime", TimeFleetingData.futureRecords.get(position).getCreateTime());
+		            	intent.putExtra("RemindTime", TimeFleetingData.futureRecords.get(position).getRemindTime());
+		            	intent.putExtra("Star", TimeFleetingData.futureRecords.get(position).getStar());
+		            	intent.putExtra("ID", TimeFleetingData.futureRecords.get(position).getId());
+		            	intent.putExtra("Status", TimeFleetingData.futureRecords.get(position).getStatus());
+		            	intent.putExtra("Top", TimeFleetingData.futureRecords.get(position).getBeTop());
+						startActivityForResult(intent, 1);
+	            	}
+	            }
+	        });			
 
-				ImageView sortImageView = (ImageView)v.findViewById(R.id.layout_1_sort);
-				sortImageView.setOnClickListener(new OnClickListener() {
+			rayMenu = (RayMenu)v1.findViewById(R.id.past_layout_ray_menu);
+			
+			layout1RayMenuAppeared = true;
+			
+			for (int i = 0; i < ITEM_DRAWABLES_FUTURE.length; i++) {
+				ImageView imageView = new ImageView(mContext);
+				imageView.setImageResource(ITEM_DRAWABLES_FUTURE[i]);
+				final int menuPosition = i;
+				rayMenu.addItem(imageView, new OnClickListener() {
+					
 					@Override
 					public void onClick(View v) {
-						setSort();
+						if (menuPosition == 0) {
+							// new
+							Intent intent = new Intent(mContext, EditActivity.class);
+							intent.putExtra("isOld", false);
+							startActivityForResult(intent, 1);
+						} else if (menuPosition == 1) {
+							// search
+						} else if (menuPosition == 2) {
+							// overdue
+						} 
 					}
 				});
+			}
+			
+			listView.setOnTouchListener(new OnTouchListener() {
 				
-				rayMenu = (RayMenu)v.findViewById(R.id.past_layout_ray_menu);
-				
-				layout1RayMenuAppeared = true;
-				
-				for (int i = 0; i < ITEM_DRAWABLES_FUTURE.length; i++) {
-					ImageView imageView = new ImageView(mContext);
-					imageView.setImageResource(ITEM_DRAWABLES_FUTURE[i]);
-					final int menuPosition = i;
-					rayMenu.addItem(imageView, new OnClickListener() {
-						
-						@Override
-						public void onClick(View v) {
-							if (menuPosition == 0) {
-								// new
-								Intent intent = new Intent(mContext, EditActivity.class);
-								intent.putExtra("isOld", false);
-								startActivityForResult(intent, 1);
-							} else if (menuPosition == 1) {
-								// search
-							} else if (menuPosition == 2) {
-								// overdue
-								if (timeFleetingData.getOverdueSort()) {
-									timeFleetingData.setOverdueSortFalse();
-								} else {
-									timeFleetingData.setOverdueSortTrue();
-								}
-								// after set the overdue
-								// found the origin sort style to sort
-								if (isSortedByTitle) {
-									if (!isSortedByTitleReversely) {
-										timeFleetingData.sortFutureRecordByTitle();
-									} else {
-										timeFleetingData.sortFutureRecordByTitleReversely();
-									}
-								} else if (isSortByCreateTime) {
-									if (!isSortedByCreateTimeReversely) {
-										timeFleetingData.sortFutureRecordByCreateTime();
-									} else {
-										timeFleetingData.sortFutureRecordByCreateTimeReversely();
-									}
-								} else if (isSortedByRemindTime) {
-									if (!isSortedByRemindTimeReversely) {
-										timeFleetingData.sortFutureRecordByRemindTime();
-									} else {
-										timeFleetingData.sortFutureRecordByRemindTimeReversely();
-									}
-								} else if (isSortedByStar) {
-									if (!isSortedByStarReversely) {
-										timeFleetingData.sortFutureRecordByStar();
-									} else {
-										timeFleetingData.sortFutureRecordByStarReversely();
-									}
-								}
-								mAdapter.notifyDataSetChanged();
-							} 
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					if (event.getAction() == MotionEvent.ACTION_MOVE) {
+						if (pressDownY == -1) {
+							// don't calculate
+							pressDownY = event.getY();
+							return false;
 						}
-					});
+						if (event.getY() > pressDownY) {
+							moveDirection = 1;
+						} else if (event.getY() < pressDownY) {
+							moveDirection = -1;
+						}
+						pressDownY = event.getY();
+					} else if (event.getAction() == MotionEvent.ACTION_UP) {
+						pressDownY = -1;
+					}
+					return false;
+				}
+			});
+			
+			listView.setOnScrollListener(new OnScrollListener() {
+				
+				@Override
+				public void onScrollStateChanged(AbsListView view, int scrollState) {
+					switch (scrollState) {
+					case OnScrollListener.SCROLL_STATE_IDLE:
+						scrollFlag = false;
+						if (listView.getLastVisiblePosition() == (listView.getCount() - 1)) {
+							// to bottom 
+							
+						}
+						if (listView.getFirstVisiblePosition() == 0) {
+							// to top
+
+						}
+						break;
+					case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
+						scrollFlag = true;
+						break;
+					case OnScrollListener.SCROLL_STATE_FLING:
+						scrollFlag = false;
+						break;
+					default:
+						break;
+					}
 				}
 				
-				layout1TitleLinearLayout = (LinearLayout)v.findViewById(R.id.layout_1_title_ly);
-				
-				listView.setOnTouchListener(new OnTouchListener() {
-					
-					@Override
-					public boolean onTouch(View v, MotionEvent event) {
-						if (event.getAction() == MotionEvent.ACTION_MOVE) {
-							Log.d("TimeFleeting", "OLD: " + pressDownY + "");
-							Log.d("TimeFleeting", "NEW: " + event.getY() + "");
-							if (pressDownY == -1) {
-								// don't calculate
-								pressDownY = event.getY();
-								return false;
-							}
-							if (event.getY() > pressDownY) {
-								moveDirection = 1;
-							} else if (event.getY() < pressDownY) {
-								moveDirection = -1;
-							}
-							pressDownY = event.getY();
-						} else if (event.getAction() == MotionEvent.ACTION_UP) {
-							pressDownY = -1;
-						}
-						return false;
-					}
-				});
-				
-				listView.setOnScrollListener(new OnScrollListener() {
-					
-					@Override
-					public void onScrollStateChanged(AbsListView view, int scrollState) {
-						switch (scrollState) {
-						case OnScrollListener.SCROLL_STATE_IDLE:
-							scrollFlag = false;
-							if (listView.getLastVisiblePosition() == (listView.getCount() - 1)) {
-								// to bottom 
+				@Override
+				public void onScroll(AbsListView view, int firstVisibleItem,
+						int visibleItemCount, int totalItemCount) {
+					rayMenu.closeMenu();
+					if (scrollFlag && 
+							ScreenUtil.getScreenViewBottomHeight(listView) 
+							>= ScreenUtil.getScreenHeight(MainActivity.this) 
+							- statusBarHeight 
+							- layoutTitleLinearLayout.getHeight()) {
+						if (firstVisibleItem > lastVisibleItemPosition) {
+							Log.d("TimeFleeting", "Down");
+							// scroll down
+							// should disappear
+							if (!lastIsScrollDown) {
+								AnimationSet animationSet = new AnimationSet(true);
+								TranslateAnimation translateAnimation = 
+										new TranslateAnimation(
+												Animation.RELATIVE_TO_SELF, 0f,
+												Animation.RELATIVE_TO_SELF, 0f,
+												Animation.RELATIVE_TO_SELF, 0f,
+												Animation.RELATIVE_TO_SELF, 1f);
+								translateAnimation.setDuration(1000);
+								animationSet.addAnimation(translateAnimation);
+								animationSet.setFillAfter(true);
+								rayMenu.startAnimation(animationSet);
+								layout1RayMenuShown = false;
+							} else {
 								
 							}
-							if (listView.getFirstVisiblePosition() == 0) {
-								// to top
-
+							lastIsScrollDown = true;
+						} else if (firstVisibleItem < lastVisibleItemPosition) {
+							// scroll up
+							// should appear
+							if (lastIsScrollDown) {
+								AnimationSet animationSet = new AnimationSet(true);
+								TranslateAnimation translateAnimation = 
+										new TranslateAnimation(
+												Animation.RELATIVE_TO_SELF, 0f,
+												Animation.RELATIVE_TO_SELF, 0f,
+												Animation.RELATIVE_TO_SELF, 1f,
+												Animation.RELATIVE_TO_SELF, 0f);
+								translateAnimation.setDuration(1000);
+								animationSet.addAnimation(translateAnimation);
+								animationSet.setFillAfter(true);
+								rayMenu.startAnimation(animationSet);
+								layout1RayMenuShown = true;
+							} else {
+								
 							}
-							break;
-						case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
-							scrollFlag = true;
-							break;
-						case OnScrollListener.SCROLL_STATE_FLING:
-							scrollFlag = false;
-							break;
-						default:
-							break;
-						}
-					}
-					
-					@Override
-					public void onScroll(AbsListView view, int firstVisibleItem,
-							int visibleItemCount, int totalItemCount) {
-						rayMenu.closeMenu();
-						if (scrollFlag && 
-								ScreenUtil.getScreenViewBottomHeight(listView) 
-								>= ScreenUtil.getScreenHeight(MainActivity.this) - statusBarHeight - layout1TitleLinearLayout.getHeight()) {
-							if (firstVisibleItem > lastVisibleItemPosition) {
-								Log.d("TimeFleeting", "Down");
-								// scroll down
-								// should disappear
-								if (!lastIsScrollDown) {
+							lastIsScrollDown = false;
+						} else {
+							if (moveDirection == -1) {
+								// down
+								if (lastDirection == 1) {
+									Log.d("TimeFleeting", "DOWN");
 									AnimationSet animationSet = new AnimationSet(true);
 									TranslateAnimation translateAnimation = 
 											new TranslateAnimation(
@@ -416,14 +435,16 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 									animationSet.setFillAfter(true);
 									rayMenu.startAnimation(animationSet);
 									layout1RayMenuShown = false;
+									lastDirection = -1;
 								} else {
 									
 								}
-								lastIsScrollDown = true;
-							} else if (firstVisibleItem < lastVisibleItemPosition) {
+								
+							} else if (moveDirection == 1) {
 								// scroll up
 								// should appear
-								if (lastIsScrollDown) {
+								if (lastDirection == -1) {
+									Log.d("TimeFleeting", "UP");
 									AnimationSet animationSet = new AnimationSet(true);
 									TranslateAnimation translateAnimation = 
 											new TranslateAnimation(
@@ -436,96 +457,28 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 									animationSet.setFillAfter(true);
 									rayMenu.startAnimation(animationSet);
 									layout1RayMenuShown = true;
+									lastDirection = 1;
 								} else {
 									
 								}
-								lastIsScrollDown = false;
-							} else {
-								if (moveDirection == -1) {
-									// down
-									if (lastDirection == 1) {
-										Log.d("TimeFleeting", "DOWN");
-										AnimationSet animationSet = new AnimationSet(true);
-										TranslateAnimation translateAnimation = 
-												new TranslateAnimation(
-														Animation.RELATIVE_TO_SELF, 0f,
-														Animation.RELATIVE_TO_SELF, 0f,
-														Animation.RELATIVE_TO_SELF, 0f,
-														Animation.RELATIVE_TO_SELF, 1f);
-										translateAnimation.setDuration(1000);
-										animationSet.addAnimation(translateAnimation);
-										animationSet.setFillAfter(true);
-										rayMenu.startAnimation(animationSet);
-										layout1RayMenuShown = false;
-										lastDirection = -1;
-									} else {
-										
-									}
-									
-								} else if (moveDirection == 1) {
-									// scroll up
-									// should appear
-									if (lastDirection == -1) {
-										Log.d("TimeFleeting", "UP");
-										AnimationSet animationSet = new AnimationSet(true);
-										TranslateAnimation translateAnimation = 
-												new TranslateAnimation(
-														Animation.RELATIVE_TO_SELF, 0f,
-														Animation.RELATIVE_TO_SELF, 0f,
-														Animation.RELATIVE_TO_SELF, 1f,
-														Animation.RELATIVE_TO_SELF, 0f);
-										translateAnimation.setDuration(1000);
-										animationSet.addAnimation(translateAnimation);
-										animationSet.setFillAfter(true);
-										rayMenu.startAnimation(animationSet);
-										layout1RayMenuShown = true;
-										lastDirection = 1;
-									} else {
-										
-									}
-									
-								}
+								
 							}
-							lastVisibleItemPosition = firstVisibleItem;
 						}
+						lastVisibleItemPosition = firstVisibleItem;
 					}
-				});
-				
-			} else if (position == 1) {
-				layout1RayMenuAppeared = false;
-				v = layoutInflater.inflate(R.layout.layout2, null);
-			} else if (position == 2) {
-				layout1RayMenuAppeared = false;
-				v = layoutInflater.inflate(R.layout.layout3, null);
-			} else {
-				layout1RayMenuAppeared = false;
-				v = layoutInflater.inflate(R.layout.layout4, null);
-			}
+				}
+			});
+
+			View v2 = layoutInflater.inflate(R.layout.layout2, null);
+
+			layout1RayMenuAppeared = false;
+			View v3 = layoutInflater.inflate(R.layout.layout3, null);
 			
-			mJazzy.setObjectForPosition(v, position);
-			container.addView(v, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+			mViewList = new ArrayList<View>();
 			
-			return v;
-		}
-		
-		@Override
-		public void destroyItem(ViewGroup container, int position, Object obj) {
-			container.removeView(mJazzy.findViewFromObject(position));
-		}
-		
-		@Override
-		public int getCount() {
-			return 2;
-		}
-		
-		@Override
-		public boolean isViewFromObject(View view, Object obj) {
-			if (view instanceof OutlineContainer) {
-				return ((OutlineContainer) view).getChildAt(0) == obj;
-			} else {
-				return view == obj;
-			}
-		}		
+			mViewList.add(v2);
+			mViewList.add(v1);
+
 	}
 	
 	public int getStatusBarHeight() {
@@ -559,12 +512,10 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 		sortByTitleLinearLayout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (!isSortedByTitleReversely) {
-					timeFleetingData.sortFutureRecordByTitleReversely();
-					setSortParameter(true, true, false, false, false, false, false, false);
+				if (!TimeFleetingData.isSortedByTitleReversely) {
+					TimeFleetingData.sortFutureRecordByTitleReversely();
 				} else {
-					timeFleetingData.sortFutureRecordByTitle();
-					setSortParameter(true, false, false, false, false, false, false, false);
+					TimeFleetingData.sortFutureRecordByTitle();
 				}
 				mAdapter.notifyDataSetChanged();
 				dialog.dismiss();
@@ -574,12 +525,10 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 		sortByCreateTimeLinearLayout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (isSortedByCreateTimeReversely) {
-					timeFleetingData.sortFutureRecordByCreateTime();
-					setSortParameter(false, false, true, false, false, false, false, false);
+				if (TimeFleetingData.isSortedByCreateTimeReversely) {
+					TimeFleetingData.sortFutureRecordByCreateTime();
 				} else {
-					timeFleetingData.sortFutureRecordByCreateTimeReversely();
-					setSortParameter(false, false, true, true, false, false, false, false);
+					TimeFleetingData.sortFutureRecordByCreateTimeReversely();
 				}
 				mAdapter.notifyDataSetChanged();
 				dialog.dismiss();
@@ -589,12 +538,10 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 		sortByRemindTimeLinearLayout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (!isSortedByRemindTimeReversely) {
-					timeFleetingData.sortFutureRecordByRemindTimeReversely();
-					setSortParameter(false, false, false, false, true, true, false, false);
+				if (!TimeFleetingData.isSortedByRemindTimeReversely) {
+					TimeFleetingData.sortFutureRecordByRemindTimeReversely();
 				} else {
-					timeFleetingData.sortFutureRecordByRemindTime();
-					setSortParameter(false, false, false, false, true, false, false, false);
+					TimeFleetingData.sortFutureRecordByRemindTime();
 				}
 				mAdapter.notifyDataSetChanged();
 				dialog.dismiss();
@@ -604,226 +551,14 @@ public class MainActivity extends FragmentActivity implements OnDateSetListener,
 		sortByStarLinearLayout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (!isSortedByStarReversely) {
-					timeFleetingData.sortFutureRecordByStarReversely();
-					setSortParameter(false, false, false, false, false, false, true, true);
+				if (!TimeFleetingData.isSortedByStarReversely) {
+					TimeFleetingData.sortFutureRecordByStarReversely();
 				} else {
-					timeFleetingData.sortFutureRecordByStar();
-					setSortParameter(false, false, false, false, false, false, true, false);
+					TimeFleetingData.sortFutureRecordByStar();
 				}
 				mAdapter.notifyDataSetChanged();
 				dialog.dismiss();
 			}
 		});
-	}
-	
-	private void setRemindTime(int position) {
-		
-		setTimeRecord = timeFleetingData.futureRecords.get(position);
-		
-		final Calendar calendar = Calendar.getInstance();
-		final DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), false);
-		datePickerDialog.setYearRange(2015, 2036);
-        datePickerDialog.setCloseOnSingleTapDay(false);
-        datePickerDialog.show(getSupportFragmentManager(), DATEPICKER_TAG);
-	}
-
-	@Override
-	public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
-		// TODO Auto-generated method stub
-		newRemindTimeString += (hourOfDay < 10 ? "0" + String.valueOf(hourOfDay) : String.valueOf(hourOfDay)) + ":";
-		newRemindTimeString += (minute < 10 ? "0" + String.valueOf(minute) : String.valueOf(minute)) + ":";
-		newRemindTimeString += "00";
-
-		setTimeRecord.setRemindTime(newRemindTimeString);
-		timeFleetingData.saveRecord(setTimeRecord);
-		mAdapter.notifyDataSetChanged();
-	}
-
-	@Override
-	public void onDateSet(DatePickerDialog datePickerDialog, int year,
-			int month, int day) {
-		// TODO Auto-generated method stub
-
-		// a bug in the datetimepicker-library
-		// which will cause the month is month - 1
-		month++;
-		
-		newRemindTimeString = String.valueOf(year) + "-";
-		newRemindTimeString += (month < 10 ? "0" + String.valueOf(month) : String.valueOf(month)) + "-";
-		newRemindTimeString += (day < 10 ? "0" + String.valueOf(day) : String.valueOf(day)) + "-";
-		
-		final Calendar calendar = Calendar.getInstance();
-		
-	    final TimePickerDialog timePickerDialog = TimePickerDialog.newInstance(this, calendar.get(Calendar.HOUR_OF_DAY) ,calendar.get(Calendar.MINUTE), false, false);
-		
-		timePickerDialog.setVibrate(false);
-        timePickerDialog.setCloseOnSingleTapMinute(false);
-        timePickerDialog.show(getSupportFragmentManager(), TIMEPICKER_TAG);
-	}
-	
-	private void setStar(final int position) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
-		View view = layoutInflater.inflate(R.layout.set_star, null);
-		builder.setView(view);
-		final AlertDialog dialog = builder.show();
-		dialog.setCanceledOnTouchOutside(true);
-		
-		setStarString = "0";
-		setStarRecord= timeFleetingData.futureRecords.get(position);
-		
-		final TextView okTextView = (TextView)view.findViewById(R.id.set_star_ok);
-
-		final ImageView star1 = (ImageView)view.findViewById(R.id.star_1);
-		final ImageView star2 = (ImageView)view.findViewById(R.id.star_2);
-		final ImageView star3 = (ImageView)view.findViewById(R.id.star_3);
-		final ImageView star4 = (ImageView)view.findViewById(R.id.star_4);
-		final ImageView star5 = (ImageView)view.findViewById(R.id.star_5);
-		star4.setVisibility(View.INVISIBLE);
-		star5.setVisibility(View.INVISIBLE);
-		final SeekBar seekBar = (SeekBar)view.findViewById(R.id.star_seekbar);
-		seekBar.setProgress(2);
-		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-			
-			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				
-			}
-			
-			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {
-				
-			}
-			
-			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress,
-					boolean fromUser) {
-				if (progress == 0) {
-					star1.setVisibility(View.VISIBLE);
-					star2.setVisibility(View.INVISIBLE);
-					star3.setVisibility(View.INVISIBLE);
-					star4.setVisibility(View.INVISIBLE);
-					star5.setVisibility(View.INVISIBLE);
-				} else if (progress == 1) {
-					star1.setVisibility(View.VISIBLE);
-					star2.setVisibility(View.VISIBLE);
-					star3.setVisibility(View.INVISIBLE);
-					star4.setVisibility(View.INVISIBLE);
-					star5.setVisibility(View.INVISIBLE);
-				} else if (progress == 2) {
-					star1.setVisibility(View.VISIBLE);
-					star2.setVisibility(View.VISIBLE);
-					star3.setVisibility(View.VISIBLE);
-					star4.setVisibility(View.INVISIBLE);
-					star5.setVisibility(View.INVISIBLE);
-				} else if (progress == 3) {
-					star1.setVisibility(View.VISIBLE);
-					star2.setVisibility(View.VISIBLE);
-					star3.setVisibility(View.VISIBLE);
-					star4.setVisibility(View.VISIBLE);
-					star5.setVisibility(View.INVISIBLE);
-				} else if (progress == 4) {
-					star1.setVisibility(View.VISIBLE);
-					star2.setVisibility(View.VISIBLE);
-					star3.setVisibility(View.VISIBLE);
-					star4.setVisibility(View.VISIBLE);
-					star5.setVisibility(View.VISIBLE);
-				}
-				YoYo.with(Techniques.Tada).duration(1000).playOn(star1);
-				YoYo.with(Techniques.Tada).duration(1000).playOn(star2);
-				YoYo.with(Techniques.Tada).duration(1000).playOn(star3);
-				YoYo.with(Techniques.Tada).duration(1000).playOn(star4);
-				YoYo.with(Techniques.Tada).duration(1000).playOn(star5);
-				YoYo.with(Techniques.Tada).duration(1000).playOn(okTextView);
-			}
-		});
-		
-		okTextView.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				Record record = timeFleetingData.futureRecords.get(position);
-				record.setStar(String.valueOf(seekBar.getProgress() + 1));
-				timeFleetingData.saveRecord(record);
-				mAdapter.notifyDataSetChanged();
-				dialog.dismiss();
-			}
-		});
-		
-	}
-	
-	private void whetherDelete(final int id, final int position) {
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
-		View view = layoutInflater.inflate(R.layout.whether_delete, null);
-		builder.setView(view);
-		final AlertDialog dialog = builder.show();
-		dialog.setCanceledOnTouchOutside(true);
-		
-		LinearLayout whetherSaveLinearLayout = (LinearLayout)view.findViewById(R.id.whether_delete_logo);
-		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
-		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
-		.delay(GlobalSettings.TIP_ANIMATION_DELAY)
-		.playOn(whetherSaveLinearLayout);
-		
-		TextView cancelTextView = (TextView)view.findViewById(R.id.whether_delete_cancel);
-		TextView yesTextView = (TextView)view.findViewById(R.id.whether_delete_yes);
-		
-		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
-		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
-		.delay(GlobalSettings.TIP_ANIMATION_DELAY)
-		.playOn(cancelTextView);
-		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
-		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
-		.delay(GlobalSettings.TIP_ANIMATION_DELAY)
-		.playOn(yesTextView);
-		
-		cancelTextView.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				dialog.dismiss();
-				return;
-			}
-		});
-		
-		yesTextView.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				int returnId = timeFleetingData.deleteRecord(id);
-				if (returnId != -1) {
-					// delete successfully
-					Log.d("TimeFleeting", "Delete successfully");
-				} else {
-					// delete failed
-					Log.d("TimeFleeting", "Delete failed");
-				}
-				mAdapter.closeItem(position);
-				mAdapter.notifyDataSetChanged();
-				dialog.dismiss();
-			}
-		});
-	}
-	
-	private void setSortParameter(
-			boolean isSortedByTitle,
-			boolean isSortedByTitleReversely,
-			boolean isSortByCreateTime,
-			boolean isSortedByCreateTimeReversely,
-			boolean isSortedByRemindTime,
-			boolean isSortedByRemindTimeReversely,
-			boolean isSortedByStar,
-			boolean isSortedByStarReversely) {
-		this.isSortedByTitle = isSortedByTitle;
-		this.isSortedByTitleReversely = isSortedByTitleReversely;
-		this.isSortByCreateTime = isSortByCreateTime;
-		this.isSortedByCreateTimeReversely = isSortedByCreateTimeReversely;
-		this.isSortedByRemindTime = isSortedByRemindTime;
-		this.isSortedByRemindTimeReversely = isSortedByRemindTimeReversely;
-		this.isSortedByStar = isSortedByStar;
-		this.isSortedByStarReversely = isSortedByStarReversely;
 	}
 }

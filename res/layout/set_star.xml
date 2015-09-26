@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:orientation="horizontal"
-        android:background="#CC4876FF"
+        android:background="@color/set_star_background"
         >
         
         <ImageView
@@ -65,13 +65,15 @@
         android:max="4"
         android:paddingLeft="30dp"
         android:paddingRight="30dp"
-        android:background="#CC4876FF"
+        android:progressDrawable="@drawable/apptheme_scrubber_progress_horizontal_holo_light"
+        android:thumb="@drawable/apptheme_scrubber_control_selector_holo_light"
+        android:background="@color/set_star_background"
         />    
         
      <TextView
          android:layout_width="match_parent"  
          android:layout_height="20dp"
-         android:background="#CC4876FF"
+         android:background="@color/set_star_background"
          />   
     
      <TextView
@@ -82,7 +84,7 @@
      <LinearLayout
          android:layout_width="match_parent"  
          android:layout_height="60dp"
-         android:background="#CC4876FF"
+         android:background="@color/set_star_background"
          >
      
 	     <TextView

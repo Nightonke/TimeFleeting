@@ -19,7 +19,20 @@ public class TimeFleetingData {
 	public static List<Record> pastRecords;
 	public static List<Record> futureRecords;
 	
-	private boolean overdueSort = true;
+	// according which to sort
+	public static boolean isSortByCreateTime = true;
+	public static boolean isSortedByRemindTime = false;
+	public static boolean isSortedByTitle = false;
+	public static boolean isSortedByStar = false;
+	
+	// the direction of the sort
+	public static boolean isSortedByCreateTimeReversely = true;
+	public static boolean isSortedByRemindTimeReversely = false;
+	public static boolean isSortedByTitleReversely = false;
+	public static boolean isSortedByStarReversely = false;
+	
+	private static boolean overdueSort = false;
+	public static int futureBeTopNumber;
 	
 	private TimeFleetingData(Context context) {
 		try {
@@ -36,7 +49,8 @@ public class TimeFleetingData {
 			timeFleetingData = new TimeFleetingData(context);
 			pastRecords = db.loadPastRecords();
 			futureRecords = db.loadFutureRecords();
-			Log.d("TimeFleeting", "The timeFlletingData is NULL.");
+			Log.d("TimeFleeting", "The futureBeTopNumber is " + futureBeTopNumber);
+			Log.d("TimeFleeting", "The timeFleetingData is NULL.");
 			Log.d("TimeFleeting", "Loading " + 
 				String.valueOf(pastRecords.size()) + 
 				" PAST records successfully.");
@@ -50,7 +64,7 @@ public class TimeFleetingData {
 	// return weather the new record is saved successfully
 	// if successfully, return the new id
 	// else return -1
-	public int saveRecord(Record record) {
+	public static int saveRecord(Record record) {
 		boolean isUpdate = false;
 		if (record.getId() != -1) {
 			isUpdate = true;
@@ -85,7 +99,7 @@ public class TimeFleetingData {
 		return insertId;
 	}
 	
-	public int deleteRecord(int id) {
+	public static int deleteRecord(int id) {
 		int deletePositionInFuture = -1;
 		int deletePositionInPast = -1;
 		for (int i = 0; i < futureRecords.size(); i++) {
@@ -192,7 +206,11 @@ public class TimeFleetingData {
 						return Integer.valueOf(lhs.getId()).compareTo(Integer.valueOf(rhs.getId()));
 					}
 				} else {
-					return Integer.valueOf(lhs.getId()).compareTo(Integer.valueOf(rhs.getId()));
+					if (lhs.getBeTop() != rhs.getBeTop()) {
+						return Integer.valueOf(rhs.getBeTop()).compareTo(Integer.valueOf(lhs.getBeTop()));
+					} else {
+						return Integer.valueOf(lhs.getId()).compareTo(Integer.valueOf(rhs.getId()));
+					}
 				}
 			}
 		});
@@ -222,7 +240,11 @@ public class TimeFleetingData {
 						return Integer.valueOf(rhs.getId()).compareTo(Integer.valueOf(lhs.getId()));
 					}
 				} else {
-					return Integer.valueOf(rhs.getId()).compareTo(Integer.valueOf(lhs.getId()));
+					if (lhs.getBeTop() != rhs.getBeTop()) {
+						return Integer.valueOf(rhs.getBeTop()).compareTo(Integer.valueOf(lhs.getBeTop()));
+					} else {
+						return Integer.valueOf(lhs.getId()).compareTo(Integer.valueOf(rhs.getId()));
+					}
 				}
 			}
 		});
@@ -233,7 +255,8 @@ public class TimeFleetingData {
 	// if the create time is same, sort by remind time
 	// if the remind time is same, sort by star
 	// is the star is same, sort by id
-	public void sortFutureRecordByTitle() {
+	public static void sortFutureRecordByTitle() {
+		setSortParameter(true, false, false, false, false, false, false, false);
 		final String currentTimeString;
 		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
 		Date curDate = new Date(System.currentTimeMillis());
@@ -266,7 +289,9 @@ public class TimeFleetingData {
 						return -1;
 					}
 				} else {
-					if (!lhs.getTitle().equals(rhs.getTitle())) {
+					if (lhs.getBeTop() != rhs.getBeTop()) {
+						return Integer.valueOf(rhs.getBeTop()).compareTo(Integer.valueOf(lhs.getBeTop()));
+					} else if (!lhs.getTitle().equals(rhs.getTitle())) {
 						return lhs.getTitle().compareTo(rhs.getTitle());
 					} else if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
 						return lhs.getCreateTime().compareTo(rhs.getCreateTime());
@@ -287,7 +312,8 @@ public class TimeFleetingData {
 	// if the create time is same, sort by remind time
 	// if the remind time is same, sort by star
 	// is the star is same, sort by id
-	public void sortFutureRecordByTitleReversely() {
+	public static void sortFutureRecordByTitleReversely() {
+		setSortParameter(true, true, false, false, false, false, false, false);
 		final String currentTimeString;
 		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
 		Date curDate = new Date(System.currentTimeMillis());
@@ -320,7 +346,9 @@ public class TimeFleetingData {
 						return -1;
 					}
 				} else {
-					if (!lhs.getTitle().equals(rhs.getTitle())) {
+					if (lhs.getBeTop() != rhs.getBeTop()) {
+						return Integer.valueOf(rhs.getBeTop()).compareTo(Integer.valueOf(lhs.getBeTop()));
+					} else if (!lhs.getTitle().equals(rhs.getTitle())) {
 						return rhs.getTitle().compareTo(lhs.getTitle());
 					} else if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
 						return lhs.getCreateTime().compareTo(rhs.getCreateTime());
@@ -341,7 +369,8 @@ public class TimeFleetingData {
 	// if the title is same, sort by remind time
 	// if the remind time is same, sort by star
 	// is the star is same, sort by id
-	public void sortFutureRecordByCreateTime() {
+	public static void sortFutureRecordByCreateTime() {
+		setSortParameter(false, false, true, false, false, false, false, false);
 		final String currentTimeString;
 		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
 		Date curDate = new Date(System.currentTimeMillis());
@@ -374,7 +403,9 @@ public class TimeFleetingData {
 						return -1;
 					}
 				} else {
-					if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
+					if (lhs.getBeTop() != rhs.getBeTop()) {
+						return Integer.valueOf(rhs.getBeTop()).compareTo(Integer.valueOf(lhs.getBeTop()));
+					} else if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
 						return lhs.getCreateTime().compareTo(rhs.getCreateTime());
 					} else if (!lhs.getTitle().equals(rhs.getTitle())) {
 						return rhs.getTitle().compareTo(lhs.getTitle());
@@ -395,7 +426,8 @@ public class TimeFleetingData {
 	// if the title is same, sort by remind time
 	// if the remind time is same, sort by star
 	// is the star is same, sort by id
-	public void sortFutureRecordByCreateTimeReversely() {
+	public static void sortFutureRecordByCreateTimeReversely() {
+		setSortParameter(false, false, true, true, false, false, false, false);
 		final String currentTimeString;
 		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
 		Date curDate = new Date(System.currentTimeMillis());
@@ -428,7 +460,9 @@ public class TimeFleetingData {
 						return -1;
 					}
 				} else {
-					if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
+					if (lhs.getBeTop() != rhs.getBeTop()) {
+						return Integer.valueOf(rhs.getBeTop()).compareTo(Integer.valueOf(lhs.getBeTop()));
+					} else if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
 						return rhs.getCreateTime().compareTo(lhs.getCreateTime());
 					} else if (!lhs.getTitle().equals(rhs.getTitle())) {
 						return rhs.getTitle().compareTo(lhs.getTitle());
@@ -449,7 +483,8 @@ public class TimeFleetingData {
 	// if the create time is same, sort by title 
 	// if the title is same, sort by star
 	// is the star is same, sort by id
-	public void sortFutureRecordByRemindTime() {
+	public static void sortFutureRecordByRemindTime() {
+		setSortParameter(false, false, false, false, true, false, false, false);
 		final String currentTimeString;
 		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
 		Date curDate = new Date(System.currentTimeMillis());
@@ -482,7 +517,9 @@ public class TimeFleetingData {
 						return -1;
 					}
 				} else {
-					if (!lhs.getRemindTime().equals(rhs.getRemindTime())) {
+					if (lhs.getBeTop() != rhs.getBeTop()) {
+						return Integer.valueOf(rhs.getBeTop()).compareTo(Integer.valueOf(lhs.getBeTop()));
+					} else if (!lhs.getRemindTime().equals(rhs.getRemindTime())) {
 						return lhs.getRemindTime().compareTo(rhs.getRemindTime());
 					} else if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
 						return rhs.getCreateTime().compareTo(lhs.getCreateTime());
@@ -503,7 +540,8 @@ public class TimeFleetingData {
 	// if the create time is same, sort by title 
 	// if the title is same, sort by star
 	// is the star is same, sort by id
-	public void sortFutureRecordByRemindTimeReversely() {
+	public static void sortFutureRecordByRemindTimeReversely() {
+		setSortParameter(false, false, false, false, true, true, false, false);
 		final String currentTimeString;
 		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
 		Date curDate = new Date(System.currentTimeMillis());
@@ -536,7 +574,9 @@ public class TimeFleetingData {
 						return -1;
 					}
 				} else {
-					if (!lhs.getRemindTime().equals(rhs.getRemindTime())) {
+					if (lhs.getBeTop() != rhs.getBeTop()) {
+						return Integer.valueOf(rhs.getBeTop()).compareTo(Integer.valueOf(lhs.getBeTop()));
+					} else if (!lhs.getRemindTime().equals(rhs.getRemindTime())) {
 						return rhs.getRemindTime().compareTo(lhs.getRemindTime());
 					} else if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
 						return rhs.getCreateTime().compareTo(lhs.getCreateTime());
@@ -557,7 +597,8 @@ public class TimeFleetingData {
 	// if the create time is same, sort by title 
 	// if the title is same, sort by remind time
 	// is the remind time is same, sort by id
-	public void sortFutureRecordByStar() {
+	public static void sortFutureRecordByStar() {
+		setSortParameter(false, false, false, false, false, false, true, false);
 		final String currentTimeString;
 		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
 		Date curDate = new Date(System.currentTimeMillis());
@@ -590,8 +631,10 @@ public class TimeFleetingData {
 						return -1;
 					}
 				} else {
-					if (!lhs.getStar().equals(rhs.getStar())) {
-						return rhs.getStar().compareTo(lhs.getStar());
+					if (lhs.getBeTop() != rhs.getBeTop()) {
+						return Integer.valueOf(rhs.getBeTop()).compareTo(Integer.valueOf(lhs.getBeTop()));
+					} else if (!lhs.getStar().equals(rhs.getStar())) {
+						return lhs.getStar().compareTo(rhs.getStar());
 					} else if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
 						return rhs.getCreateTime().compareTo(lhs.getCreateTime());
 					} else if (!lhs.getTitle().equals(rhs.getTitle())) {
@@ -611,7 +654,8 @@ public class TimeFleetingData {
 	// if the create time is same, sort by title 
 	// if the title is same, sort by remind time
 	// is the remind time is same, sort by id
-	public void sortFutureRecordByStarReversely() {
+	public static void sortFutureRecordByStarReversely() {
+		setSortParameter(false, false, false, false, false, false, true, true);
 		final String currentTimeString;
 		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
 		Date curDate = new Date(System.currentTimeMillis());
@@ -644,7 +688,9 @@ public class TimeFleetingData {
 						return -1;
 					}
 				} else {
-					if (!lhs.getStar().equals(rhs.getStar())) {
+					if (lhs.getBeTop() != rhs.getBeTop()) {
+						return Integer.valueOf(rhs.getBeTop()).compareTo(Integer.valueOf(lhs.getBeTop()));
+					} else if (!lhs.getStar().equals(rhs.getStar())) {
 						return rhs.getStar().compareTo(lhs.getStar());
 					} else if (!lhs.getCreateTime().equals(rhs.getCreateTime())) {
 						return rhs.getCreateTime().compareTo(lhs.getCreateTime());
@@ -658,6 +704,53 @@ public class TimeFleetingData {
 				}
 			}
 		});
+	}
+	
+	private static void setSortParameter(
+			boolean _isSortedByTitle,
+			boolean _isSortedByTitleReversely,
+			boolean _isSortByCreateTime,
+			boolean _isSortedByCreateTimeReversely,
+			boolean _isSortedByRemindTime,
+			boolean _isSortedByRemindTimeReversely,
+			boolean _isSortedByStar,
+			boolean _isSortedByStarReversely) {
+		isSortedByTitle = _isSortedByTitle;
+		isSortedByTitleReversely = _isSortedByTitleReversely;
+		isSortByCreateTime = _isSortByCreateTime;
+		isSortedByCreateTimeReversely = _isSortedByCreateTimeReversely;
+		isSortedByRemindTime = _isSortedByRemindTime;
+		isSortedByRemindTimeReversely = _isSortedByRemindTimeReversely;
+		isSortedByStar = _isSortedByStar;
+		isSortedByStarReversely = _isSortedByStarReversely;
+	}
+	
+	public static void sortFutureRecordsByLastSort() {
+		if (isSortByCreateTime) {
+			if (isSortedByCreateTimeReversely) {
+				sortFutureRecordByCreateTimeReversely();
+			} else {
+				sortFutureRecordByCreateTime();
+			}
+		} else if (isSortedByRemindTime) {
+			if (isSortedByRemindTimeReversely) {
+				sortFutureRecordByRemindTimeReversely();
+			} else {
+				sortFutureRecordByRemindTime();
+			}
+		} else if (isSortedByStar) {
+			if (isSortedByStarReversely) {
+				sortFutureRecordByStarReversely();
+			} else {
+				sortFutureRecordByStar();
+			}
+		} else if (isSortedByTitle) {
+			if (isSortedByTitleReversely) {
+				sortFutureRecordByTitleReversely();
+			} else {
+				sortFutureRecordByTitle();
+			}
+		}
 	}
 	
 }

@@ -9,10 +9,9 @@
     >
 
     <LinearLayout
-        android:layout_width="240dp"
+        android:layout_width="320dp"
         android:layout_height="80dp"
         android:gravity="center"
-        android:tag="Bottom3"
         >
 
         <RelativeLayout
@@ -29,7 +28,7 @@
                 
                 <LinearLayout
                     android:layout_width="0dp"
-                    android:background="#C5DA01"
+                    android:background="@color/future_listview_be_top"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:orientation="horizontal"
@@ -37,7 +36,7 @@
                 
                 <LinearLayout
                     android:layout_width="0dp"
-                    android:background="#A2B700"
+                    android:background="@color/future_listview_set_remind_time"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:orientation="horizontal"
@@ -45,7 +44,15 @@
                 
                 <LinearLayout
                     android:layout_width="0dp"
-                    android:background="#43A102"
+                    android:background="@color/future_listview_set_star"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    />
+                
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:background="@color/future_listview_delete"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:orientation="horizontal"
@@ -59,6 +66,13 @@
                 android:gravity="center"
                 >
             
+                <ImageView
+                    android:id="@+id/be_top"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/be_top"/>
+                
 		        <ImageView
 		            android:id="@+id/set_time"
 		            android:layout_width="0dp"
@@ -87,6 +101,14 @@
                 android:gravity="center"
                 android:orientation="horizontal"
                 >
+                
+                <LinearLayout
+                    android:id="@+id/be_top_ly"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    />
                 
                 <LinearLayout
                     android:id="@+id/set_time_ly"
@@ -132,9 +154,9 @@
                android:id="@+id/wave_view"
 	           android:layout_width="match_parent"
 	           android:layout_height="80dp"
-	           android:background="#70E1FF"
-	           wave:above_wave_color="#0000AF"
-	           wave:blow_wave_color="#0000AF"
+	           android:background="@color/future_listview_background"
+	           wave:above_wave_color="@color/future_listview_above_wave"
+	           wave:blow_wave_color="@color/future_listview_below_wave"
 	           wave:wave_height="little"
 	           wave:wave_hz="normal"
 	           wave:wave_length="middle" />
@@ -161,22 +183,35 @@
 		               android:layout_weight="1"
 		               android:orientation="horizontal"
 		               >
-		               
+
 		               <TextView
 	                       android:id="@+id/listview_item_title"
 	                       android:layout_width="0dp"
 	                       android:layout_height="match_parent"
-	                       android:layout_weight="5"
+	                       android:layout_weight="1"
 	                       android:textSize="20sp"
-                           android:textColor="#065FB9"
+                           android:textColor="@color/future_listview_title"
                            android:singleLine="true"
 	                       />
 		               
+		               <ImageView
+                           android:id="@+id/listview_item_betop"
+                           android:layout_width="30dp"
+                           android:layout_height="match_parent"
+                           android:src="@drawable/be_top"
+                           />
+		               
+		               <ImageView
+		                   android:id="@+id/listview_item_overdue"
+                           android:layout_width="30dp"
+                           android:layout_height="match_parent"
+                           android:src="@drawable/overdue"
+                           />
+		               
 		               <LinearLayout
-		                   android:layout_width="0dp"
+		                   android:layout_width="wrap_content"
 		                   android:layout_height="match_parent"
 		                   android:orientation="vertical"
-		                   android:layout_weight="2"
 		                   >
 		                   
 		                   <TextView
@@ -185,7 +220,7 @@
 	                           android:layout_height="0dp"
 	                           android:layout_weight="1"
 	                           android:textSize="10sp"
-	                           android:textColor="@color/future_listview_item_create_time"
+	                           android:textColor="@color/future_listview_create_time"
 	                           android:gravity="right"
 	                           />
 		                   
@@ -195,7 +230,7 @@
 		                       android:layout_height="0dp"
 		                       android:layout_weight="1"
 		                       android:textSize="10sp"
-		                       android:textColor="#065FB9"
+		                       android:textColor="@color/future_listview_remind_time"
 		                       android:gravity="right"
 		                       />
 		                   
@@ -213,7 +248,8 @@
 		                   android:id="@+id/listview_item_content"
 		                   android:layout_width="match_parent"
 		                   android:layout_height="match_parent"
-		                   android:textColor="#8B8878"
+		                   android:textColor="@color/future_listview_content"
+		                   android:textSize="12sp"
 		                   android:singleLine="true"
 		                   android:layout_marginTop="10dp"
 		                   />

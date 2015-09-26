@@ -5,7 +5,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.lang.Object;
 
 import com.capricorn.RayMenu;
 import com.daimajia.androidanimations.library.Techniques;
@@ -15,23 +14,17 @@ import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 import com.sleepbot.datetimepicker.time.RadialPickerLayout;
 import com.sleepbot.datetimepicker.time.TimePickerDialog;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
-import android.app.Dialog;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings.Global;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ScrollingView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
@@ -45,25 +38,31 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
-public class EditActivity extends FragmentActivity implements OnDateSetListener, TimePickerDialog.OnTimeSetListener, ScrollViewListener  {
+public class EditActivity extends FragmentActivity 
+	implements OnDateSetListener, 
+			   TimePickerDialog.OnTimeSetListener, 
+			   ScrollViewListener  {
 
-	private final String DEF_TITLE_STRING = "Unnaming";
-	private final String DEFAULT_STAR = "3";
-	
-	public static final String DATEPICKER_TAG = "选择日期";
-    public static final String TIMEPICKER_TAG = "选择时间";
-	
 	private Context mContext;
 	private TimeFleetingData timeFleetingData;
+	
 	private boolean isOld = false;
 	private String oldTitleString;
 	private String oldContentString;
 	private String createTimeString;
 	private String remindTimeString;
+	private int beTop;
+	private String statusString;
+	private boolean isSaved = false;
+	private boolean isRemind = false;
+	private boolean isStared = false;
 	private String starString = "0";
 	private String wordNumberString;
 	
 	private TextView createTimeTextView;
+	private TextView wordNumberTextView;
+	private EditText titleEditText;
+	private EditText contentEditText;
 	
 	private RayMenu rayMenu;
 	private boolean lastIsScrollDown = false;
@@ -71,18 +70,10 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	private static final int[] ITEM_DRAWABLES_FUTURE = {
 		R.drawable.save,
 		R.drawable.sort_by_remind_time,
-		R.drawable.sort_by_star,
+		R.drawable.star_blue,
 		R.drawable.copy_c,
 		R.drawable.copy_v};
-	
-	private boolean isSaved = false;
-	private boolean isRemind = false;
-	private boolean isStared = false;
-	private boolean afterSetTimeBack = false;
-	
-	private TextView wordNumberTextView;
-	private EditText titleEditText;
-	private EditText contentEditText;
+
 	private int saveId = -1;
 	
 	private ObservableScrollView observableScrollView;
@@ -100,7 +91,8 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		createTimeTextView = (TextView)findViewById(R.id.create_time_textview);
 		contentEditText = (EditText)findViewById(R.id.edit_layout_content);
 		
-		observableScrollView = (ObservableScrollView)findViewById(R.id.editview_scrollview);
+		observableScrollView = 
+				(ObservableScrollView)findViewById(R.id.editview_scrollview);
 		observableScrollView.setScrollViewListener(this);
 		
 		Intent intent = getIntent();
@@ -114,23 +106,30 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 			createTimeString = intent.getStringExtra("CreateTime");
 			remindTimeString = intent.getStringExtra("RemindTime");
 			starString = intent.getStringExtra("Star");
+			beTop = intent.getIntExtra("Top", 0);
+			statusString = intent.getStringExtra("Status");
 			isSaved = true;
 			isRemind = true;
 			isStared = true;
 			saveId = intent.getIntExtra("ID", -1);
 			
-			wordNumberString = String.valueOf(oldContentString.length()) + "words---";
+			wordNumberString = String.valueOf(oldContentString.length()) 
+					+ GlobalSettings.WORD_COUNTER_POSTFIX;
 			wordNumberTextView.setText(wordNumberString);
 		} else {
-			SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
+			SimpleDateFormat formatter = 
+					new SimpleDateFormat (GlobalSettings.FULL_DATE_FORMAT);     
 			Date curDate = new Date(System.currentTimeMillis());
 			createTimeString = formatter.format(curDate); 
 			remindTimeString = calculateDefaultRemindTime();
-			starString = DEFAULT_STAR;
+			starString = GlobalSettings.DEFAULT_STAR;
+			beTop = 0;
+			statusString = "DOING";
 			isSaved = false;
 			isRemind = false;
 			isStared = false;
-			wordNumberTextView.setText("0 words---");
+			wordNumberTextView.setText("0 " 
+					+ GlobalSettings.WORD_COUNTER_POSTFIX);
 		}
 
 		createTimeTextView.setText("---" + createTimeString);
@@ -138,7 +137,8 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		titleEditText.addTextChangedListener(new TextWatcher() {
 			
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
+			public void onTextChanged(CharSequence s, int start, int before, 
+					int count) {
 				isSaved = false;
 			}
 			
@@ -156,8 +156,11 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		contentEditText.addTextChangedListener(new TextWatcher() {
 			
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				wordNumberString = String.valueOf(contentEditText.getText().toString().length()) + "---";
+			public void onTextChanged(CharSequence s, int start, int before, 
+					int count) {
+				wordNumberString = String.valueOf(
+						contentEditText.getText().toString().length()) 
+						+ GlobalSettings.WORD_COUNTER_POSTFIX;
 				wordNumberTextView.setText(wordNumberString);
 				isSaved = false;
 			}
@@ -206,9 +209,11 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 						setStar();
 					} else if (menuPosition == 3) {
 						// copy all
-						ClipboardManager cmb = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+						ClipboardManager cmb = (ClipboardManager)
+								getSystemService(CLIPBOARD_SERVICE);
 						cmb.setText(contentEditText.getText().toString());
-						Toast.makeText(mContext, "Copied", Toast.LENGTH_SHORT).show();
+						Toast.makeText(mContext, "Copied", 
+								Toast.LENGTH_SHORT).show();
 					} else if (menuPosition == 4) {
 						// statis
 						if (contentEditText.isFocused()) {
@@ -338,19 +343,21 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		String contentString = contentEditText.getText().toString();
 
 		if ("".equals(titleString)) {
-			titleString = DEF_TITLE_STRING; 
+			titleString = GlobalSettings.DEFAULT_TITLE; 
 		}
 		
 		if (isSaved) {
 			// have click the save button
-			timeFleetingData.saveRecord(new Record(
+			TimeFleetingData.saveRecord(new Record(
 					saveId,
 					titleString,
 					contentString,
 					remindTimeString,
 					createTimeString,
 					starString,
-					"FUTURE"));
+					"FUTURE",
+					statusString,
+					beTop));
 			if (isBack) {
 				returnHome();
 			}
@@ -358,27 +365,31 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 			// haven't click the save button
 			if (saveId != -1) {
 				// but is from old
-				saveId = timeFleetingData.saveRecord(new Record(
+				saveId = TimeFleetingData.saveRecord(new Record(
 						saveId,
 						titleString,
 						contentString,
 						remindTimeString,
 						createTimeString,
 						starString,
-						"FUTURE"));
+						"FUTURE",
+						statusString,
+						beTop));
 				isSaved = true;
 				if (isBack) {
 					returnHome();
 				}
 			} else {
-				saveId = timeFleetingData.saveRecord(new Record(
+				saveId = TimeFleetingData.saveRecord(new Record(
 						-1,
 						titleString,
 						contentString,
 						remindTimeString,
 						createTimeString,
 						starString,
-						"FUTURE"));
+						"FUTURE",
+						statusString,
+						beTop));
 				isSaved = true;
 				if (isBack) {
 					returnHome();
@@ -393,12 +404,11 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		final DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), false);
 		datePickerDialog.setYearRange(2015, 2036);
         datePickerDialog.setCloseOnSingleTapDay(false);
-        datePickerDialog.show(getSupportFragmentManager(), DATEPICKER_TAG);
+        datePickerDialog.show(getSupportFragmentManager(), GlobalSettings.DATEPICKER_TAG);
 	}
 
 	@Override
 	public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
-		// TODO Auto-generated method stub
 		remindTimeString += (hourOfDay < 10 ? "0" + String.valueOf(hourOfDay) : String.valueOf(hourOfDay)) + ":";
 		remindTimeString += (minute < 10 ? "0" + String.valueOf(minute) : String.valueOf(minute)) + ":";
 		remindTimeString += "00";
@@ -408,9 +418,7 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 
 	@Override
 	public void onDateSet(DatePickerDialog datePickerDialog, int year,
-			int month, int day) {
-		// TODO Auto-generated method stub
-		
+			int month, int day) {	
 		isRemind = false;
 		
 		// a bug in the datetimepicker-library
@@ -427,7 +435,7 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 		
 		timePickerDialog.setVibrate(false);
         timePickerDialog.setCloseOnSingleTapMinute(false);
-        timePickerDialog.show(getSupportFragmentManager(), TIMEPICKER_TAG);
+        timePickerDialog.show(getSupportFragmentManager(), GlobalSettings.TIMEPICKER_TAG);
 	}
 	
 	private void returnHome() {
@@ -443,7 +451,6 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 
 	private String calculateDefaultRemindTime() {
 		SimpleDateFormat formatter = new SimpleDateFormat (GlobalSettings.FULL_DATE_FORMAT);     
-		Date curDate = new Date(System.currentTimeMillis());
 		Date createDate = new Date(System.currentTimeMillis());
 		try {
 			createDate = formatter.parse(createTimeString);
@@ -457,7 +464,6 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 	@Override
 	public void onScrollChanged(ObservableScrollView scrollView, int x, int y,
 			int oldx, int oldy) {
-		// TODO Auto-generated method stub
 		rayMenu.closeMenu();
 		if (oldy < y) {
 			// down
@@ -565,12 +571,30 @@ public class EditActivity extends FragmentActivity implements OnDateSetListener,
 					star4.setVisibility(View.VISIBLE);
 					star5.setVisibility(View.VISIBLE);
 				}
-				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star1);
-				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star2);
-				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star3);
-				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star4);
-				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(star5);
-				YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(okTextView);
+				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+				.playOn(star1);
+				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+				.playOn(star2);
+				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+				.playOn(star3);
+				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+				.playOn(star4);
+				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+				.playOn(star5);
+				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+				.playOn(okTextView);
 			}
 		});
 		

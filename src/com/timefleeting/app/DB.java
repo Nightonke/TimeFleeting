@@ -8,7 +8,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 public class DB {
 
@@ -64,6 +63,8 @@ public class DB {
 				values.put("create_time", record.getCreateTime());
 				values.put("star", record.getStar());
 				values.put("type", record.getType());
+				values.put("status", record.getStatus());
+				values.put("beTop", record.getBeTop());
 				sqliteDatabase.insert(DB_NAME_STRING, null, values);
 				
 				cursor = sqliteDatabase
@@ -88,6 +89,8 @@ public class DB {
 					values.put("create_time", record.getCreateTime());
 					values.put("star", record.getStar());
 					values.put("type", record.getType());
+					values.put("status", record.getStatus());
+					values.put("beTop", record.getBeTop());
 					sqliteDatabase.update(DB_NAME_STRING, 
 							values, 
 							"id = ?",
@@ -146,6 +149,8 @@ public class DB {
 				record.setStar(
 						cursor.getString(cursor.getColumnIndex("star")));
 				record.setType("PAST");
+				record.setStatus(cursor.getString(cursor.getColumnIndex("status")));
+				record.setBeTop(cursor.getInt(cursor.getColumnIndex("beTop")));
 				list.add(record);
 			} while (cursor.moveToNext());
 			if (cursor != null) {
@@ -156,6 +161,7 @@ public class DB {
 	}
 	
 	public List<Record> loadFutureRecords() {
+		TimeFleetingData.futureBeTopNumber = 0;
 		List<Record> list = new ArrayList<Record>();
 		Cursor cursor = sqliteDatabase
 				.query(DB_NAME_STRING, null, 
@@ -177,7 +183,12 @@ public class DB {
 				record.setStar(
 						cursor.getString(cursor.getColumnIndex("star")));
 				record.setType("FUTURE");
+				record.setStatus(cursor.getString(cursor.getColumnIndex("status")));
+				record.setBeTop(cursor.getInt(cursor.getColumnIndex("beTop")));
 				list.add(record);
+				if (record.getBeTop() > TimeFleetingData.futureBeTopNumber) {
+					TimeFleetingData.futureBeTopNumber = record.getBeTop();
+				}
 			} while (cursor.moveToNext());
 			if (cursor != null) {
 				cursor.close();
