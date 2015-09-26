@@ -7,35 +7,53 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
-    <LinearLayout
+   <LinearLayout
         android:id="@+id/layout_title"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@color/layout_title"
         android:orientation="horizontal"
         >
-        
-        <TextView
-            android:id="@+id/layout_title_text"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:textColor="#FFFFFF"
-            android:text="Time Fleeting"
-            android:textSize="20sp"
-            android:layout_marginLeft="10dp"
-            android:layout_gravity="center_vertical"
-            android:gravity="center_vertical"
-            />
-        
-        <ImageView
-            android:id="@+id/layout_title_imageview"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:src="@drawable/sort"
-            />
+
+       <FrameLayout
+           android:layout_width="match_parent"
+           android:layout_height="match_parent"
+           >
+       
+           <ImageView
+                android:id="@+id/layout_title_menu_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_gravity="left"
+                android:paddingLeft="5dp"
+                android:src="@drawable/menu_logo"
+                />
+           
+	        <TextView
+	            android:id="@+id/layout_title_text"
+	            android:layout_width="wrap_content"
+	            android:layout_height="match_parent"
+	            android:textColor="#FFFFFF"
+	            android:text="Time Fleeting"
+	            android:textSize="20sp"
+	            android:layout_gravity="center"
+	            android:gravity="center_vertical|center_horizontal"
+	            />
+	        
+	        <ImageView
+	            android:id="@+id/layout_title_imageview"
+	            android:layout_width="wrap_content"
+	            android:layout_height="match_parent"
+	            android:layout_marginTop="5dp"
+	            android:layout_marginBottom="5dp"
+	            android:layout_gravity="right"
+	            android:paddingRight="5dp"
+	            android:src="@drawable/sort"
+	            />
+	        
+	    </FrameLayout>
         
     </LinearLayout>
     

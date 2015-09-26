@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import net.simonvt.menudrawer.MenuDrawer;
+import net.simonvt.menudrawer.Position;
+
 import com.sleepbot.datetimepicker.time.RadialPickerLayout;
 import com.sleepbot.datetimepicker.time.TimePickerDialog;
 import com.timefleeting.app.JazzyViewPager;
@@ -18,6 +21,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
@@ -123,15 +127,40 @@ public class MainActivity extends FragmentActivity {
 	private TextView layoutTitleTextView;
 	private ImageView layoutTitleImageView;
 	
+	private ImageView layoutTitleMenuImageView;
+	private ImageView menuLayoutBackImageView;
 	
 	private String newRemindTimeString;
 	private Record setTimeRecord;
+	
+	private MenuDrawer mMenuDrawer;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
+		
+		mMenuDrawer = MenuDrawer.attach(this, MenuDrawer.Type.OVERLAY, Position.LEFT, MenuDrawer.MENU_DRAG_WINDOW);
+        mMenuDrawer.setContentView(R.layout.activity_main);
+        mMenuDrawer.setMenuView(R.layout.menu_layout);
+		
+        layoutTitleMenuImageView = (ImageView)findViewById(R.id.layout_title_menu_logo);
+        layoutTitleMenuImageView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mMenuDrawer.toggleMenu(true);
+			}
+		});
+        
+        menuLayoutBackImageView = (ImageView)findViewById(R.id.menu_layout_back);
+        menuLayoutBackImageView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mMenuDrawer.toggleMenu(true);
+			}
+		});
+        
 		mContext = this;
 		statusBarHeight = getStatusBarHeight();
 		
@@ -492,8 +521,13 @@ public class MainActivity extends FragmentActivity {
 	
 	@Override
 	public void onBackPressed() {
+		final int drawerState = mMenuDrawer.getDrawerState();
+        if (drawerState == MenuDrawer.STATE_OPEN || drawerState == MenuDrawer.STATE_OPENING) {
+            mMenuDrawer.closeMenu();
+            return;
+        }
+		
 		super.onBackPressed();
-		return;
 	}
 	
 	private void setSort() {
