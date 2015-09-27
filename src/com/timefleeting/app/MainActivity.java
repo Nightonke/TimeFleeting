@@ -241,10 +241,9 @@ public class MainActivity extends FragmentActivity {
 					}
 					
 					if (GlobalSettings.REMIND_ENABLE) {
-						intentService = new Intent(mContext, LongRunningService.class);
-				        intentService.setAction("TimeFleeting Reminder");
 				        initReminds();
 						LongRunningService.remindList = GlobalSettings.REMIND_LIST;
+						stopService(intentService);
 						startService(intentService);
 					}
 
@@ -738,7 +737,7 @@ public class MainActivity extends FragmentActivity {
 			// a-----------b-----c
 			long c = remindDate.getTime();
 			long b = c - GlobalSettings.ALARM_TIME;
-			if (currentDate.getTime() > remindDate.getTime()) {
+			if (currentDate.getTime() >= remindDate.getTime()) {
 				// overdue
 				continue;
 			}

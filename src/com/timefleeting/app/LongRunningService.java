@@ -64,6 +64,8 @@ public class LongRunningService extends Service {
 			i.putExtra("TITLE", remindList.get(j).titleString);
 			i.putExtra("CONTENT", remindList.get(j).content);
 			PendingIntent pi = PendingIntent.getBroadcast(this, remindList.get(j).id, i, 0);
+			// you have to use both the cancel function to cancel the pendingIntent
+			pi.cancel();
 			manager.cancel(pi);
 		}
 		super.onDestroy();   

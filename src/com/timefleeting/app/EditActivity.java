@@ -254,7 +254,7 @@ public class EditActivity extends FragmentActivity
 		String titleString = titleEditText.getText().toString();
 		String contentString = contentEditText.getText().toString();
 		
-		if (("".equals(titleString) && "".equals(contentString)) || isSaved) {
+		if (("".equals(titleString) && "".equals(contentString)) && !isSaved && !isRemind && !isStared) {
 			returnHome();
 		} else {
 			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
