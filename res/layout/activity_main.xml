@@ -57,15 +57,34 @@
         
     </LinearLayout>
     
-    <com.timefleeting.app.JazzyViewPager
-	    
-	    android:id="@+id/jazzy_pager"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    android:background="@color/future_listview_divider"
-	    android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-	    >
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+       
+        <com.timefleeting.app.WaveView
+            android:id="@+id/wave_view_2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/viewpager_background"
+            wave:above_wave_color="@color/viewpager_above_wave"
+            wave:blow_wave_color="@color/viewpager_below_wave"
+            wave:progress="60"
+            wave:wave_height="little"
+            wave:wave_hz="normal"
+            wave:wave_length="middle" />
+   
+	    <com.timefleeting.app.JazzyViewPager
+		    
+		    android:id="@+id/jazzy_pager"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:background="@color/future_listview_divider"
+		    android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+		    >
 
-	</com.timefleeting.app.JazzyViewPager>
+	   </com.timefleeting.app.JazzyViewPager>
+	   
+    </FrameLayout>
 
 </LinearLayout>

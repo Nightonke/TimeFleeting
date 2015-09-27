@@ -145,6 +145,8 @@ public class MainActivity extends FragmentActivity {
 	private Record setTimeRecord;
 	
 	private ToggleButton remindEnableButton;
+	private ToggleButton vibrateEnableButton;
+	private ToggleButton soundEnableButton;
 	
 	private MenuDrawer mMenuDrawer;
 	
@@ -639,35 +641,80 @@ public class MainActivity extends FragmentActivity {
 	}
 	
 	private void initValues() {
+		intentService = new Intent(mContext, LongRunningService.class);
+        intentService.setAction("TimeFleeting Reminder");
+		
 		GlobalSettings.REMIND_ENABLE = preferences.getBoolean("REMIND_ENABLE", true);
 		remindEnableButton = (ToggleButton)findViewById(R.id.menu_layout_remind_enable);
 		if (GlobalSettings.REMIND_ENABLE) {
-			remindEnableButton.setToggleOn();
-			intentService = new Intent(mContext, LongRunningService.class);
-	        intentService.setAction("TimeFleeting Reminder");
+			remindEnableButton.setToggleOff();
 	        initReminds();
 			LongRunningService.remindList = GlobalSettings.REMIND_LIST;
 			startService(intentService);
 		} else {
-			remindEnableButton.setToggleOff();
+			remindEnableButton.setToggleOn();
 			stopService(intentService);
 		}
         remindEnableButton.setOnToggleChanged(new OnToggleChanged() {
 			
 			@Override
 			public void onToggle(boolean on) {
-				if (on) {
+				if (!on) {
 					// start every service
-					intentService = new Intent(mContext, LongRunningService.class);
-			        intentService.setAction("TimeFleeting Reminder");
 			        initReminds();
 					LongRunningService.remindList = GlobalSettings.REMIND_LIST;
 					startService(intentService);
+					GlobalSettings.REMIND_ENABLE = true;
 					Log.d("TimeFleeting", "on");
 				} else {
 					stopService(intentService);
+					GlobalSettings.REMIND_ENABLE = false;
 					Log.d("TimeFleeting", "off");
 				}
+				editor.putBoolean("REMIND_ENABLE", GlobalSettings.REMIND_ENABLE);
+				editor.commit();
+			}
+		});
+        
+        GlobalSettings.VIBRATE_ENABLE = preferences.getBoolean("VIBRATE_ENABLE", true);
+        vibrateEnableButton = (ToggleButton)findViewById(R.id.menu_layout_vibrate_enable);
+        if (GlobalSettings.VIBRATE_ENABLE) {
+        	vibrateEnableButton.setToggleOff();
+        } else {
+        	vibrateEnableButton.setToggleOn();
+        }
+        vibrateEnableButton.setOnToggleChanged(new OnToggleChanged() {
+			
+			@Override
+			public void onToggle(boolean on) {
+				if (!on) {
+					GlobalSettings.VIBRATE_ENABLE = true;
+				} else {
+					GlobalSettings.VIBRATE_ENABLE = false;
+				}
+				editor.putBoolean("VIBRATE_ENABLE", GlobalSettings.VIBRATE_ENABLE);
+				editor.commit();
+			}
+		});
+        
+        GlobalSettings.SOUND_ENABLE = preferences.getBoolean("SOUND_ENABLE", true);
+        soundEnableButton = (ToggleButton)findViewById(R.id.menu_layout_sound_enable);
+        if (GlobalSettings.SOUND_ENABLE) {
+        	soundEnableButton.setToggleOff();
+        } else {
+        	soundEnableButton.setToggleOn();
+        }
+        soundEnableButton.setOnToggleChanged(new OnToggleChanged() {
+			
+			@Override
+			public void onToggle(boolean on) {
+				if (!on) {
+					GlobalSettings.SOUND_ENABLE = true;
+				} else {
+					GlobalSettings.SOUND_ENABLE = false;
+				}
+				editor.putBoolean("SOUND_ENABLE", GlobalSettings.SOUND_ENABLE);
+				editor.commit();
 			}
 		});
 	}
@@ -678,6 +725,7 @@ public class MainActivity extends FragmentActivity {
 			Remind remind = new Remind();
 			remind.id = TimeFleetingData.futureRecords.get(i).getId();
 			remind.titleString = TimeFleetingData.futureRecords.get(i).getTitle();
+			remind.content = TimeFleetingData.futureRecords.get(i).getText();
 			SimpleDateFormat formatter = new SimpleDateFormat (GlobalSettings.FULL_DATE_FORMAT); 
 			Date remindDate = new Date(System.currentTimeMillis());
 			Date currentDate = new Date(System.currentTimeMillis());

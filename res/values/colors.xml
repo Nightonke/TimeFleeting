@@ -5,7 +5,13 @@
     
     <color name="layout_title">#66CC69</color>
     
-    <color name="future_listview_divider">#f4f4f4</color>
+    <color name="viewpager_background">#f4f4f4</color>
+    <color name="viewpager_above_wave">#22aaffaa</color>
+    <color name="viewpager_below_wave">#22aaffaa</color>
+    
+    <color name="menu_layout_background">#f4f4f4</color>
+    
+    <color name="future_listview_divider">#00f4f4f4</color>
     
     <color name="future_listview_background">#99FF99</color>
     <color name="future_listview_title">#040</color>

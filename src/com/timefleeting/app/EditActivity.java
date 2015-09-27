@@ -451,6 +451,7 @@ public class EditActivity extends FragmentActivity
 		intent.putExtra("Id", saveId);
 		intent.putExtra("RemindTime", remindTimeString);
 		intent.putExtra("Title", titleEditText.getText());
+		intent.putExtra("Content", contentEditText.getText());
 		if (isOld) {
 			intent.putExtra("isOld", true);
 		}

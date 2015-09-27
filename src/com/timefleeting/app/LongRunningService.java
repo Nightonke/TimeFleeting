@@ -46,11 +46,27 @@ public class LongRunningService extends Service {
 			return super.onStartCommand(intent, flags, startId);
 		}
 		for (int j = 0; j < remindList.size(); j++) {
+			i.putExtra("ID", remindList.get(j).id);
 			i.putExtra("TITLE", remindList.get(j).titleString);
+			i.putExtra("CONTENT", remindList.get(j).content);
 			PendingIntent pi = PendingIntent.getBroadcast(this, remindList.get(j).id, i, 0);
 			manager.set(AlarmManager.RTC_WAKEUP, remindList.get(j).triggerAtTime, pi);
 		}
 		return super.onStartCommand(intent, flags, startId);
 	}
+	
+	@Override
+	public void onDestroy() {  
+		AlarmManager manager = (AlarmManager)getSystemService(ALARM_SERVICE);
+		Intent i = new Intent(this, AlarmReceiver.class);
+		for (int j = 0; j < remindList.size(); j++) {
+			i.putExtra("ID", remindList.get(j).id);
+			i.putExtra("TITLE", remindList.get(j).titleString);
+			i.putExtra("CONTENT", remindList.get(j).content);
+			PendingIntent pi = PendingIntent.getBroadcast(this, remindList.get(j).id, i, 0);
+			manager.cancel(pi);
+		}
+		super.onDestroy();   
+	}  
 	
 }

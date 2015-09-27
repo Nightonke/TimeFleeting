@@ -67,12 +67,10 @@ public class GlobalSettings {
 	// the global remind list
 	public static List<Remind> REMIND_LIST;
 	
+	// whether vibrate
+	public static boolean VIBRATE_ENABLE = true;
 	
-	
-	
-	
-	
-	
-	
+	// whether sound
+	public static boolean SOUND_ENABLE = true;
 	
 }

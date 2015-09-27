@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" 
-    android:background="@color/future_listview_divider">
+    android:background="@color/menu_layout_background">
     
     <LinearLayout
         android:layout_width="match_parent"
@@ -37,16 +37,112 @@
         
     </LinearLayout>
     
-    <com.zcw.togglebutton.ToggleButton
-        android:id="@+id/menu_layout_remind_enable"
-        android:layout_width="54dp"
-        android:layout_height="30dp"
-        android:layout_gravity="center_vertical"
-        android:paddingRight="10dp"
-        toggle:offColor="#FFFFFF"
-        toggle:offBorderColor="#FFFFFF"
-        toggle:spotColor="#A5DEE4"
-        toggle:borderWidth="0.5dp"
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
         />
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        >
+    
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Notification"
+            android:textColor="@color/future_listview_title"
+            android:gravity="center_vertical|left"
+            />
+        
+	    <com.zcw.togglebutton.ToggleButton
+	        android:id="@+id/menu_layout_remind_enable"
+	        android:layout_width="36dp"
+	        android:layout_height="20dp"
+	        android:layout_gravity="center_vertical"
+	        toggle:offColor="@color/layout_title"
+	        toggle:offBorderColor="@color/layout_title"
+	        toggle:onColor="#FFFFFF"
+	        toggle:spotColor="#080"
+	        toggle:borderWidth="0.5dp"
+	        android:rotation="180"
+	        />
+	    
+	</LinearLayout>
+	
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        />
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        >
+    
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Vebrate"
+            android:textColor="@color/future_listview_title"
+            android:gravity="center_vertical|left"
+            />
+        
+        <com.zcw.togglebutton.ToggleButton
+            android:id="@+id/menu_layout_vibrate_enable"
+            android:layout_width="36dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            toggle:offColor="@color/layout_title"
+            toggle:offBorderColor="@color/layout_title"
+            toggle:onColor="#FFFFFF"
+            toggle:spotColor="#080"
+            toggle:borderWidth="0.5dp"
+            android:rotation="180"
+            />
+        
+    </LinearLayout>
+    
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        />
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        >
+    
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Sound"
+            android:textColor="@color/future_listview_title"
+            android:gravity="center_vertical|left"
+            />
+        
+        <com.zcw.togglebutton.ToggleButton
+            android:id="@+id/menu_layout_sound_enable"
+            android:layout_width="36dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            toggle:offColor="@color/layout_title"
+            toggle:offBorderColor="@color/layout_title"
+            toggle:onColor="#FFFFFF"
+            toggle:spotColor="#080"
+            toggle:borderWidth="0.5dp"
+            android:rotation="180"
+            />
+        
+    </LinearLayout>
 
 </LinearLayout>
