@@ -23,6 +23,7 @@ import com.sleepbot.datetimepicker.time.TimePickerDialog.OnTimeSetListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.widget.TextViewCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -85,6 +86,11 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
 				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
 				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+				.playOn(arg0.findViewById(R.id.right_arrow));
+				
+				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
 				.playOn(arg0.findViewById(R.id.be_top));
 				
 				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
@@ -119,6 +125,15 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 
     @Override
     public void fillValues(final int position, View convertView) {
+    	
+    	LinearLayout backLinearLayout = (LinearLayout)convertView.findViewById(R.id.back_ly);
+    	backLinearLayout.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				closeAllItems();
+			}
+		});
     	
     	LinearLayout beTopLinearLayout = (LinearLayout)convertView.findViewById(R.id.be_top_ly);
     	beTopLinearLayout.setOnClickListener(new OnClickListener() {
@@ -306,6 +321,7 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 		final DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), false);
 		datePickerDialog.setYearRange(2015, 2036);
         datePickerDialog.setCloseOnSingleTapDay(false);
+        datePickerDialog.setCancelable(false);
         datePickerDialog.show(mActivity.getSupportFragmentManager(), GlobalSettings.DATEPICKER_TAG);
 	}
 
@@ -319,6 +335,14 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 		setTimeRecord.setRemindTime(newRemindTimeString);
 		TimeFleetingData.saveRecord(setTimeRecord);
 		notifyDataSetChanged();
+		
+		if (GlobalSettings.REMIND_ENABLE) {
+			MainActivity.intentService = new Intent(mContext, LongRunningService.class);
+			MainActivity.intentService.setAction("TimeFleeting Reminder");
+	        MainActivity.initReminds();
+			LongRunningService.remindList = GlobalSettings.REMIND_LIST;
+			mContext.startService(MainActivity.intentService);
+		}
 	}
 
 	@Override
@@ -340,6 +364,7 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 		
 		timePickerDialog.setVibrate(false);
         timePickerDialog.setCloseOnSingleTapMinute(false);
+        timePickerDialog.setCancelable(false);
         timePickerDialog.show(mActivity.getSupportFragmentManager(), GlobalSettings.TIMEPICKER_TAG);
 	}
 	

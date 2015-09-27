@@ -2,8 +2,11 @@ package com.timefleeting.app;
 
 import java.io.IOException;
 import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import net.simonvt.menudrawer.MenuDrawer;
@@ -13,6 +16,8 @@ import com.sleepbot.datetimepicker.time.RadialPickerLayout;
 import com.sleepbot.datetimepicker.time.TimePickerDialog;
 import com.timefleeting.app.JazzyViewPager;
 import com.timefleeting.app.JazzyViewPager.TransitionEffect;
+import com.zcw.togglebutton.ToggleButton;
+import com.zcw.togglebutton.ToggleButton.OnToggleChanged;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,9 +25,11 @@ import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -116,12 +123,16 @@ public class MainActivity extends FragmentActivity {
 	private int moveDirection = -1;
 	private int lastDirection = 1;
 	
+	private SharedPreferences.Editor editor;
+	private SharedPreferences preferences;
+	
 	private static final int[] ITEM_DRAWABLES_FUTURE = {
 		R.drawable.create,
 		R.drawable.search,
 		R.drawable.over_due,
 		};
 	
+	public static Intent intentService;
 	
 	private LinearLayout layoutTitleLinearLayout;
 	private TextView layoutTitleTextView;
@@ -132,6 +143,8 @@ public class MainActivity extends FragmentActivity {
 	
 	private String newRemindTimeString;
 	private Record setTimeRecord;
+	
+	private ToggleButton remindEnableButton;
 	
 	private MenuDrawer mMenuDrawer;
 	
@@ -153,6 +166,14 @@ public class MainActivity extends FragmentActivity {
 			}
 		});
         
+
+        editor = getSharedPreferences("Values", MODE_PRIVATE).edit();
+        preferences = getSharedPreferences("Values", MODE_PRIVATE);
+        
+        
+        
+        
+        
         menuLayoutBackImageView = (ImageView)findViewById(R.id.menu_layout_back);
         menuLayoutBackImageView.setOnClickListener(new OnClickListener() {
 			@Override
@@ -170,6 +191,8 @@ public class MainActivity extends FragmentActivity {
 			e.printStackTrace();
 		}
 		
+		initValues();
+		
 		mAdapter = new ListViewAdapter(TimeFleetingData.futureRecords, mContext);
 		mAdapter.setMode(Attributes.Mode.Single);
 		
@@ -178,7 +201,16 @@ public class MainActivity extends FragmentActivity {
 		
 		layoutTitleLinearLayout = (LinearLayout)findViewById(R.id.layout_title);
 		layoutTitleTextView = (TextView)findViewById(R.id.layout_title_text);
+		layoutTitleTextView.setText(GlobalSettings.FUTURE_TITLE);
 		layoutTitleImageView = (ImageView)findViewById(R.id.layout_title_imageview);
+		
+		layoutTitleTextView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				mJazzy.setCurrentItem(1 - mJazzy.getCurrentItem(), true);
+			}
+		});
 		
 		layoutTitleImageView.setOnClickListener(new OnClickListener() {
 			@Override
@@ -200,10 +232,20 @@ public class MainActivity extends FragmentActivity {
 					TimeFleetingData.sortFutureRecordByCreateTimeReversely();
 					mAdapter.notifyDataSetChanged();
 					if (data.getBooleanExtra("isOld", false)) {
+						// is old record
 						// don't scroll
 					} else {
 						listView.smoothScrollToPosition(0);
 					}
+					
+					if (GlobalSettings.REMIND_ENABLE) {
+						intentService = new Intent(mContext, LongRunningService.class);
+				        intentService.setAction("TimeFleeting Reminder");
+				        initReminds();
+						LongRunningService.remindList = GlobalSettings.REMIND_LIST;
+						startService(intentService);
+					}
+
 				} else {
 					Log.d("TimeFleeting", "isEditActivityFinished is false");
 				}
@@ -226,22 +268,25 @@ public class MainActivity extends FragmentActivity {
 		mJazzy.setAdapter(mainAdapter);
 		mJazzy.setCurrentItem(1);
 		mJazzy.setPageMargin(0);
+		mJazzy.setOutlineColor(Color.parseColor("#f4f4f4"));
 		mJazzy.addOnPageChangeListener(new OnPageChangeListener() {
 			
 			@Override
 			public void onPageSelected(int position) {
-				// TODO Auto-generated method stub
+				if (position == 0) {
+					layoutTitleTextView.setText(GlobalSettings.PAST_TITLE);
+				} else {
+					layoutTitleTextView.setText(GlobalSettings.FUTURE_TITLE);
+				}
 			}
 			
 			@Override
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void onPageScrollStateChanged(int arg0) {
-				// TODO Auto-generated method stub
 				
 			}
 		});
@@ -407,7 +452,6 @@ public class MainActivity extends FragmentActivity {
 							- statusBarHeight 
 							- layoutTitleLinearLayout.getHeight()) {
 						if (firstVisibleItem > lastVisibleItemPosition) {
-							Log.d("TimeFleeting", "Down");
 							// scroll down
 							// should disappear
 							if (!lastIsScrollDown) {
@@ -451,7 +495,6 @@ public class MainActivity extends FragmentActivity {
 							if (moveDirection == -1) {
 								// down
 								if (lastDirection == 1) {
-									Log.d("TimeFleeting", "DOWN");
 									AnimationSet animationSet = new AnimationSet(true);
 									TranslateAnimation translateAnimation = 
 											new TranslateAnimation(
@@ -473,7 +516,6 @@ public class MainActivity extends FragmentActivity {
 								// scroll up
 								// should appear
 								if (lastDirection == -1) {
-									Log.d("TimeFleeting", "UP");
 									AnimationSet animationSet = new AnimationSet(true);
 									TranslateAnimation translateAnimation = 
 											new TranslateAnimation(
@@ -595,4 +637,67 @@ public class MainActivity extends FragmentActivity {
 			}
 		});
 	}
+	
+	private void initValues() {
+		GlobalSettings.REMIND_ENABLE = preferences.getBoolean("REMIND_ENABLE", true);
+		remindEnableButton = (ToggleButton)findViewById(R.id.menu_layout_remind_enable);
+		if (GlobalSettings.REMIND_ENABLE) {
+			remindEnableButton.setToggleOn();
+			intentService = new Intent(mContext, LongRunningService.class);
+	        intentService.setAction("TimeFleeting Reminder");
+	        initReminds();
+			LongRunningService.remindList = GlobalSettings.REMIND_LIST;
+			startService(intentService);
+		} else {
+			remindEnableButton.setToggleOff();
+			stopService(intentService);
+		}
+        remindEnableButton.setOnToggleChanged(new OnToggleChanged() {
+			
+			@Override
+			public void onToggle(boolean on) {
+				if (on) {
+					// start every service
+					intentService = new Intent(mContext, LongRunningService.class);
+			        intentService.setAction("TimeFleeting Reminder");
+			        initReminds();
+					LongRunningService.remindList = GlobalSettings.REMIND_LIST;
+					startService(intentService);
+					Log.d("TimeFleeting", "on");
+				} else {
+					stopService(intentService);
+					Log.d("TimeFleeting", "off");
+				}
+			}
+		});
+	}
+	
+	public static void initReminds() {
+		GlobalSettings.REMIND_LIST = new ArrayList<Remind>();
+		for (int i = 0; i < TimeFleetingData.futureRecords.size(); i++) {
+			Remind remind = new Remind();
+			remind.id = TimeFleetingData.futureRecords.get(i).getId();
+			remind.titleString = TimeFleetingData.futureRecords.get(i).getTitle();
+			SimpleDateFormat formatter = new SimpleDateFormat (GlobalSettings.FULL_DATE_FORMAT); 
+			Date remindDate = new Date(System.currentTimeMillis());
+			Date currentDate = new Date(System.currentTimeMillis());
+			try {
+				remindDate = formatter.parse(TimeFleetingData.futureRecords.get(i).getRemindTime());
+			} catch (ParseException p) {
+				p.printStackTrace();
+			}
+			
+			// a-----------b-----c
+			long c = remindDate.getTime();
+			long b = c - GlobalSettings.ALARM_TIME;
+			if (currentDate.getTime() > remindDate.getTime()) {
+				// overdue
+				continue;
+			}
+			remind.triggerAtTime = b;
+			GlobalSettings.REMIND_LIST.add(remind);
+		}
+		Log.d("TimeFleeting", "Finishing loading " + GlobalSettings.REMIND_LIST.size() + " reminds.");
+	}
+	
 }

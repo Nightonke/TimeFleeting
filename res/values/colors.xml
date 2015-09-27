@@ -13,10 +13,11 @@
     <color name="future_listview_create_time">#060</color>
     <color name="future_listview_remind_time">#060</color>
     
-    <color name="future_listview_be_top">#77DD77</color>
+    <color name="future_listview_back">#77DD77</color>
+    <color name="future_listview_be_top">#66CC66</color>
     <color name="future_listview_set_remind_time">#55BB55</color>
-    <color name="future_listview_set_star">#339933</color>
-    <color name="future_listview_delete">#117711</color>
+    <color name="future_listview_set_star">#44AA44</color>
+    <color name="future_listview_delete">#339933</color>
     
     <color name="future_listview_above_wave">#009E10</color>
     <color name="future_listview_below_wave">#009E10</color>

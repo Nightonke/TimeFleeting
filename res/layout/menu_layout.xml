@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:toggle="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" 
@@ -19,6 +21,7 @@
             android:textColor="#FFFFFF"
             android:text="Time Fleeting"
             android:textSize="20sp"
+            android:paddingLeft="5dp"
             android:layout_gravity="center_vertical"
             android:gravity="center_vertical"
             />
@@ -33,5 +36,17 @@
             />
         
     </LinearLayout>
+    
+    <com.zcw.togglebutton.ToggleButton
+        android:id="@+id/menu_layout_remind_enable"
+        android:layout_width="54dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center_vertical"
+        android:paddingRight="10dp"
+        toggle:offColor="#FFFFFF"
+        toggle:offBorderColor="#FFFFFF"
+        toggle:spotColor="#A5DEE4"
+        toggle:borderWidth="0.5dp"
+        />
 
 </LinearLayout>

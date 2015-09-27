@@ -59,6 +59,9 @@ public class EditActivity extends FragmentActivity
 	private String starString = "0";
 	private String wordNumberString;
 	
+	private boolean oldRemindTimeChange = false;
+	private boolean oldStarChange = false;
+	
 	private TextView createTimeTextView;
 	private TextView wordNumberTextView;
 	private EditText titleEditText;
@@ -404,6 +407,7 @@ public class EditActivity extends FragmentActivity
 		final DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), false);
 		datePickerDialog.setYearRange(2015, 2036);
         datePickerDialog.setCloseOnSingleTapDay(false);
+        datePickerDialog.setCancelable(false);
         datePickerDialog.show(getSupportFragmentManager(), GlobalSettings.DATEPICKER_TAG);
 	}
 
@@ -414,11 +418,13 @@ public class EditActivity extends FragmentActivity
 		remindTimeString += "00";
 		
 		isRemind = true;
+		
 	}
 
 	@Override
 	public void onDateSet(DatePickerDialog datePickerDialog, int year,
 			int month, int day) {	
+		
 		isRemind = false;
 		
 		// a bug in the datetimepicker-library
@@ -435,12 +441,16 @@ public class EditActivity extends FragmentActivity
 		
 		timePickerDialog.setVibrate(false);
         timePickerDialog.setCloseOnSingleTapMinute(false);
+        timePickerDialog.setCancelable(false);
         timePickerDialog.show(getSupportFragmentManager(), GlobalSettings.TIMEPICKER_TAG);
 	}
 	
 	private void returnHome() {
 		Intent intent = new Intent();
 		intent.putExtra("isEditActivityFinished", true);
+		intent.putExtra("Id", saveId);
+		intent.putExtra("RemindTime", remindTimeString);
+		intent.putExtra("Title", titleEditText.getText());
 		if (isOld) {
 			intent.putExtra("isOld", true);
 		}
@@ -605,6 +615,9 @@ public class EditActivity extends FragmentActivity
 				dialog.dismiss();
 				starString = String.valueOf(seekBar.getProgress() + 1);
 				isStared = true;
+				if (isOld) {
+					oldStarChange = true;
+				}
 			}
 		});
 	}

@@ -26,6 +26,9 @@
         <activity android:name="com.timefleeting.app.EditActivity"/>
         <activity android:name="com.timefleeting.app.MainActivity"/>  
         
+        <service android:name=".LongRunningService"/>
+        <receiver android:name=".AlarmReceiver"/>
+        
     </application>
 
 </manifest>

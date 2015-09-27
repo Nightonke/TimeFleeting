@@ -1,5 +1,7 @@
 package com.timefleeting.app;
 
+import java.util.List;
+
 import com.daimajia.androidanimations.library.Techniques;
 
 public class GlobalSettings {
@@ -50,9 +52,20 @@ public class GlobalSettings {
 	// the word counter's postfix
 	public static String WORD_COUNTER_POSTFIX = " word---";
 	
+	// the title of the future
+	public static String FUTURE_TITLE = "Future";
 	
+	// the title of the past
+	public static String PAST_TITLE = "Anniversary";
 	
+	// the remind time
+	public static int ALARM_TIME = 0;
 	
+	// whether open reminder
+	public static boolean REMIND_ENABLE = true;
+	
+	// the global remind list
+	public static List<Remind> REMIND_LIST;
 	
 	
 	
