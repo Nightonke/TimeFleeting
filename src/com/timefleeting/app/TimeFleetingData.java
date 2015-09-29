@@ -1,6 +1,7 @@
 package com.timefleeting.app;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,8 +32,19 @@ public class TimeFleetingData {
 	public static boolean isSortedByTitleReversely = false;
 	public static boolean isSortedByStarReversely = false;
 	
+	// according which to sort
+	public static boolean pastIsSortByRemindTime = true;
+	public static boolean pastIsSortByRemainTime = false;
+	
+	// the direction of the sort
+	public static boolean pastIsSortByRemindTimeReversely = false;
+	public static boolean pastIsSortByRemainTimeReversely = false;
+	
+	
 	private static boolean overdueSort = false;
 	public static int futureBeTopNumber;
+	
+	public static int pastBeTopNumber;
 	
 	private TimeFleetingData(Context context) {
 		try {
@@ -49,8 +61,9 @@ public class TimeFleetingData {
 			timeFleetingData = new TimeFleetingData(context);
 			pastRecords = db.loadPastRecords();
 			futureRecords = db.loadFutureRecords();
-			Log.d("TimeFleeting", "The futureBeTopNumber is " + futureBeTopNumber);
 			Log.d("TimeFleeting", "The timeFleetingData is NULL.");
+			Log.d("TimeFleeting", "The pastBeTopNumber is " + pastBeTopNumber);
+			Log.d("TimeFleeting", "The futureBeTopNumber is " + futureBeTopNumber);
 			Log.d("TimeFleeting", "Loading " + 
 				String.valueOf(pastRecords.size()) + 
 				" PAST records successfully.");
@@ -74,7 +87,7 @@ public class TimeFleetingData {
 			return -1;
 		}
 		record.setId(insertId);
-		if (record.getType().equals("PAST")) {
+		if (record.getType().substring(0, 4).equals("PAST")) {
 			if (isUpdate) {
 				for (int i = 0; i < pastRecords.size(); i++) {
 					if (pastRecords.get(i).getId() == record.getId()) {
@@ -750,6 +763,147 @@ public class TimeFleetingData {
 			} else {
 				sortFutureRecordByTitle();
 			}
+		}
+	}
+	
+	public static void sortPastRecordsByRemindTime() {
+		setPastSortParameter(true, false, false, false);
+		Collections.sort(pastRecords, new Comparator<Record>() {
+			@Override
+			public int compare(Record lhs, Record rhs) {
+				if (lhs.getBeTop() != rhs.getBeTop()) {
+					return Integer.valueOf(rhs.getBeTop()).compareTo(Integer.valueOf(lhs.getBeTop()));
+				} else {
+					return lhs.getRemindTime().compareTo(rhs.getRemindTime());
+				}
+			}
+		});
+	}
+	
+	public static void sortPastRecordsByRemindTimeReversely() {
+		setPastSortParameter(true, true, false, false);
+		Collections.sort(pastRecords, new Comparator<Record>() {
+			@Override
+			public int compare(Record lhs, Record rhs) {
+				if (lhs.getBeTop() != rhs.getBeTop()) {
+					return Integer.valueOf(rhs.getBeTop()).compareTo(Integer.valueOf(lhs.getBeTop()));
+				} else {
+					return rhs.getRemindTime().compareTo(lhs.getRemindTime());
+				}
+			}
+		});
+	}
+	
+	public static void sortPastRecordsByRemainTime() {
+		setPastSortParameter(false, false, true, false);
+		Collections.sort(pastRecords, new Comparator<Record>() {
+			@Override
+			public int compare(Record lhs, Record rhs) {
+				if (lhs.getBeTop() != rhs.getBeTop()) {
+					return Integer.valueOf(rhs.getBeTop()).compareTo(Integer.valueOf(lhs.getBeTop()));
+				} else {
+					return Integer.valueOf(calculateRemainDays(lhs)).compareTo(Integer.valueOf(calculateRemainDays(rhs)));
+				}
+			}
+		});
+	}
+	
+	public static void sortPastRecordsByRemainTimeReversely() {
+		setPastSortParameter(false, false, true, true);
+		Collections.sort(pastRecords, new Comparator<Record>() {
+			@Override
+			public int compare(Record lhs, Record rhs) {
+				if (lhs.getBeTop() != rhs.getBeTop()) {
+					return Integer.valueOf(rhs.getBeTop()).compareTo(Integer.valueOf(lhs.getBeTop()));
+				} else {
+					return Integer.valueOf(calculateRemainDays(rhs)).compareTo(Integer.valueOf(calculateRemainDays(lhs)));
+				}
+			}
+		});
+	}
+	
+	private static void setPastSortParameter(
+			boolean _pastIsSortByRemindTime,
+			boolean _pastIsSortByRemindTimeReversely,
+			boolean _pastIsSortByRemainInTime,
+			boolean _pastIsSortByRemainInTimeReversely) {
+		pastIsSortByRemindTime = _pastIsSortByRemindTime;
+		pastIsSortByRemindTimeReversely = _pastIsSortByRemindTimeReversely;
+		pastIsSortByRemainTime = _pastIsSortByRemainInTime;
+		pastIsSortByRemainTimeReversely = _pastIsSortByRemainInTimeReversely;
+		
+	}
+	
+	private static void sortPastRecordsByLastSort() {
+		if (pastIsSortByRemindTime) {
+			if (pastIsSortByRemindTimeReversely) {
+				sortPastRecordsByRemindTime();
+			} else {
+				sortPastRecordsByRemindTimeReversely();
+			}
+		} else if (pastIsSortByRemainTime) {
+			if (pastIsSortByRemainTimeReversely) {
+				sortPastRecordsByRemainTime();
+			} else {
+				sortPastRecordsByRemainTimeReversely();
+			}
+		}
+	}
+	
+	// according to the remind time and the type to calculate the remain time
+	public static int calculateRemainDays(Record record) {
+		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
+		Date remindDate = new Date();
+		try {
+			remindDate = formatter.parse(record.getRemindTime());
+			remindDate.setHours(GlobalSettings.REMIND_HOUR);
+			remindDate.setMinutes(GlobalSettings.REMIND_MINUTE);
+		} catch (ParseException p) {
+			p.printStackTrace();
+		}
+		
+		Date curDate = new Date(System.currentTimeMillis());
+		
+		if (record.getType().equals("PAST_W")) {
+			// every week
+			while (remindDate.before(curDate)) {
+				remindDate.setTime(remindDate.getTime() + GlobalSettings.A_WEEK);
+			}
+			return (int)((remindDate.getTime() - curDate.getTime()) / GlobalSettings.A_DAY);
+		} else if (record.getType().equals("PAST_M")) {
+			// every month
+			while (remindDate.before(curDate)) {
+				int month = remindDate.getMonth() + 1;
+				if (month == 13) {
+					remindDate.setYear(remindDate.getYear() + 1);
+					month = 1;
+				}
+				remindDate.setMonth(month);
+			}
+			return (int)((remindDate.getTime() - curDate.getTime()) / GlobalSettings.A_DAY);
+		} else if (record.getType().equals("PAST_Y")) {
+			// every year
+			while (remindDate.before(curDate)) {
+				remindDate.setYear(remindDate.getYear() + 1);
+			}
+			return (int)((remindDate.getTime() - curDate.getTime()) / GlobalSettings.A_DAY);
+		} else if (record.getType().equals("PAST_N")) {
+			return GlobalSettings.MAX_INT;
+		} else if (record.getType().equals("PAST_H")) {
+			// every 100 days
+			while (remindDate.before(curDate)) {
+				remindDate.setTime(remindDate.getTime() + 100 * GlobalSettings.A_DAY);
+			}
+			return (int)((remindDate.getTime() - curDate.getTime()) / GlobalSettings.A_DAY);
+		} else if (record.getType().equals("PAST_T")) {
+			// every 1000 days
+			while (remindDate.before(curDate)) {
+				remindDate.setTime(remindDate.getTime() + 1000 * GlobalSettings.A_DAY);
+			}
+			return (int)((remindDate.getTime() - curDate.getTime()) / GlobalSettings.A_DAY);
+		} else {
+			Log.d("TimeFleeting", "Error type in calculateRemainDays function");
+			return -1;
 		}
 	}
 	

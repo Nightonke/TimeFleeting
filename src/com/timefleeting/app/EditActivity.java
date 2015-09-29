@@ -23,6 +23,7 @@ import android.provider.Settings.Global;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -51,11 +52,14 @@ public class EditActivity extends FragmentActivity
 	private String oldContentString;
 	private String createTimeString;
 	private String remindTimeString;
+	private String oldRemindTimeString;
 	private int beTop;
 	private String statusString;
 	private boolean isSaved = false;
 	private boolean isRemind = false;
 	private boolean isStared = false;
+	private boolean changeRemind = false;
+	private boolean changeStar = false;
 	private String starString = "0";
 	private String wordNumberString;
 	
@@ -108,6 +112,7 @@ public class EditActivity extends FragmentActivity
 			contentEditText.setText(oldContentString);
 			createTimeString = intent.getStringExtra("CreateTime");
 			remindTimeString = intent.getStringExtra("RemindTime");
+			oldRemindTimeString = remindTimeString;
 			starString = intent.getStringExtra("Star");
 			beTop = intent.getIntExtra("Top", 0);
 			statusString = intent.getStringExtra("Status");
@@ -254,6 +259,11 @@ public class EditActivity extends FragmentActivity
 		String titleString = titleEditText.getText().toString();
 		String contentString = contentEditText.getText().toString();
 		
+		if (isOld && isSaved && !changeRemind && !changeStar) {
+			returnHome();
+			return;
+		}
+		
 		if (("".equals(titleString) && "".equals(contentString)) && !isSaved && !isRemind && !isStared) {
 			returnHome();
 		} else {
@@ -345,6 +355,14 @@ public class EditActivity extends FragmentActivity
 		String titleString = titleEditText.getText().toString();
 		String contentString = contentEditText.getText().toString();
 
+		if (remindTimeString.length() != GlobalSettings.FULL_DATE_FORMAT.length()) {
+			if (isOld) {
+				remindTimeString = oldRemindTimeString;
+			} else {	
+				remindTimeString = calculateDefaultRemindTime();
+			}
+		}
+		
 		if ("".equals(titleString)) {
 			titleString = GlobalSettings.DEFAULT_TITLE; 
 		}
@@ -418,7 +436,7 @@ public class EditActivity extends FragmentActivity
 		remindTimeString += "00";
 		
 		isRemind = true;
-		
+		changeRemind = true;
 	}
 
 	@Override
@@ -618,9 +636,16 @@ public class EditActivity extends FragmentActivity
 				isStared = true;
 				if (isOld) {
 					oldStarChange = true;
+					changeStar = true;
 				}
 			}
 		});
 	}
 
+	@Override
+	public void onDestroy() {
+		Log.d("TimeFleeting", "destroy.");
+		super.onDestroy();
+	}
+	
 }

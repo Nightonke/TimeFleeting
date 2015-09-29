@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.List;
 
 import net.simonvt.menudrawer.MenuDrawer;
+import net.simonvt.menudrawer.MenuDrawer.OnDrawerStateChangeListener;
+import net.simonvt.menudrawer.MenuDrawer.OnInterceptMoveEventListener;
 import net.simonvt.menudrawer.Position;
 
 import com.sleepbot.datetimepicker.time.RadialPickerLayout;
@@ -27,6 +29,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -37,6 +40,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.TimingLogger;
+import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -44,10 +48,12 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnDragListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
@@ -62,6 +68,7 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.MotionEvent;
 
 import com.capricorn.RayMenu;
 import com.daimajia.androidanimations.library.Techniques;
@@ -88,11 +95,14 @@ public class MainActivity extends FragmentActivity {
 	private Context mContext;
 	
 	private ListView listView;
+	private ListView pastListView;
 	private ListViewAdapter mAdapter;
+	private ListViewAdapter pastAdapter;
 	
 	private PagerAdapter mainAdapter;
 	
 	private RayMenu rayMenu;
+	private RayMenu pastRayMenu;
 	
 	// according which to sort
 	private boolean isSortByCreateTime = true;
@@ -111,6 +121,10 @@ public class MainActivity extends FragmentActivity {
 	private int lastVisibleItemPosition = 0;
 	private boolean lastIsScrollDown = false;
 	
+	private boolean pastScrollFlag = false;
+	private int pastLastVisibleItemPosition = 0;
+	private boolean pastLastIsScrollDown = false;
+	
 	private View v;
 	
 	private int statusBarHeight;
@@ -118,10 +132,16 @@ public class MainActivity extends FragmentActivity {
 	
 	private boolean layout1RayMenuAppeared = false;
 	private boolean layout1RayMenuShown = true;
+	private boolean layout2RayMenuAppeared = false;
+	private boolean layout2RayMenuShown = true;
 	
 	private float pressDownY = -1;
 	private int moveDirection = -1;
 	private int lastDirection = 1;
+	
+	private float pastPressDownY = -1;
+	private int pastMoveDirection = -1;
+	private int pastLastDirection = 1;
 	
 	private SharedPreferences.Editor editor;
 	private SharedPreferences preferences;
@@ -150,15 +170,43 @@ public class MainActivity extends FragmentActivity {
 	
 	private MenuDrawer mMenuDrawer;
 	
+	private int mPagerPosition;
+    private float mPagerOffsetPixels;
+    
+    static final int MIN_DISTANCE = 100;
+    private float downX, downY, upX, upY;
+    private float pastDownX, pastDownY, pastUpX, pastUpY;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setFormat(PixelFormat.RGBA_8888);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DITHER);
 		setContentView(R.layout.activity_main);
 		
-		mMenuDrawer = MenuDrawer.attach(this, MenuDrawer.Type.OVERLAY, Position.LEFT, MenuDrawer.MENU_DRAG_WINDOW);
+		mMenuDrawer = MenuDrawer.attach(this, MenuDrawer.Type.BEHIND, Position.LEFT, MenuDrawer.MENU_DRAG_CONTENT);
         mMenuDrawer.setContentView(R.layout.activity_main);
         mMenuDrawer.setMenuView(R.layout.menu_layout);
+        mMenuDrawer.setDrawerIndicatorEnabled(true);
+		mMenuDrawer.setTouchMode(MenuDrawer.TOUCH_MODE_FULLSCREEN);
+		
+		mMenuDrawer.setOnInterceptMoveEventListener(new OnInterceptMoveEventListener() {
+			
+			@Override
+			public boolean isViewDraggable(View v, int dx, int x, int y) {
+//				Log.d("TimeFleeting", "dx: " + dx);
+//				Log.d("TimeFleeting", "x: " + x);
+//				Log.d("TimeFleeting", "y: " + y);
+//				Log.d("TimeFleeting", "Jazzy");
+				return mJazzy.getCurrentItem() != 0;
+//				if (v == mJazzy) {
+//					Log.d("TimeFleeting", "Jazzy");
+//					return mJazzy.getCurrentItem() != 0;
+//                }
+//				return false;
+			}
+		});
 		
         layoutTitleMenuImageView = (ImageView)findViewById(R.id.layout_title_menu_logo);
         layoutTitleMenuImageView.setOnClickListener(new OnClickListener() {
@@ -172,10 +220,16 @@ public class MainActivity extends FragmentActivity {
         editor = getSharedPreferences("Values", MODE_PRIVATE).edit();
         preferences = getSharedPreferences("Values", MODE_PRIVATE);
         
-        
-        
-        
-        
+        boolean whetherShownSplash = preferences.getBoolean("SHOWN_SPLASH", false);
+        if (!whetherShownSplash) {
+        	editor.putBoolean("SHOWN_SPLASH", true);
+        	editor.commit();
+        	Intent intent = new Intent(this, Splash.class);
+        	startActivity(intent);
+        } else {
+        	
+        }
+
         menuLayoutBackImageView = (ImageView)findViewById(R.id.menu_layout_back);
         menuLayoutBackImageView.setOnClickListener(new OnClickListener() {
 			@Override
@@ -197,6 +251,9 @@ public class MainActivity extends FragmentActivity {
 		
 		mAdapter = new ListViewAdapter(TimeFleetingData.futureRecords, mContext);
 		mAdapter.setMode(Attributes.Mode.Single);
+		
+		pastAdapter = new ListViewAdapter(TimeFleetingData.pastRecords, mContext);
+		pastAdapter.setMode(Attributes.Mode.Single);
 		
 		layoutInflater = getLayoutInflater().from(this);
 		setupJazziness(TransitionEffect.Tablet);
@@ -252,7 +309,8 @@ public class MainActivity extends FragmentActivity {
 				}
 			}
 			break;
-
+		case 2:
+			break;
 		default:
 			break;
 		}
@@ -270,6 +328,16 @@ public class MainActivity extends FragmentActivity {
 		mJazzy.setCurrentItem(1);
 		mJazzy.setPageMargin(0);
 		mJazzy.setOutlineColor(Color.parseColor("#f4f4f4"));
+		
+		mJazzy.setOnTouchListener(new OnTouchListener() {
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				// TODO Auto-generated method stub
+				return false;
+			}
+		});
+		
 		mJazzy.addOnPageChangeListener(new OnPageChangeListener() {
 			
 			@Override
@@ -282,8 +350,10 @@ public class MainActivity extends FragmentActivity {
 			}
 			
 			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+				mAdapter.closeAllItems();
+				mPagerPosition = position;
+                mPagerOffsetPixels = positionOffsetPixels;
 			}
 			
 			@Override
@@ -329,76 +399,378 @@ public class MainActivity extends FragmentActivity {
 	}
 	
 	private void initView() {
-			View v1 = layoutInflater.inflate(R.layout.layout1, null);
-			listView = (ListView)v1.findViewById(R.id.listview);
-			listView.setAdapter(mAdapter);
+		mViewList = new ArrayList<View>();
+		
+		initView2();
+		initView1();
 
-			// sort by the create time default
-			TimeFleetingData.sortFutureRecordByCreateTimeReversely();
-			
-			if (TimeFleetingData.futureRecords.size() > 0) {
-				TextView tipsTextView = (TextView)v1.findViewById(R.id.layout_1_tips);
-				tipsTextView.setVisibility(View.INVISIBLE);
-			} else {
-				TextView tipsTextView = (TextView)v1.findViewById(R.id.layout_1_tips);
-				tipsTextView.setVisibility(View.VISIBLE);
-			}
-			
-			// on list item click listener
-			listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-	            @Override
-	            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-	            	if (mAdapter.isOpen(position)) {
-	                    return;
-	            	} else {
-	            		mAdapter.closeAllItems();
-	            		Intent intent = new Intent(mContext, EditActivity.class);
-		            	intent.putExtra("isOld", true);
-		            	intent.putExtra("Title", TimeFleetingData.futureRecords.get(position).getTitle());
-		            	intent.putExtra("Content", TimeFleetingData.futureRecords.get(position).getText());
-		            	intent.putExtra("CreateTime", TimeFleetingData.futureRecords.get(position).getCreateTime());
-		            	intent.putExtra("RemindTime", TimeFleetingData.futureRecords.get(position).getRemindTime());
-		            	intent.putExtra("Star", TimeFleetingData.futureRecords.get(position).getStar());
-		            	intent.putExtra("ID", TimeFleetingData.futureRecords.get(position).getId());
-		            	intent.putExtra("Status", TimeFleetingData.futureRecords.get(position).getStatus());
-		            	intent.putExtra("Top", TimeFleetingData.futureRecords.get(position).getBeTop());
-						startActivityForResult(intent, 1);
-	            	}
-	            }
-	        });			
+		View v3 = layoutInflater.inflate(R.layout.layout3, null);
+		
+	}
+	
+	private void initView2() {
+		View v2 = layoutInflater.inflate(R.layout.layout2, null);
+		pastListView = (ListView)v2.findViewById(R.id.listview_past);
+		pastListView.setAdapter(pastAdapter);
 
-			rayMenu = (RayMenu)v1.findViewById(R.id.past_layout_ray_menu);
-			
-			layout1RayMenuAppeared = true;
-			
-			for (int i = 0; i < ITEM_DRAWABLES_FUTURE.length; i++) {
-				ImageView imageView = new ImageView(mContext);
-				imageView.setImageResource(ITEM_DRAWABLES_FUTURE[i]);
-				final int menuPosition = i;
-				rayMenu.addItem(imageView, new OnClickListener() {
-					
-					@Override
-					public void onClick(View v) {
-						if (menuPosition == 0) {
-							// new
-							Intent intent = new Intent(mContext, EditActivity.class);
-							intent.putExtra("isOld", false);
-							startActivityForResult(intent, 1);
-						} else if (menuPosition == 1) {
-							// search
-						} else if (menuPosition == 2) {
-							// overdue
-						} 
-					}
-				});
-			}
-			
-			listView.setOnTouchListener(new OnTouchListener() {
+		// sort by the remain time default
+		TimeFleetingData.sortPastRecordsByRemainTime();
+		
+		if (TimeFleetingData.pastRecords.size() > 0) {
+			TextView tipsTextView = (TextView)v2.findViewById(R.id.layout_2_tips);
+			tipsTextView.setVisibility(View.INVISIBLE);
+		} else {
+			TextView tipsTextView = (TextView)v2.findViewById(R.id.layout_2_tips);
+			tipsTextView.setVisibility(View.VISIBLE);
+		}
+		
+		// on list item click listener
+		pastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            	if (pastAdapter.isOpen(position)) {
+                    return;
+            	} else {
+            		pastAdapter.closeAllItems();
+            		Intent intent = new Intent(mContext, EditPastActivity.class);
+	            	intent.putExtra("isOld", true);
+	            	intent.putExtra("Title", TimeFleetingData.pastRecords.get(position).getTitle());
+	            	intent.putExtra("Content", TimeFleetingData.pastRecords.get(position).getText());
+	            	intent.putExtra("CreateTime", TimeFleetingData.pastRecords.get(position).getCreateTime());
+	            	intent.putExtra("RemindTime", TimeFleetingData.pastRecords.get(position).getRemindTime());
+	            	intent.putExtra("Star", TimeFleetingData.pastRecords.get(position).getStar());
+	            	intent.putExtra("ID", TimeFleetingData.pastRecords.get(position).getId());
+	            	intent.putExtra("Status", TimeFleetingData.pastRecords.get(position).getStatus());
+	            	intent.putExtra("Top", TimeFleetingData.pastRecords.get(position).getBeTop());
+					startActivityForResult(intent, 2);
+            	}
+            }
+        });			
+
+		pastRayMenu = (RayMenu)v2.findViewById(R.id.past_layout_ray_menu);
+		
+		layout2RayMenuAppeared = true;
+		
+		for (int i = 0; i < ITEM_DRAWABLES_FUTURE.length; i++) {
+			ImageView imageView = new ImageView(mContext);
+			imageView.setImageResource(ITEM_DRAWABLES_FUTURE[i]);
+			final int menuPosition = i;
+			pastRayMenu.addItem(imageView, new OnClickListener() {
 				
 				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-					if (event.getAction() == MotionEvent.ACTION_MOVE) {
-						if (pressDownY == -1) {
+				public void onClick(View v) {
+					if (menuPosition == 0) {
+						// new
+						Intent intent = new Intent(mContext, EditPastActivity.class);
+						intent.putExtra("isOld", false);
+						startActivityForResult(intent, 2);
+					} else if (menuPosition == 1) {
+						// search
+					} else if (menuPosition == 2) {
+						// overdue
+					} 
+				}
+			});
+		}
+		
+		pastListView.setOnTouchListener(new OnTouchListener() {
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				switch(event.getAction()){
+				    case MotionEvent.ACTION_DOWN: {
+				    	pastDownX = event.getX();
+				    	pastDownY = event.getY();
+				    	//   return true;
+				    }
+				    case MotionEvent.ACTION_UP: {
+				    	pastPressDownY = -1;
+				    	
+				    	pastUpX = event.getX();
+				    	pastUpY = event.getY();
+
+				    	float deltaX = pastDownX - pastUpX;
+				    	float deltaY = pastDownY - pastUpY;
+				    	
+				    	// swipe horizontal?
+				    	if(Math.abs(deltaX) > MIN_DISTANCE) {
+				    		// left or right
+				    		if(deltaX > 0) {
+				    			boolean isOpen = false;
+				    			for (int i = pastListView.getFirstVisiblePosition(); i <= pastListView.getLastVisiblePosition(); i++) {
+				    				if (pastAdapter.isOpen(i)) {
+				    					isOpen = true;
+				    					break;
+				    				}
+				    			}
+				    			if (isOpen) {
+				    				pastAdapter.closeAllItems();
+				    				return true;
+				    			}
+				    			return false; 
+				    		}
+				    		if(deltaX < 0) { 
+				    			
+				    			return false; 
+				    		}
+				    	} 
+				    }
+				    case MotionEvent.ACTION_MOVE: {
+				    	if (pastPressDownY == -1) {
+							// don't calculate
+				    		pastPressDownY = event.getY();
+							return false;
+						}
+						if (event.getY() > pastPressDownY) {
+							pastMoveDirection = 1;
+						} else if (event.getY() < pastPressDownY) {
+							pastMoveDirection = -1;
+						}
+						pastPressDownY = event.getY();
+						return false;
+				    }
+				}
+				return false;
+			}
+		});
+		
+		pastListView.setOnScrollListener(new OnScrollListener() {
+			
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState) {
+				switch (scrollState) {
+				case OnScrollListener.SCROLL_STATE_IDLE:
+					pastScrollFlag = false;
+					if (pastListView.getLastVisiblePosition() == (pastListView.getCount() - 1)) {
+						// to bottom 
+						
+					}
+					if (pastListView.getFirstVisiblePosition() == 0) {
+						// to top
+
+					}
+					break;
+				case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
+					pastAdapter.closeAllItems();
+					pastScrollFlag = true;
+					break;
+				case OnScrollListener.SCROLL_STATE_FLING:
+					pastScrollFlag = false;
+					break;
+				default:
+					break;
+				}
+			}
+			
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem,
+					int visibleItemCount, int totalItemCount) {
+				pastRayMenu.closeMenu();
+				if (pastScrollFlag && 
+						ScreenUtil.getScreenViewBottomHeight(pastListView) 
+						>= ScreenUtil.getScreenHeight(MainActivity.this) 
+						- statusBarHeight 
+						- layoutTitleLinearLayout.getHeight()) {
+					if (firstVisibleItem > pastLastVisibleItemPosition) {
+						// scroll down
+						// should disappear
+						if (!pastLastIsScrollDown) {
+							AnimationSet animationSet = new AnimationSet(true);
+							TranslateAnimation translateAnimation = 
+									new TranslateAnimation(
+											Animation.RELATIVE_TO_SELF, 0f,
+											Animation.RELATIVE_TO_SELF, 0f,
+											Animation.RELATIVE_TO_SELF, 0f,
+											Animation.RELATIVE_TO_SELF, 1f);
+							translateAnimation.setDuration(1000);
+							animationSet.addAnimation(translateAnimation);
+							animationSet.setFillAfter(true);
+							pastRayMenu.startAnimation(animationSet);
+							layout2RayMenuShown = false;
+						} else {
+							
+						}
+						pastLastIsScrollDown = true;
+					} else if (firstVisibleItem < pastLastVisibleItemPosition) {
+						// scroll up
+						// should appear
+						if (pastLastIsScrollDown) {
+							AnimationSet animationSet = new AnimationSet(true);
+							TranslateAnimation translateAnimation = 
+									new TranslateAnimation(
+											Animation.RELATIVE_TO_SELF, 0f,
+											Animation.RELATIVE_TO_SELF, 0f,
+											Animation.RELATIVE_TO_SELF, 1f,
+											Animation.RELATIVE_TO_SELF, 0f);
+							translateAnimation.setDuration(1000);
+							animationSet.addAnimation(translateAnimation);
+							animationSet.setFillAfter(true);
+							pastRayMenu.startAnimation(animationSet);
+							layout2RayMenuShown = true;
+						} else {
+							
+						}
+						pastLastIsScrollDown = false;
+					} else {
+						if (pastMoveDirection == -1) {
+							// down
+							if (pastLastDirection == 1) {
+								AnimationSet animationSet = new AnimationSet(true);
+								TranslateAnimation translateAnimation = 
+										new TranslateAnimation(
+												Animation.RELATIVE_TO_SELF, 0f,
+												Animation.RELATIVE_TO_SELF, 0f,
+												Animation.RELATIVE_TO_SELF, 0f,
+												Animation.RELATIVE_TO_SELF, 1f);
+								translateAnimation.setDuration(1000);
+								animationSet.addAnimation(translateAnimation);
+								animationSet.setFillAfter(true);
+								pastRayMenu.startAnimation(animationSet);
+								layout2RayMenuShown = false;
+								pastLastDirection = -1;
+							} else {
+								
+							}
+							
+						} else if (pastMoveDirection == 1) {
+							// scroll up
+							// should appear
+							if (pastLastDirection == -1) {
+								AnimationSet animationSet = new AnimationSet(true);
+								TranslateAnimation translateAnimation = 
+										new TranslateAnimation(
+												Animation.RELATIVE_TO_SELF, 0f,
+												Animation.RELATIVE_TO_SELF, 0f,
+												Animation.RELATIVE_TO_SELF, 1f,
+												Animation.RELATIVE_TO_SELF, 0f);
+								translateAnimation.setDuration(1000);
+								animationSet.addAnimation(translateAnimation);
+								animationSet.setFillAfter(true);
+								pastRayMenu.startAnimation(animationSet);
+								layout2RayMenuShown = true;
+								pastLastDirection = 1;
+							} else {
+								
+							}
+							
+						}
+					}
+					pastLastVisibleItemPosition = firstVisibleItem;
+				}
+			}
+		});
+		mViewList.add(v2);
+	}
+	
+	private void initView1() {
+		View v1 = layoutInflater.inflate(R.layout.layout1, null);
+		listView = (ListView)v1.findViewById(R.id.listview);
+		listView.setAdapter(mAdapter);
+
+		// sort by the create time default
+		TimeFleetingData.sortFutureRecordByCreateTimeReversely();
+		
+		if (TimeFleetingData.futureRecords.size() > 0) {
+			TextView tipsTextView = (TextView)v1.findViewById(R.id.layout_1_tips);
+			tipsTextView.setVisibility(View.INVISIBLE);
+		} else {
+			TextView tipsTextView = (TextView)v1.findViewById(R.id.layout_1_tips);
+			tipsTextView.setVisibility(View.VISIBLE);
+		}
+		
+		// on list item click listener
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            	if (mAdapter.isOpen(position)) {
+                    return;
+            	} else {
+            		mAdapter.closeAllItems();
+            		Intent intent = new Intent(mContext, EditActivity.class);
+	            	intent.putExtra("isOld", true);
+	            	intent.putExtra("Title", TimeFleetingData.futureRecords.get(position).getTitle());
+	            	intent.putExtra("Content", TimeFleetingData.futureRecords.get(position).getText());
+	            	intent.putExtra("CreateTime", TimeFleetingData.futureRecords.get(position).getCreateTime());
+	            	intent.putExtra("RemindTime", TimeFleetingData.futureRecords.get(position).getRemindTime());
+	            	intent.putExtra("Star", TimeFleetingData.futureRecords.get(position).getStar());
+	            	intent.putExtra("ID", TimeFleetingData.futureRecords.get(position).getId());
+	            	intent.putExtra("Status", TimeFleetingData.futureRecords.get(position).getStatus());
+	            	intent.putExtra("Top", TimeFleetingData.futureRecords.get(position).getBeTop());
+					startActivityForResult(intent, 1);
+            	}
+            }
+        });			
+
+		rayMenu = (RayMenu)v1.findViewById(R.id.future_layout_ray_menu);
+		
+		layout1RayMenuAppeared = true;
+		
+		for (int i = 0; i < ITEM_DRAWABLES_FUTURE.length; i++) {
+			ImageView imageView = new ImageView(mContext);
+			imageView.setImageResource(ITEM_DRAWABLES_FUTURE[i]);
+			final int menuPosition = i;
+			rayMenu.addItem(imageView, new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					if (menuPosition == 0) {
+						// new
+						Intent intent = new Intent(mContext, EditActivity.class);
+						intent.putExtra("isOld", false);
+						startActivityForResult(intent, 1);
+					} else if (menuPosition == 1) {
+						// search
+					} else if (menuPosition == 2) {
+						// overdue
+					} 
+				}
+			});
+		}
+		
+		listView.setOnTouchListener(new OnTouchListener() {
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				switch(event.getAction()){
+				    case MotionEvent.ACTION_DOWN: {
+				    	downX = event.getX();
+				    	downY = event.getY();
+				    	//   return true;
+				    }
+				    case MotionEvent.ACTION_UP: {
+				    	pressDownY = -1;
+				    	
+				    	upX = event.getX();
+				    	upY = event.getY();
+
+				    	float deltaX = downX - upX;
+				    	float deltaY = downY - upY;
+				    	
+				    	// swipe horizontal?
+				    	if(Math.abs(deltaX) > MIN_DISTANCE) {
+				    		// left or right
+				    		if(deltaX > 0) {
+				    			boolean isOpen = false;
+				    			for (int i = listView.getFirstVisiblePosition(); i <= listView.getLastVisiblePosition(); i++) {
+				    				if (mAdapter.isOpen(i)) {
+				    					isOpen = true;
+				    					break;
+				    				}
+				    			}
+				    			if (isOpen) {
+				    				mAdapter.closeAllItems();
+				    				return true;
+				    			}
+				    			return false; 
+				    		}
+				    		if(deltaX < 0) { 
+				    			
+				    			return false; 
+				    		}
+				    	} 
+				    }
+				    case MotionEvent.ACTION_MOVE: {
+				    	if (pressDownY == -1) {
 							// don't calculate
 							pressDownY = event.getY();
 							return false;
@@ -409,53 +781,94 @@ public class MainActivity extends FragmentActivity {
 							moveDirection = -1;
 						}
 						pressDownY = event.getY();
-					} else if (event.getAction() == MotionEvent.ACTION_UP) {
-						pressDownY = -1;
-					}
-					return false;
+						return false;
+				    }
 				}
-			});
+				return false;
+			}
+		});
+		
+		listView.setOnScrollListener(new OnScrollListener() {
 			
-			listView.setOnScrollListener(new OnScrollListener() {
-				
-				@Override
-				public void onScrollStateChanged(AbsListView view, int scrollState) {
-					switch (scrollState) {
-					case OnScrollListener.SCROLL_STATE_IDLE:
-						scrollFlag = false;
-						if (listView.getLastVisiblePosition() == (listView.getCount() - 1)) {
-							// to bottom 
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState) {
+				switch (scrollState) {
+				case OnScrollListener.SCROLL_STATE_IDLE:
+					scrollFlag = false;
+					if (listView.getLastVisiblePosition() == (listView.getCount() - 1)) {
+						// to bottom 
+						
+					}
+					if (listView.getFirstVisiblePosition() == 0) {
+						// to top
+
+					}
+					break;
+				case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
+					mAdapter.closeAllItems();
+					scrollFlag = true;
+					break;
+				case OnScrollListener.SCROLL_STATE_FLING:
+					scrollFlag = false;
+					break;
+				default:
+					break;
+				}
+			}
+			
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem,
+					int visibleItemCount, int totalItemCount) {
+				rayMenu.closeMenu();
+				if (scrollFlag && 
+						ScreenUtil.getScreenViewBottomHeight(listView) 
+						>= ScreenUtil.getScreenHeight(MainActivity.this) 
+						- statusBarHeight 
+						- layoutTitleLinearLayout.getHeight()) {
+					if (firstVisibleItem > lastVisibleItemPosition) {
+						// scroll down
+						// should disappear
+						if (!lastIsScrollDown) {
+							AnimationSet animationSet = new AnimationSet(true);
+							TranslateAnimation translateAnimation = 
+									new TranslateAnimation(
+											Animation.RELATIVE_TO_SELF, 0f,
+											Animation.RELATIVE_TO_SELF, 0f,
+											Animation.RELATIVE_TO_SELF, 0f,
+											Animation.RELATIVE_TO_SELF, 1f);
+							translateAnimation.setDuration(1000);
+							animationSet.addAnimation(translateAnimation);
+							animationSet.setFillAfter(true);
+							rayMenu.startAnimation(animationSet);
+							layout1RayMenuShown = false;
+						} else {
 							
 						}
-						if (listView.getFirstVisiblePosition() == 0) {
-							// to top
-
+						lastIsScrollDown = true;
+					} else if (firstVisibleItem < lastVisibleItemPosition) {
+						// scroll up
+						// should appear
+						if (lastIsScrollDown) {
+							AnimationSet animationSet = new AnimationSet(true);
+							TranslateAnimation translateAnimation = 
+									new TranslateAnimation(
+											Animation.RELATIVE_TO_SELF, 0f,
+											Animation.RELATIVE_TO_SELF, 0f,
+											Animation.RELATIVE_TO_SELF, 1f,
+											Animation.RELATIVE_TO_SELF, 0f);
+							translateAnimation.setDuration(1000);
+							animationSet.addAnimation(translateAnimation);
+							animationSet.setFillAfter(true);
+							rayMenu.startAnimation(animationSet);
+							layout1RayMenuShown = true;
+						} else {
+							
 						}
-						break;
-					case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
-						scrollFlag = true;
-						break;
-					case OnScrollListener.SCROLL_STATE_FLING:
-						scrollFlag = false;
-						break;
-					default:
-						break;
-					}
-				}
-				
-				@Override
-				public void onScroll(AbsListView view, int firstVisibleItem,
-						int visibleItemCount, int totalItemCount) {
-					rayMenu.closeMenu();
-					if (scrollFlag && 
-							ScreenUtil.getScreenViewBottomHeight(listView) 
-							>= ScreenUtil.getScreenHeight(MainActivity.this) 
-							- statusBarHeight 
-							- layoutTitleLinearLayout.getHeight()) {
-						if (firstVisibleItem > lastVisibleItemPosition) {
-							// scroll down
-							// should disappear
-							if (!lastIsScrollDown) {
+						lastIsScrollDown = false;
+					} else {
+						if (moveDirection == -1) {
+							// down
+							if (lastDirection == 1) {
 								AnimationSet animationSet = new AnimationSet(true);
 								TranslateAnimation translateAnimation = 
 										new TranslateAnimation(
@@ -468,14 +881,15 @@ public class MainActivity extends FragmentActivity {
 								animationSet.setFillAfter(true);
 								rayMenu.startAnimation(animationSet);
 								layout1RayMenuShown = false;
+								lastDirection = -1;
 							} else {
 								
 							}
-							lastIsScrollDown = true;
-						} else if (firstVisibleItem < lastVisibleItemPosition) {
+							
+						} else if (moveDirection == 1) {
 							// scroll up
 							// should appear
-							if (lastIsScrollDown) {
+							if (lastDirection == -1) {
 								AnimationSet animationSet = new AnimationSet(true);
 								TranslateAnimation translateAnimation = 
 										new TranslateAnimation(
@@ -488,69 +902,20 @@ public class MainActivity extends FragmentActivity {
 								animationSet.setFillAfter(true);
 								rayMenu.startAnimation(animationSet);
 								layout1RayMenuShown = true;
+								lastDirection = 1;
 							} else {
 								
 							}
-							lastIsScrollDown = false;
-						} else {
-							if (moveDirection == -1) {
-								// down
-								if (lastDirection == 1) {
-									AnimationSet animationSet = new AnimationSet(true);
-									TranslateAnimation translateAnimation = 
-											new TranslateAnimation(
-													Animation.RELATIVE_TO_SELF, 0f,
-													Animation.RELATIVE_TO_SELF, 0f,
-													Animation.RELATIVE_TO_SELF, 0f,
-													Animation.RELATIVE_TO_SELF, 1f);
-									translateAnimation.setDuration(1000);
-									animationSet.addAnimation(translateAnimation);
-									animationSet.setFillAfter(true);
-									rayMenu.startAnimation(animationSet);
-									layout1RayMenuShown = false;
-									lastDirection = -1;
-								} else {
-									
-								}
-								
-							} else if (moveDirection == 1) {
-								// scroll up
-								// should appear
-								if (lastDirection == -1) {
-									AnimationSet animationSet = new AnimationSet(true);
-									TranslateAnimation translateAnimation = 
-											new TranslateAnimation(
-													Animation.RELATIVE_TO_SELF, 0f,
-													Animation.RELATIVE_TO_SELF, 0f,
-													Animation.RELATIVE_TO_SELF, 1f,
-													Animation.RELATIVE_TO_SELF, 0f);
-									translateAnimation.setDuration(1000);
-									animationSet.addAnimation(translateAnimation);
-									animationSet.setFillAfter(true);
-									rayMenu.startAnimation(animationSet);
-									layout1RayMenuShown = true;
-									lastDirection = 1;
-								} else {
-									
-								}
-								
-							}
+							
 						}
-						lastVisibleItemPosition = firstVisibleItem;
 					}
+					lastVisibleItemPosition = firstVisibleItem;
 				}
-			});
-
-			View v2 = layoutInflater.inflate(R.layout.layout2, null);
-
-			layout1RayMenuAppeared = false;
-			View v3 = layoutInflater.inflate(R.layout.layout3, null);
-			
-			mViewList = new ArrayList<View>();
-			
-			mViewList.add(v2);
-			mViewList.add(v1);
-
+			}
+		});
+		layout1RayMenuAppeared = false;
+		
+		mViewList.add(v1);
 	}
 	
 	public int getStatusBarHeight() {
@@ -568,9 +933,25 @@ public class MainActivity extends FragmentActivity {
         if (drawerState == MenuDrawer.STATE_OPEN || drawerState == MenuDrawer.STATE_OPENING) {
             mMenuDrawer.closeMenu();
             return;
+        } else {
+        	if (isTaskRoot()) {
+        		Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+                homeIntent.addCategory(Intent.CATEGORY_HOME);
+                homeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(homeIntent);
+                return;
+        	}
         }
 		
 		super.onBackPressed();
+		
+	}
+	
+	@Override
+	public void onDestroy() {
+		editor.putBoolean("SHOWN_SPLASH", false);
+    	editor.commit();
+		super.onDestroy();
 	}
 	
 	private void setSort() {

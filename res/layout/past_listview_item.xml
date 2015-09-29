@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<com.daimajia.swipe.SwipeLayout
+    xmlns:swipe="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:wave="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/swipe_past"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    >
+
+    <LinearLayout
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:gravity="center"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="horizontal"
+                >
+   
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:background="@color/future_listview_delete"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    />
+                
+            </LinearLayout>
+        
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                >
+            
+                <ImageView
+                    android:id="@+id/past_be_top"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/be_top"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="horizontal"
+                >
+                
+                <LinearLayout
+                    android:id="@+id/past_be_top_ly"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    />
+                
+            </LinearLayout>
+            
+        </RelativeLayout>
+
+    </LinearLayout>
+
+   <LinearLayout
+       android:layout_width="match_parent"
+       android:layout_height="80dp"
+       android:orientation="horizontal">
+        
+       <FrameLayout
+           android:layout_width="match_parent"
+           android:layout_height="80dp"
+           >
+           
+           <com.timefleeting.app.WaveView
+               android:id="@+id/past_wave_view"
+               android:layout_width="match_parent"
+               android:layout_height="80dp"
+               android:background="@color/future_listview_background"
+               wave:above_wave_color="@color/future_listview_above_wave"
+               wave:blow_wave_color="@color/future_listview_below_wave"
+               wave:wave_height="little"
+               wave:wave_hz="normal"
+               wave:wave_length="middle" />
+           
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:paddingLeft="10dp"
+               android:paddingTop="10dp"
+               android:paddingBottom="10dp"
+               android:paddingRight="5dp"
+               android:orientation="horizontal">
+
+               <TextView
+                   android:layout_width="80dp"
+                   android:layout_height="80dp"
+                   android:gravity="center"
+                   android:textSize="40sp"
+                   android:textColor="#FFFFFF"
+                   android:text="998"
+                   >
+               
+               <LinearLayout
+                   android:layout_width="0dp"
+                   android:layout_height="match_parent"
+                   android:layout_weight="10"
+                   android:orientation="vertical"
+                   >
+                   
+                   <LinearLayout
+                       android:layout_width="match_parent"
+                       android:layout_height="0dp"
+                       android:layout_weight="1"
+                       android:orientation="horizontal"
+                       >
+
+                       <TextView
+                           android:id="@+id/past_listview_item_title"
+                           android:layout_width="0dp"
+                           android:layout_height="match_parent"
+                           android:layout_weight="1"
+                           android:textSize="20sp"
+                           android:textColor="@color/future_listview_title"
+                           android:singleLine="true"
+                           />
+                       
+                       <ImageView
+                           android:id="@+id/past_listview_item_betop"
+                           android:layout_width="30dp"
+                           android:layout_height="match_parent"
+                           android:src="@drawable/be_top"
+                           />
+                       
+                       <ImageView
+                           android:id="@+id/past_listview_item_soon"
+                           android:layout_width="30dp"
+                           android:layout_height="match_parent"
+                           android:src="@drawable/overdue"
+                           />
+                       
+                       <LinearLayout
+                           android:layout_width="wrap_content"
+                           android:layout_height="match_parent"
+                           android:orientation="vertical"
+                           >
+                           
+                           <TextView
+                               android:id="@+id/past_listview_item_create_time"
+                               android:layout_width="match_parent"
+                               android:layout_height="0dp"
+                               android:layout_weight="1"
+                               android:textSize="10sp"
+                               android:textColor="@color/future_listview_create_time"
+                               android:gravity="right"
+                               />
+                           
+                           <TextView
+                               android:id="@+id/past_listview_item_remind_time"
+                               android:layout_width="match_parent"
+                               android:layout_height="0dp"
+                               android:layout_weight="1"
+                               android:textSize="10sp"
+                               android:textColor="@color/future_listview_remind_time"
+                               android:gravity="right"
+                               />
+                           
+                       </LinearLayout>
+               
+                   </LinearLayout>
+                   
+                   <LinearLayout
+                       android:layout_width="match_parent"
+                       android:layout_height="0dp"
+                       android:layout_weight="1"
+                       >
+                       
+                       <TextView
+                           android:id="@+id/listview_item_content"
+                           android:layout_width="match_parent"
+                           android:layout_height="match_parent"
+                           android:textColor="@color/future_listview_content"
+                           android:textSize="12sp"
+                           android:singleLine="true"
+                           android:layout_marginTop="10dp"
+                           />
+                       
+                   </LinearLayout>
+                   
+               </LinearLayout>
+                
+               <LinearLayout
+                   android:layout_width="20dp"
+                   android:layout_height="match_parent"
+                   android:orientation="vertical"
+                   >
+                   
+                   <ImageView
+                       android:id="@+id/listview_item_star_1"
+                       android:layout_width="wrap_content"
+                       android:layout_height="0dp"
+                       android:layout_weight="1"
+                       />
+                   
+                   <ImageView
+                       android:id="@+id/listview_item_star_2"
+                       android:layout_width="wrap_content"
+                       android:layout_height="0dp"
+                       android:layout_weight="1"
+                       />
+                   
+                   <ImageView
+                       android:id="@+id/listview_item_star_3"
+                       android:layout_width="wrap_content"
+                       android:layout_height="0dp"
+                       android:layout_weight="1"
+                       />
+                   
+                   <ImageView
+                       android:id="@+id/listview_item_star_4"
+                       android:layout_width="wrap_content"
+                       android:layout_height="0dp"
+                       android:layout_weight="1"
+                       />
+                   
+                   <ImageView
+                       android:id="@+id/listview_item_star_5"
+                       android:layout_width="wrap_content"
+                       android:layout_height="0dp"
+                       android:layout_weight="1"
+                       />
+
+                </LinearLayout>
+                
+            </LinearLayout>
+            
+        </FrameLayout>
+
+    </LinearLayout>
+    
+</com.daimajia.swipe.SwipeLayout>

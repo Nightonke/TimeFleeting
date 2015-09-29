@@ -42,7 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
-public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListener, OnTimeSetListener {
+public class PastListViewAdapter extends BaseSwipeAdapter implements OnDateSetListener, OnTimeSetListener {
 	
     private Context mContext;
     private List<Record> list;
@@ -53,7 +53,7 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
     private Record setTimeRecord;
     private String newRemindTimeString;
     
-    public ListViewAdapter(List<Record> list, Context mContext) {
+    public PastListViewAdapter(List<Record> list, Context mContext) {
     	this.list = list;
         this.mContext = mContext;
         this.mActivity = (MainActivity)mContext;

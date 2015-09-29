@@ -8,7 +8,22 @@ public class GlobalSettings {
 
 	// the remind time in milliseconds
 	// the default value is a week(7 days)
-	public static int REMIND_TIME = 7 * 1000 * 60 * 60 * 24;
+	public static long REMIND_TIME = 7 * 1000 * 60 * 60 * 24;
+	
+	// the hour time of a day to remind
+	public static int REMIND_HOUR = 9;
+	
+	// the minute time of a day to remind
+	public static int REMIND_MINUTE = 0;
+	
+	// a week
+	public static long A_WEEK = 7 * 24 * 60 * 60 * 1000;
+	
+	// a day
+	public static long A_DAY = 24 * 60 * 60 * 1000;
+	
+	// the max number of integer
+	public static int MAX_INT = 99999999;
 	
 	// the default be top number
 	public static int BE_TOP = 0;

@@ -128,6 +128,7 @@ public class DB {
 	}
 	
 	public List<Record> loadPastRecords() {
+		TimeFleetingData.pastBeTopNumber = 0;
 		List<Record> list = new ArrayList<Record>();
 		Cursor cursor = sqliteDatabase
 				.query(DB_NAME_STRING, null, 
@@ -152,6 +153,9 @@ public class DB {
 				record.setStatus(cursor.getString(cursor.getColumnIndex("status")));
 				record.setBeTop(cursor.getInt(cursor.getColumnIndex("beTop")));
 				list.add(record);
+				if (record.getBeTop() > TimeFleetingData.pastBeTopNumber) {
+					TimeFleetingData.pastBeTopNumber = record.getBeTop();
+				}
 			} while (cursor.moveToNext());
 			if (cursor != null) {
 				cursor.close();
