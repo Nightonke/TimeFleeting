@@ -39,8 +39,6 @@ public class Splash extends Activity {
         
         new Handler().postDelayed(new Runnable() {   
             public void run() {   
-                Intent i = new Intent(Splash.this, MainActivity.class);    
-                Splash.this.startActivity(i);
                 Splash.this.finish();
             }   
         }, 5000);

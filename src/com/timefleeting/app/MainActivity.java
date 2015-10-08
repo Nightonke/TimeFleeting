@@ -222,12 +222,13 @@ public class MainActivity extends FragmentActivity {
         
         boolean whetherShownSplash = preferences.getBoolean("SHOWN_SPLASH", false);
         if (!whetherShownSplash) {
+        	whetherShownSplash = true;
         	editor.putBoolean("SHOWN_SPLASH", true);
         	editor.commit();
         	Intent intent = new Intent(this, Splash.class);
         	startActivity(intent);
         } else {
-        	
+        	Log.d("TimeFleeting", "SHOWN_SPLAST_TRUE");
         }
 
         menuLayoutBackImageView = (ImageView)findViewById(R.id.menu_layout_back);
@@ -951,6 +952,7 @@ public class MainActivity extends FragmentActivity {
 	public void onDestroy() {
 		editor.putBoolean("SHOWN_SPLASH", false);
     	editor.commit();
+    	Log.d("TimeFleeting", "SHOWN_SPLAST_FALSE");
 		super.onDestroy();
 	}
 	

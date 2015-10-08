@@ -32,8 +32,8 @@
 			        android:background="@null"
 			        android:layout_gravity="center_horizontal|top"
 			        android:paddingTop="10dp"
-			        android:paddingLeft="20dp"
-			        android:paddingRight="20dp"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
 			        android:textColor="@color/future_listview_title"
 			        android:textCursorDrawable="@null"
 			        />

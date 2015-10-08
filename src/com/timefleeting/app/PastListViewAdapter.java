@@ -61,42 +61,22 @@ public class PastListViewAdapter extends BaseSwipeAdapter implements OnDateSetLi
 
     @Override
     public int getSwipeLayoutResourceId(int position) {
-        return R.id.swipe;
+        return R.id.swipe_past;
     }
 
     @Override
     public View generateView(final int position, ViewGroup parent) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.listview_item, null);
+        View v = LayoutInflater.from(mContext).inflate(R.layout.past_listview_item, null);
         swipeLayout = (SwipeLayout)v.findViewById(getSwipeLayoutResourceId(position));
         swipeLayout.addSwipeListener(new SimpleSwipeListener() {
 			
 			@Override
 			public void onOpen(SwipeLayout arg0) {
-				// while open, set the animations of the 3 buttons
+				// while open, set the animations of the buttons
 				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
 				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
 				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
-				.playOn(arg0.findViewById(R.id.right_arrow));
-				
-				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
-				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
-				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
-				.playOn(arg0.findViewById(R.id.be_top));
-				
-				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
-				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
-				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
-				.playOn(arg0.findViewById(R.id.set_time));
-				
-				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
-				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
-				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
-				.playOn(arg0.findViewById(R.id.set_star));
-				
-				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
-				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
-				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
-				.playOn(arg0.findViewById(R.id.delete));
+				.playOn(arg0.findViewById(R.id.past_be_top));
 			}
 		});
         
@@ -106,16 +86,7 @@ public class PastListViewAdapter extends BaseSwipeAdapter implements OnDateSetLi
     @Override
     public void fillValues(final int position, View convertView) {
     	
-    	LinearLayout backLinearLayout = (LinearLayout)convertView.findViewById(R.id.back_ly);
-    	backLinearLayout.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				closeAllItems();
-			}
-		});
-    	
-    	LinearLayout beTopLinearLayout = (LinearLayout)convertView.findViewById(R.id.be_top_ly);
+    	LinearLayout beTopLinearLayout = (LinearLayout)convertView.findViewById(R.id.past_be_top_ly);
     	beTopLinearLayout.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -125,35 +96,7 @@ public class PastListViewAdapter extends BaseSwipeAdapter implements OnDateSetLi
 			}
 		});
     	
-    	LinearLayout setTimeLinearLayout = (LinearLayout)convertView.findViewById(R.id.set_time_ly);
-    	setTimeLinearLayout.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				setRemindTime(position);
-			}
-		});
-    	
-    	LinearLayout setStarLinearLayout = (LinearLayout)convertView.findViewById(R.id.set_star_ly);
-        setStarLinearLayout.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				setStar(position);
-			}
-		});
-        
-        LinearLayout deleteLinearLayout = (LinearLayout)convertView.findViewById(R.id.delete_ly);
-        deleteLinearLayout.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				int idToBeDeleted = TimeFleetingData.futureRecords.get(position).getId();
-				whetherDelete(idToBeDeleted, position);
-			}
-		});
-    	
-    	TextView titleTextView = (TextView)convertView.findViewById(R.id.listview_item_title);
+    	TextView titleTextView = (TextView)convertView.findViewById(R.id.past_listview_item_title);
     	titleTextView.setText(list.get(position).getTitle());
     	TextView contentTextView = (TextView)convertView.findViewById(R.id.listview_item_content);
     	contentTextView.setText(list.get(position).getText());

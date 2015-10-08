@@ -109,7 +109,7 @@
                    android:textSize="40sp"
                    android:textColor="#FFFFFF"
                    android:text="998"
-                   >
+                   />
                
                <LinearLayout
                    android:layout_width="0dp"
@@ -186,7 +186,7 @@
                        >
                        
                        <TextView
-                           android:id="@+id/listview_item_content"
+                           android:id="@+id/past_listview_item_content"
                            android:layout_width="match_parent"
                            android:layout_height="match_parent"
                            android:textColor="@color/future_listview_content"
@@ -198,52 +198,9 @@
                    </LinearLayout>
                    
                </LinearLayout>
-                
-               <LinearLayout
-                   android:layout_width="20dp"
-                   android:layout_height="match_parent"
-                   android:orientation="vertical"
-                   >
-                   
-                   <ImageView
-                       android:id="@+id/listview_item_star_1"
-                       android:layout_width="wrap_content"
-                       android:layout_height="0dp"
-                       android:layout_weight="1"
-                       />
-                   
-                   <ImageView
-                       android:id="@+id/listview_item_star_2"
-                       android:layout_width="wrap_content"
-                       android:layout_height="0dp"
-                       android:layout_weight="1"
-                       />
-                   
-                   <ImageView
-                       android:id="@+id/listview_item_star_3"
-                       android:layout_width="wrap_content"
-                       android:layout_height="0dp"
-                       android:layout_weight="1"
-                       />
-                   
-                   <ImageView
-                       android:id="@+id/listview_item_star_4"
-                       android:layout_width="wrap_content"
-                       android:layout_height="0dp"
-                       android:layout_weight="1"
-                       />
-                   
-                   <ImageView
-                       android:id="@+id/listview_item_star_5"
-                       android:layout_width="wrap_content"
-                       android:layout_height="0dp"
-                       android:layout_weight="1"
-                       />
-
-                </LinearLayout>
-                
-            </LinearLayout>
             
+               </LinearLayout>
+               
         </FrameLayout>
 
     </LinearLayout>

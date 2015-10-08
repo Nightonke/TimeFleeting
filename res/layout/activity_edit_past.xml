@@ -1,16 +1,268 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:wave="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.timefleeting.app.EditPastActivity" >
+    android:orientation="vertical"
+    >
+    
+    <LinearLayout
+        android:id="@+id/past_edit_layout_title"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/layout_title"
+        android:orientation="horizontal"
+        >
+        
+        <FrameLayout
+	       android:layout_width="match_parent"
+	       android:layout_height="match_parent"
+	       >
+	   
+	       <ImageView
+	            android:id="@+id/past_edit_back"
+	            android:layout_width="wrap_content"
+	            android:layout_height="match_parent"
+	            android:layout_marginTop="5dp"
+	            android:layout_marginBottom="5dp"
+	            android:layout_gravity="left"
+	            android:paddingLeft="0dp"
+	            android:src="@drawable/back"
+	            />
+	       
+	        <TextView
+	            android:layout_width="wrap_content"
+	            android:layout_height="match_parent"
+	            android:textColor="#FFFFFF"
+	            android:text="New memory"
+	            android:textSize="20sp"
+	            android:layout_gravity="center"
+	            android:gravity="center_vertical|center_horizontal"
+	            />
+	        
+	        <ImageView
+	            android:id="@+id/past_edit_check"
+	            android:layout_width="wrap_content"
+	            android:layout_height="match_parent"
+	            android:layout_marginTop="5dp"
+	            android:layout_marginBottom="5dp"
+	            android:layout_gravity="right"
+	            android:paddingRight="0dp"
+	            android:src="@drawable/check"
+	            />
+            
+        </FrameLayout>
+        
+    </LinearLayout>
+    
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+        
+        <com.timefleeting.app.WaveView
+            android:id="@+id/past_edit_waveview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/viewpager_background"
+            wave:above_wave_color="@color/viewpager_above_wave"
+            wave:blow_wave_color="@color/viewpager_below_wave"
+            wave:progress="60"
+            wave:wave_height="little"
+            wave:wave_hz="normal"
+            wave:wave_length="middle" />
+    
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:orientation="vertical"
+	        >
+    
+		    <TextView
+		        android:layout_width="10dp"
+		        android:layout_height="20dp"
+		        />
+		    
+		    <LinearLayout
+		        android:id="@+id/past_edit_title_ly"
+		        android:layout_width="match_parent"
+		        android:layout_height="50dp"
+		        android:orientation="horizontal"
+		        >
+		        
+			    <TextView
+			        android:text="Title"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:textColor="@color/future_listview_title"
+			        android:padding="10dp"
+			        android:textSize="20sp"
+			        android:layout_gravity="left|center_vertical"
+			        />
+			    
+			    <TextView
+			        android:layout_width="0dp"
+			        android:layout_height="match_parent"
+			        android:layout_weight="1"
+			        />
+			    
+			    <EditText
+			        android:id="@+id/past_edit_title"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:textSize="20sp"
+		            android:singleLine="true"
+		            android:hint="Click to input title"
+		            android:textColorHint="#78C2C4"
+		            android:layout_gravity="right|center_vertical"
+		            android:gravity="right"
+		            android:padding="10dp"
+		            android:textColor="@color/future_listview_title"
+		            android:textCursorDrawable="@null"
+		            android:background="@null"
+			        />
+		        
+		    </LinearLayout>
+		    
+		    <TextView
+		        android:layout_width="10dp"
+		        android:layout_height="20dp"
+		        />
+		    
+		    <LinearLayout
+		        android:id="@+id/past_edit_date_ly"
+		        android:layout_width="match_parent"
+		        android:layout_height="50dp"
+		        android:orientation="horizontal"
+		        >
+		        
+		        <TextView
+		            android:text="Date"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:textColor="@color/future_listview_title"
+		            android:padding="10dp"
+		            android:textSize="20sp"
+		            android:layout_gravity="left|center_vertical"
+		            />
+		        
+		        <TextView
+		            android:layout_width="0dp"
+		            android:layout_height="match_parent"
+		            android:layout_weight="1"
+		            />
+		        
+		        <TextView
+		            android:id="@+id/past_edit_date"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:textSize="18sp"
+		            android:singleLine="true"
+		            android:textColorHint="#78C2C4"
+		            android:layout_gravity="right|center_vertical"
+		            android:gravity="right"
+		            android:padding="10dp"
+		            android:textColor="@color/future_listview_title"
+		            android:textCursorDrawable="@null"
+		            android:background="@null"
+		            android:text="2015-09-08"
+		            />
+		        
+		    </LinearLayout>
+		    
+		    <TextView
+		        android:layout_width="10dp"
+		        android:layout_height="20dp"
+		        />
+		    
+		    <LinearLayout
+		        android:id="@+id/past_edit_past_ly"
+		        android:layout_width="match_parent"
+		        android:layout_height="50dp"
+		        android:orientation="horizontal"
+		        >
+		        
+		        <TextView
+		            android:text="Repeat"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:textColor="@color/future_listview_title"
+		            android:padding="10dp"
+		            android:textSize="20sp"
+		            android:layout_gravity="left|center_vertical"
+		            />
+		        
+		        <TextView
+		            android:layout_width="0dp"
+		            android:layout_height="match_parent"
+		            android:layout_weight="1"
+		            />
+		        
+		        <Spinner
+		            android:layout_height="wrap_content"
+		            android:layout_width="wrap_content"
+		            android:id="@+id/past_edit_spinner"
+		            android:textSize="20sp"
+                    android:layout_gravity="right|center_vertical"
+                    android:gravity="right"
+                    android:padding="10dp"
+                    android:paddingRight="20dp"
+                    android:spinnerMode="dropdown"
+                    android:textColor="@color/future_listview_title"
+                    
+		            />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="edit past records" />
+		    </LinearLayout>
+		
+		    <TextView
+		        android:layout_width="10dp"
+		        android:layout_height="20dp"
+		        />
+		    
+		    <LinearLayout
+		        android:id="@+id/past_edit_text_ly"
+		        android:layout_width="match_parent"
+		        android:layout_height="50dp"
+		        android:orientation="horizontal"
+		        >
+		        
+		        <TextView
+		            android:text="Remarks"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:textColor="@color/future_listview_title"
+		            android:padding="10dp"
+		            android:textSize="20sp"
+		            android:layout_gravity="left|center_vertical"
+		            />
+		        
+		        <TextView
+		            android:layout_width="0dp"
+		            android:layout_height="match_parent"
+		            android:layout_weight="1"
+		            />
+		        
+		        <EditText
+		            android:id="@+id/past_edit_text"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:textSize="20sp"
+		            android:maxLines="1"
+		            android:hint="Click to input remarks"
+		            android:textColorHint="#78C2C4"
+		            android:layout_gravity="right|center_vertical"
+		            android:gravity="right"
+		            android:padding="10dp"
+		            android:textColor="@color/future_listview_title"
+		            android:textCursorDrawable="@null"
+		            android:background="@null"
+		            />
+		        
+		    </LinearLayout>
+		    
+		</LinearLayout>
+		
+	</FrameLayout>
 
-</RelativeLayout>
+</LinearLayout>
