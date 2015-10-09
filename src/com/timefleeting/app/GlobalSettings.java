@@ -6,6 +6,9 @@ import com.daimajia.androidanimations.library.Techniques;
 
 public class GlobalSettings {
 
+	//
+	public static int REMIND_DAYS = 7;
+	
 	// the remind time in milliseconds
 	// the default value is a week(7 days)
 	public static long REMIND_TIME = 7 * 1000 * 60 * 60 * 24;

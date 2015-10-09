@@ -73,196 +73,268 @@
             wave:wave_hz="normal"
             wave:wave_length="middle" />
     
-	    <LinearLayout
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:orientation="vertical"
-	        >
-    
-		    <TextView
-		        android:layout_width="10dp"
-		        android:layout_height="20dp"
-		        />
-		    
-		    <LinearLayout
-		        android:id="@+id/past_edit_title_ly"
-		        android:layout_width="match_parent"
-		        android:layout_height="50dp"
-		        android:orientation="horizontal"
-		        >
-		        
-			    <TextView
-			        android:text="Title"
-			        android:layout_width="wrap_content"
-			        android:layout_height="wrap_content"
-			        android:textColor="@color/future_listview_title"
-			        android:padding="10dp"
-			        android:textSize="20sp"
-			        android:layout_gravity="left|center_vertical"
-			        />
-			    
-			    <TextView
-			        android:layout_width="0dp"
-			        android:layout_height="match_parent"
-			        android:layout_weight="1"
-			        />
-			    
-			    <EditText
-			        android:id="@+id/past_edit_title"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:textSize="20sp"
-		            android:singleLine="true"
-		            android:hint="Click to input title"
-		            android:textColorHint="#78C2C4"
-		            android:layout_gravity="right|center_vertical"
-		            android:gravity="right"
-		            android:padding="10dp"
-		            android:textColor="@color/future_listview_title"
-		            android:textCursorDrawable="@null"
-		            android:background="@null"
-			        />
-		        
-		    </LinearLayout>
-		    
-		    <TextView
-		        android:layout_width="10dp"
-		        android:layout_height="20dp"
-		        />
-		    
-		    <LinearLayout
-		        android:id="@+id/past_edit_date_ly"
-		        android:layout_width="match_parent"
-		        android:layout_height="50dp"
-		        android:orientation="horizontal"
-		        >
-		        
-		        <TextView
-		            android:text="Date"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:textColor="@color/future_listview_title"
-		            android:padding="10dp"
-		            android:textSize="20sp"
-		            android:layout_gravity="left|center_vertical"
-		            />
-		        
-		        <TextView
-		            android:layout_width="0dp"
-		            android:layout_height="match_parent"
-		            android:layout_weight="1"
-		            />
-		        
-		        <TextView
-		            android:id="@+id/past_edit_date"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:textSize="18sp"
-		            android:singleLine="true"
-		            android:textColorHint="#78C2C4"
-		            android:layout_gravity="right|center_vertical"
-		            android:gravity="right"
-		            android:padding="10dp"
-		            android:textColor="@color/future_listview_title"
-		            android:textCursorDrawable="@null"
-		            android:background="@null"
-		            android:text="2015-09-08"
-		            />
-		        
-		    </LinearLayout>
-		    
-		    <TextView
-		        android:layout_width="10dp"
-		        android:layout_height="20dp"
-		        />
-		    
-		    <LinearLayout
-		        android:id="@+id/past_edit_past_ly"
-		        android:layout_width="match_parent"
-		        android:layout_height="50dp"
-		        android:orientation="horizontal"
-		        >
-		        
-		        <TextView
-		            android:text="Repeat"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:textColor="@color/future_listview_title"
-		            android:padding="10dp"
-		            android:textSize="20sp"
-		            android:layout_gravity="left|center_vertical"
-		            />
-		        
-		        <TextView
-		            android:layout_width="0dp"
-		            android:layout_height="match_parent"
-		            android:layout_weight="1"
-		            />
-		        
-		        <Spinner
-		            android:layout_height="wrap_content"
-		            android:layout_width="wrap_content"
-		            android:id="@+id/past_edit_spinner"
-		            android:textSize="20sp"
-                    android:layout_gravity="right|center_vertical"
-                    android:gravity="right"
-                    android:padding="10dp"
-                    android:paddingRight="20dp"
-                    android:spinnerMode="dropdown"
-                    android:textColor="@color/future_listview_title"
-                    
-		            />
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            >
+        
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+            
+	            <LinearLayout
+	                android:id="@+id/info_ly"
+	                android:layout_width="match_parent"
+	                android:layout_height="10dp"
+	                android:orientation="vertical"
+	                >
+	                
+	                <TextView
+	                    android:id="@+id/info_title"
+	                    android:layout_width="wrap_content"
+	                    android:layout_height="wrap_content"
+	                    android:paddingTop="100dp"
+	                    android:gravity="center_horizontal"
+	                    android:layout_gravity="center_horizontal"
+	                    android:textColor="@color/layout_title"
+	                    android:textSize="30sp"
+	                    android:text="GF's Birthday"
+	                    />
+	                
+	                <TextView
+                        android:id="@+id/info_remain"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="10dp"
+                        android:gravity="center_horizontal"
+                        android:layout_gravity="center_horizontal"
+                        android:textColor="@color/layout_title"
+                        android:textSize="70sp"
+                        />
+	                
+	                <TextView
+                        android:id="@+id/info_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="10dp"
+                        android:gravity="center_horizontal"
+                        android:layout_gravity="center_horizontal"
+                        android:textColor="@color/layout_title"
+                        android:textSize="20sp"
+                        android:text="2015-09-08"
+                        />
+	                
+	                <TextView
+                        android:id="@+id/info_content"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="5dp"
+                        android:gravity="center_horizontal"
+                        android:layout_gravity="center_horizontal"
+                        android:textColor="@color/layout_title"
+                        android:textSize="20sp"
+                        android:text="Flowers and Food!"
+                        />
 
-		    </LinearLayout>
-		
-		    <TextView
-		        android:layout_width="10dp"
-		        android:layout_height="20dp"
-		        />
+	            </LinearLayout>
+	            
+			    <LinearLayout
+			        android:layout_width="match_parent"
+			        android:layout_height="match_parent"
+			        android:orientation="vertical"
+			        >
 		    
-		    <LinearLayout
-		        android:id="@+id/past_edit_text_ly"
-		        android:layout_width="match_parent"
-		        android:layout_height="50dp"
-		        android:orientation="horizontal"
-		        >
-		        
-		        <TextView
-		            android:text="Remarks"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:textColor="@color/future_listview_title"
-		            android:padding="10dp"
-		            android:textSize="20sp"
-		            android:layout_gravity="left|center_vertical"
-		            />
-		        
-		        <TextView
-		            android:layout_width="0dp"
-		            android:layout_height="match_parent"
-		            android:layout_weight="1"
-		            />
-		        
-		        <EditText
-		            android:id="@+id/past_edit_text"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:textSize="20sp"
-		            android:maxLines="1"
-		            android:hint="Click to input remarks"
-		            android:textColorHint="#78C2C4"
-		            android:layout_gravity="right|center_vertical"
-		            android:gravity="right"
-		            android:padding="10dp"
-		            android:textColor="@color/future_listview_title"
-		            android:textCursorDrawable="@null"
-		            android:background="@null"
-		            />
-		        
-		    </LinearLayout>
-		    
-		</LinearLayout>
+				    <TextView
+				        android:layout_width="10dp"
+				        android:layout_height="20dp"
+				        />
+				    
+				    <LinearLayout
+				        android:id="@+id/past_edit_title_ly"
+				        android:layout_width="match_parent"
+				        android:layout_height="50dp"
+				        android:orientation="horizontal"
+				        >
+				        
+					    <TextView
+					        android:text="Title"
+					        android:layout_width="wrap_content"
+					        android:layout_height="wrap_content"
+					        android:textColor="@color/future_listview_title"
+					        android:padding="10dp"
+					        android:textSize="20sp"
+					        android:layout_gravity="left|center_vertical"
+					        />
+					    
+					    <TextView
+					        android:layout_width="0dp"
+					        android:layout_height="match_parent"
+					        android:layout_weight="1"
+					        />
+					    
+					    <EditText
+					        android:id="@+id/past_edit_title"
+				            android:layout_width="wrap_content"
+				            android:layout_height="wrap_content"
+				            android:textSize="20sp"
+				            android:singleLine="true"
+				            android:hint="Click to input title"
+				            android:textColorHint="#78C2C4"
+				            android:layout_gravity="right|center_vertical"
+				            android:gravity="right"
+				            android:padding="10dp"
+				            android:textColor="@color/future_listview_title"
+				            android:textCursorDrawable="@null"
+				            android:background="@null"
+					        />
+				        
+				    </LinearLayout>
+				    
+				    <TextView
+				        android:layout_width="10dp"
+				        android:layout_height="20dp"
+				        />
+				    
+				    <LinearLayout
+				        android:id="@+id/past_edit_date_ly"
+				        android:layout_width="match_parent"
+				        android:layout_height="50dp"
+				        android:orientation="horizontal"
+				        >
+				        
+				        <TextView
+				            android:text="Date"
+				            android:layout_width="wrap_content"
+				            android:layout_height="wrap_content"
+				            android:textColor="@color/future_listview_title"
+				            android:padding="10dp"
+				            android:textSize="20sp"
+				            android:layout_gravity="left|center_vertical"
+				            />
+				        
+				        <TextView
+				            android:layout_width="0dp"
+				            android:layout_height="match_parent"
+				            android:layout_weight="1"
+				            />
+				        
+				        <TextView
+				            android:id="@+id/past_edit_date"
+				            android:layout_width="wrap_content"
+				            android:layout_height="wrap_content"
+				            android:textSize="18sp"
+				            android:singleLine="true"
+				            android:textColorHint="#78C2C4"
+				            android:layout_gravity="right|center_vertical"
+				            android:gravity="right"
+				            android:padding="10dp"
+				            android:textColor="@color/future_listview_title"
+				            android:textCursorDrawable="@null"
+				            android:background="@null"
+				            android:text="2015-09-08"
+				            />
+				        
+				    </LinearLayout>
+				    
+				    <TextView
+				        android:layout_width="10dp"
+				        android:layout_height="20dp"
+				        />
+				    
+				    <LinearLayout
+				        android:id="@+id/past_edit_past_ly"
+				        android:layout_width="match_parent"
+				        android:layout_height="50dp"
+				        android:orientation="horizontal"
+				        >
+				        
+				        <TextView
+				            android:text="Repeat"
+				            android:layout_width="wrap_content"
+				            android:layout_height="wrap_content"
+				            android:textColor="@color/future_listview_title"
+				            android:padding="10dp"
+				            android:textSize="20sp"
+				            android:layout_gravity="left|center_vertical"
+				            />
+				        
+				        <TextView
+				            android:layout_width="0dp"
+				            android:layout_height="match_parent"
+				            android:layout_weight="1"
+				            />
+				        
+				        <Spinner
+				            android:layout_height="wrap_content"
+				            android:layout_width="wrap_content"
+				            android:id="@+id/past_edit_spinner"
+				            android:textSize="20sp"
+		                    android:layout_gravity="right|center_vertical"
+		                    android:gravity="right"
+		                    android:padding="10dp"
+		                    android:paddingRight="20dp"
+		                    android:spinnerMode="dropdown"
+		                    android:textColor="@color/future_listview_title"
+		                    
+				            />
 		
+				    </LinearLayout>
+				
+				    <TextView
+				        android:layout_width="10dp"
+				        android:layout_height="20dp"
+				        />
+				    
+				    <LinearLayout
+				        android:id="@+id/past_edit_text_ly"
+				        android:layout_width="match_parent"
+				        android:layout_height="50dp"
+				        android:orientation="horizontal"
+				        >
+				        
+				        <TextView
+				            android:text="Remarks"
+				            android:layout_width="wrap_content"
+				            android:layout_height="wrap_content"
+				            android:textColor="@color/future_listview_title"
+				            android:padding="10dp"
+				            android:textSize="20sp"
+				            android:layout_gravity="left|center_vertical"
+				            />
+				        
+				        <TextView
+				            android:layout_width="0dp"
+				            android:layout_height="match_parent"
+				            android:layout_weight="1"
+				            />
+				        
+				        <EditText
+				            android:id="@+id/past_edit_text"
+				            android:layout_width="wrap_content"
+				            android:layout_height="wrap_content"
+				            android:textSize="20sp"
+				            android:maxLines="1"
+				            android:hint="Click to input remarks"
+				            android:textColorHint="#78C2C4"
+				            android:layout_gravity="right|center_vertical"
+				            android:gravity="right"
+				            android:padding="10dp"
+				            android:textColor="@color/future_listview_title"
+				            android:textCursorDrawable="@null"
+				            android:background="@null"
+				            />
+				        
+				    </LinearLayout>
+				    
+				</LinearLayout>
+				
+	        </LinearLayout>
+		
+		</ScrollView>
+		    
 	</FrameLayout>
 
 </LinearLayout>

@@ -42,7 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
-public class PastListViewAdapter extends BaseSwipeAdapter implements OnDateSetListener, OnTimeSetListener {
+public class PastListViewAdapter extends BaseSwipeAdapter {
 	
     private Context mContext;
     private List<Record> list;
@@ -77,6 +77,11 @@ public class PastListViewAdapter extends BaseSwipeAdapter implements OnDateSetLi
 				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
 				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
 				.playOn(arg0.findViewById(R.id.past_be_top));
+				
+				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+				.playOn(arg0.findViewById(R.id.past_right_arrow));
 			}
 		});
         
@@ -85,6 +90,15 @@ public class PastListViewAdapter extends BaseSwipeAdapter implements OnDateSetLi
 
     @Override
     public void fillValues(final int position, View convertView) {
+    	
+    	LinearLayout backLinearLayout = (LinearLayout)convertView.findViewById(R.id.past_back_ly);
+    	backLinearLayout.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				closeAllItems();
+			}
+		});
     	
     	LinearLayout beTopLinearLayout = (LinearLayout)convertView.findViewById(R.id.past_be_top_ly);
     	beTopLinearLayout.setOnClickListener(new OnClickListener() {
@@ -96,17 +110,16 @@ public class PastListViewAdapter extends BaseSwipeAdapter implements OnDateSetLi
 			}
 		});
     	
+    	TextView dateTextView = (TextView)convertView.findViewById(R.id.date);
     	TextView titleTextView = (TextView)convertView.findViewById(R.id.past_listview_item_title);
     	titleTextView.setText(list.get(position).getTitle());
-    	TextView contentTextView = (TextView)convertView.findViewById(R.id.listview_item_content);
+    	TextView contentTextView = (TextView)convertView.findViewById(R.id.past_listview_item_content);
     	contentTextView.setText(list.get(position).getText());
-    	TextView remindTimeTextView = (TextView)convertView.findViewById(R.id.listview_item_remind_time);
-    	remindTimeTextView.setText(list.get(position).getRemindTime().substring(5, 16));
-    	TextView createTimeTextView = (TextView)convertView.findViewById(R.id.listview_item_create_time);
-    	createTimeTextView.setText(list.get(position).getCreateTime().substring(5, 16));
-    	String starString = list.get(position).getStar();
-    	ImageView beTop = (ImageView)convertView.findViewById(R.id.be_top);
-    	ImageView beTopLogo = (ImageView)convertView.findViewById(R.id.listview_item_betop);
+    	TextView remindTimeTextView = (TextView)convertView.findViewById(R.id.past_listview_item_remind_time);
+    	remindTimeTextView.setText(list.get(position).getRemindTime().substring(0, 10));
+
+    	ImageView beTop = (ImageView)convertView.findViewById(R.id.past_be_top);  // the button
+    	ImageView beTopLogo = (ImageView)convertView.findViewById(R.id.past_listview_item_betop);
     	if (list.get(position).getBeTop() != 0) {
     		beTop.setImageResource(R.drawable.not_be_top);
     		beTopLogo.setVisibility(View.VISIBLE);
@@ -114,79 +127,19 @@ public class PastListViewAdapter extends BaseSwipeAdapter implements OnDateSetLi
     		beTop.setImageResource(R.drawable.be_top);
     		beTopLogo.setVisibility(View.GONE);
     	}
-    	ImageView overdue = (ImageView)convertView.findViewById(R.id.listview_item_overdue);
-    	overdue.setVisibility(View.GONE);
-    	ImageView star1 = (ImageView)convertView.findViewById(R.id.listview_item_star_1);
-    	ImageView star2 = (ImageView)convertView.findViewById(R.id.listview_item_star_2);
-    	ImageView star3 = (ImageView)convertView.findViewById(R.id.listview_item_star_3);
-    	ImageView star4 = (ImageView)convertView.findViewById(R.id.listview_item_star_4);
-    	ImageView star5 = (ImageView)convertView.findViewById(R.id.listview_item_star_5);
-    	star1.setImageResource(R.drawable.set_star);
-		star2.setImageResource(R.drawable.set_star);
-		star3.setImageResource(R.drawable.set_star);
-		star4.setImageResource(R.drawable.set_star);
-		star5.setImageResource(R.drawable.set_star);
-
-    	if ("0".equals(starString)) {
-    		star1.setVisibility(View.INVISIBLE);
-    		star2.setVisibility(View.INVISIBLE);
-    		star3.setVisibility(View.INVISIBLE);
-    		star4.setVisibility(View.INVISIBLE);
-    		star5.setVisibility(View.INVISIBLE);
-    	} else if ("1".equals(starString)) {
-    		star1.setVisibility(View.INVISIBLE);
-    		star2.setVisibility(View.INVISIBLE);
-    		star3.setVisibility(View.INVISIBLE);
-    		star4.setVisibility(View.INVISIBLE);
-    		star5.setVisibility(View.VISIBLE);
-    	} else if ("2".equals(starString)) {
-    		star1.setVisibility(View.INVISIBLE);
-    		star2.setVisibility(View.INVISIBLE);
-    		star3.setVisibility(View.INVISIBLE);
-    		star4.setVisibility(View.VISIBLE);
-    		star5.setVisibility(View.VISIBLE);
-    	} else if ("3".equals(starString)) {
-    		star1.setVisibility(View.INVISIBLE);
-    		star2.setVisibility(View.INVISIBLE);
-    		star3.setVisibility(View.VISIBLE);
-    		star4.setVisibility(View.VISIBLE);
-    		star5.setVisibility(View.VISIBLE);
-    	} else if ("4".equals(starString)) {
-    		star1.setVisibility(View.INVISIBLE);
-    		star2.setVisibility(View.VISIBLE);
-    		star3.setVisibility(View.VISIBLE);
-    		star4.setVisibility(View.VISIBLE);
-    		star5.setVisibility(View.VISIBLE);
-    	} else if ("5".equals(starString)) {
-    		star1.setVisibility(View.VISIBLE);
-    		star2.setVisibility(View.VISIBLE);
-    		star3.setVisibility(View.VISIBLE);
-    		star4.setVisibility(View.VISIBLE);
-    		star5.setVisibility(View.VISIBLE);
-    	}
     	
-    	WaveView waveView = (WaveView)convertView.findViewById(R.id.wave_view);
+    	WaveView waveView = (WaveView)convertView.findViewById(R.id.past_wave_view);
     	
-    	SimpleDateFormat formatter = new SimpleDateFormat (GlobalSettings.FULL_DATE_FORMAT);     
-		Date curDate = new Date(System.currentTimeMillis());
-		Date remindDate = new Date(System.currentTimeMillis());;
+    	int remainDays = TimeFleetingData.calculateRemainDays(list.get(position));
+    	dateTextView.setText(String.valueOf(String.valueOf(remainDays)));
 		
-		try {
-			remindDate = formatter.parse(list.get(position).getRemindTime());
-		} catch (ParseException p) {
-			p.printStackTrace();
-		}
-		
-		long diff = remindDate.getTime() - curDate.getTime();
-		if (diff <= 0) {
-			// this record is overdue
-			overdue.setVisibility(View.VISIBLE);
+    	int diff = 0;
+		if (remainDays > GlobalSettings.REMIND_DAYS) {
 			diff = 0;
-		} else if (diff > GlobalSettings.REMIND_TIME) {
-			// the record still gets a long time to be overdue
-			diff = GlobalSettings.REMIND_TIME;
+		} else if (remainDays <= GlobalSettings.REMIND_DAYS) {
+			diff = GlobalSettings.REMIND_DAYS - remainDays;
 		}
-		diff = GlobalSettings.REMIND_TIME - diff;
+    	
 		// add a default height to make the wave be able to be seen
 		int progress = (int)(diff * 1.0 / GlobalSettings.REMIND_TIME * 100) + GlobalSettings.DEFAULT_WAVE_HEIGHT;
 		waveView.setProgress(progress);
@@ -235,207 +188,5 @@ public class PastListViewAdapter extends BaseSwipeAdapter implements OnDateSetLi
 			notifyDataSetChanged();
 		}
 	}
-    
-	public void setRemindTime(int position) {
-		
-		setTimeRecord = TimeFleetingData.futureRecords.get(position);
-		
-		final Calendar calendar = Calendar.getInstance();
-		final DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), false);
-		datePickerDialog.setYearRange(2015, 2036);
-        datePickerDialog.setCloseOnSingleTapDay(false);
-        datePickerDialog.setCancelable(false);
-        datePickerDialog.show(mActivity.getSupportFragmentManager(), GlobalSettings.DATEPICKER_TAG);
-	}
 
-	@Override
-	public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
-		// TODO Auto-generated method stub
-		newRemindTimeString += (hourOfDay < 10 ? "0" + String.valueOf(hourOfDay) : String.valueOf(hourOfDay)) + ":";
-		newRemindTimeString += (minute < 10 ? "0" + String.valueOf(minute) : String.valueOf(minute)) + ":";
-		newRemindTimeString += "00";
-
-		if (newRemindTimeString.length() != GlobalSettings.FULL_DATE_FORMAT.length()) {
-			return;
-		}
-		
-		setTimeRecord.setRemindTime(newRemindTimeString);
-		TimeFleetingData.saveRecord(setTimeRecord);
-		notifyDataSetChanged();
-		
-		if (GlobalSettings.REMIND_ENABLE) {
-			MainActivity.intentService = new Intent(mContext, LongRunningService.class);
-			MainActivity.intentService.setAction("TimeFleeting Reminder");
-	        MainActivity.initReminds();
-			LongRunningService.remindList = GlobalSettings.REMIND_LIST;
-			mContext.stopService(MainActivity.intentService);
-			mContext.startService(MainActivity.intentService);
-		}
-	}
-
-	@Override
-	public void onDateSet(DatePickerDialog datePickerDialog, int year,
-			int month, int day) {
-		// TODO Auto-generated method stub
-
-		// a bug in the datetimepicker-library
-		// which will cause the month is month - 1
-		month++;
-		
-		newRemindTimeString = String.valueOf(year) + "-";
-		newRemindTimeString += (month < 10 ? "0" + String.valueOf(month) : String.valueOf(month)) + "-";
-		newRemindTimeString += (day < 10 ? "0" + String.valueOf(day) : String.valueOf(day)) + "-";
-		
-		final Calendar calendar = Calendar.getInstance();
-		
-	    final TimePickerDialog timePickerDialog = TimePickerDialog.newInstance(this, calendar.get(Calendar.HOUR_OF_DAY) ,calendar.get(Calendar.MINUTE), false, false);
-		
-		timePickerDialog.setVibrate(false);
-        timePickerDialog.setCloseOnSingleTapMinute(false);
-        timePickerDialog.setCancelable(false);
-        timePickerDialog.show(mActivity.getSupportFragmentManager(), GlobalSettings.TIMEPICKER_TAG);
-	}
-	
-    private void setStar(final int position) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
-		View view = layoutInflater.inflate(R.layout.set_star, null);
-		builder.setView(view);
-		final AlertDialog dialog = builder.show();
-		dialog.setCanceledOnTouchOutside(true);
-		
-		final TextView okTextView = (TextView)view.findViewById(R.id.set_star_ok);
-
-		final ImageView star1 = (ImageView)view.findViewById(R.id.star_1);
-		final ImageView star2 = (ImageView)view.findViewById(R.id.star_2);
-		final ImageView star3 = (ImageView)view.findViewById(R.id.star_3);
-		final ImageView star4 = (ImageView)view.findViewById(R.id.star_4);
-		final ImageView star5 = (ImageView)view.findViewById(R.id.star_5);
-		star4.setVisibility(View.INVISIBLE);
-		star5.setVisibility(View.INVISIBLE);
-		final SeekBar seekBar = (SeekBar)view.findViewById(R.id.star_seekbar);
-		seekBar.setProgress(2);
-		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-			
-			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				
-			}
-			
-			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {
-				
-			}
-			
-			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress,
-					boolean fromUser) {
-				if (progress == 0) {
-					star1.setVisibility(View.VISIBLE);
-					star2.setVisibility(View.INVISIBLE);
-					star3.setVisibility(View.INVISIBLE);
-					star4.setVisibility(View.INVISIBLE);
-					star5.setVisibility(View.INVISIBLE);
-				} else if (progress == 1) {
-					star1.setVisibility(View.VISIBLE);
-					star2.setVisibility(View.VISIBLE);
-					star3.setVisibility(View.INVISIBLE);
-					star4.setVisibility(View.INVISIBLE);
-					star5.setVisibility(View.INVISIBLE);
-				} else if (progress == 2) {
-					star1.setVisibility(View.VISIBLE);
-					star2.setVisibility(View.VISIBLE);
-					star3.setVisibility(View.VISIBLE);
-					star4.setVisibility(View.INVISIBLE);
-					star5.setVisibility(View.INVISIBLE);
-				} else if (progress == 3) {
-					star1.setVisibility(View.VISIBLE);
-					star2.setVisibility(View.VISIBLE);
-					star3.setVisibility(View.VISIBLE);
-					star4.setVisibility(View.VISIBLE);
-					star5.setVisibility(View.INVISIBLE);
-				} else if (progress == 4) {
-					star1.setVisibility(View.VISIBLE);
-					star2.setVisibility(View.VISIBLE);
-					star3.setVisibility(View.VISIBLE);
-					star4.setVisibility(View.VISIBLE);
-					star5.setVisibility(View.VISIBLE);
-				}
-				YoYo.with(Techniques.Tada).duration(1000).playOn(star1);
-				YoYo.with(Techniques.Tada).duration(1000).playOn(star2);
-				YoYo.with(Techniques.Tada).duration(1000).playOn(star3);
-				YoYo.with(Techniques.Tada).duration(1000).playOn(star4);
-				YoYo.with(Techniques.Tada).duration(1000).playOn(star5);
-				YoYo.with(Techniques.Tada).duration(1000).playOn(okTextView);
-			}
-		});
-		
-		okTextView.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				Record record = TimeFleetingData.futureRecords.get(position);
-				record.setStar(String.valueOf(seekBar.getProgress() + 1));
-				TimeFleetingData.saveRecord(record);
-				notifyDataSetChanged();
-				dialog.dismiss();
-			}
-		});
-	}
-    
-private void whetherDelete(final int id, final int position) {
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
-		View view = layoutInflater.inflate(R.layout.whether_delete, null);
-		builder.setView(view);
-		final AlertDialog dialog = builder.show();
-		dialog.setCanceledOnTouchOutside(true);
-		
-		LinearLayout whetherSaveLinearLayout = (LinearLayout)view.findViewById(R.id.whether_delete_logo);
-		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
-		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
-		.delay(GlobalSettings.TIP_ANIMATION_DELAY)
-		.playOn(whetherSaveLinearLayout);
-		
-		TextView cancelTextView = (TextView)view.findViewById(R.id.whether_delete_cancel);
-		TextView yesTextView = (TextView)view.findViewById(R.id.whether_delete_yes);
-		
-		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
-		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
-		.delay(GlobalSettings.TIP_ANIMATION_DELAY)
-		.playOn(cancelTextView);
-		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
-		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
-		.delay(GlobalSettings.TIP_ANIMATION_DELAY)
-		.playOn(yesTextView);
-		
-		cancelTextView.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				dialog.dismiss();
-				return;
-			}
-		});
-		
-		yesTextView.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				int returnId = TimeFleetingData.deleteRecord(id);
-				if (returnId != -1) {
-					// delete successfully
-					Log.d("TimeFleeting", "Delete successfully");
-				} else {
-					// delete failed
-					Log.d("TimeFleeting", "Delete failed");
-				}
-				closeItem(position);
-				notifyDataSetChanged();
-				dialog.dismiss();
-			}
-		});
-	}
-    
 }

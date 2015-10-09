@@ -9,9 +9,10 @@
     >
 
     <LinearLayout
-        android:layout_width="80dp"
+        android:layout_width="160dp"
         android:layout_height="80dp"
         android:gravity="center"
+        android:orientation="vertical"
         >
 
         <RelativeLayout
@@ -28,7 +29,15 @@
    
                 <LinearLayout
                     android:layout_width="0dp"
-                    android:background="@color/future_listview_delete"
+                    android:background="@color/future_listview_back"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    />
+                
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:background="@color/future_listview_be_top"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:orientation="horizontal"
@@ -42,6 +51,13 @@
                 android:gravity="center"
                 >
             
+                <ImageView
+                    android:id="@+id/past_right_arrow"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/right_arrow"/>
+                
                 <ImageView
                     android:id="@+id/past_be_top"
                     android:layout_width="0dp"
@@ -57,6 +73,14 @@
                 android:gravity="center"
                 android:orientation="horizontal"
                 >
+                
+                <LinearLayout
+                    android:id="@+id/past_back_ly"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    />
                 
                 <LinearLayout
                     android:id="@+id/past_be_top_ly"
@@ -103,12 +127,13 @@
                android:orientation="horizontal">
 
                <TextView
-                   android:layout_width="80dp"
+                   android:id="@+id/date"
+                   android:layout_width="60dp"
                    android:layout_height="80dp"
                    android:gravity="center"
-                   android:textSize="40sp"
+                   android:textSize="35sp"
                    android:textColor="#FFFFFF"
-                   android:text="998"
+                   android:layout_gravity="center"
                    />
                
                <LinearLayout
@@ -116,6 +141,8 @@
                    android:layout_height="match_parent"
                    android:layout_weight="10"
                    android:orientation="vertical"
+                   android:paddingLeft="10dp"
+                   android:paddingRight="20dp"
                    >
                    
                    <LinearLayout
@@ -142,28 +169,11 @@
                            android:src="@drawable/be_top"
                            />
                        
-                       <ImageView
-                           android:id="@+id/past_listview_item_soon"
-                           android:layout_width="30dp"
-                           android:layout_height="match_parent"
-                           android:src="@drawable/overdue"
-                           />
-                       
                        <LinearLayout
                            android:layout_width="wrap_content"
                            android:layout_height="match_parent"
                            android:orientation="vertical"
                            >
-                           
-                           <TextView
-                               android:id="@+id/past_listview_item_create_time"
-                               android:layout_width="match_parent"
-                               android:layout_height="0dp"
-                               android:layout_weight="1"
-                               android:textSize="10sp"
-                               android:textColor="@color/future_listview_create_time"
-                               android:gravity="right"
-                               />
                            
                            <TextView
                                android:id="@+id/past_listview_item_remind_time"
@@ -172,7 +182,7 @@
                                android:layout_weight="1"
                                android:textSize="10sp"
                                android:textColor="@color/future_listview_remind_time"
-                               android:gravity="right"
+                               android:gravity="right|center_vertical"
                                />
                            
                        </LinearLayout>

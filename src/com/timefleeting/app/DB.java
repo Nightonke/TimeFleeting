@@ -132,7 +132,7 @@ public class DB {
 		List<Record> list = new ArrayList<Record>();
 		Cursor cursor = sqliteDatabase
 				.query(DB_NAME_STRING, null, 
-						"type = ?",
+						"star = ?",
 						new String[] {"PAST"} ,
 						null, null, null);
 		if (cursor.moveToFirst()) {
@@ -149,7 +149,8 @@ public class DB {
 						cursor.getString(cursor.getColumnIndex("create_time")));
 				record.setStar(
 						cursor.getString(cursor.getColumnIndex("star")));
-				record.setType("PAST");
+				record.setType(
+						cursor.getString(cursor.getColumnIndex("type")));
 				record.setStatus(cursor.getString(cursor.getColumnIndex("status")));
 				record.setBeTop(cursor.getInt(cursor.getColumnIndex("beTop")));
 				list.add(record);

@@ -96,6 +96,7 @@ public class TimeFleetingData {
 				}
 			} else {
 				pastRecords.add(record);
+				Log.d("TimeFleeting", "" + pastRecords.size());
 			}
 		} else if (record.getType().equals("FUTURE")) {
 			if (isUpdate) {
@@ -856,20 +857,25 @@ public class TimeFleetingData {
 		Date remindDate = new Date();
 		try {
 			remindDate = formatter.parse(record.getRemindTime());
+			Log.d("TimeFleeting", "Remind String: " + record.getRemindTime());
+			Log.d("TimeFleeting", "Remind: " + remindDate.toString());
 			remindDate.setHours(GlobalSettings.REMIND_HOUR);
 			remindDate.setMinutes(GlobalSettings.REMIND_MINUTE);
+			remindDate.setSeconds(0);
 		} catch (ParseException p) {
 			p.printStackTrace();
 		}
 		
 		Date curDate = new Date(System.currentTimeMillis());
+		curDate.setHours(0);
+		curDate.setMinutes(0);
+		curDate.setSeconds(0);
 		
 		if (record.getType().equals("PAST_W")) {
 			// every week
-			while (remindDate.before(curDate)) {
-				remindDate.setTime(remindDate.getTime() + GlobalSettings.A_WEEK);
-			}
-			return (int)((remindDate.getTime() - curDate.getTime()) / GlobalSettings.A_DAY);
+			int rd = remindDate.getDay();
+			int cd = curDate.getDay();
+			return (rd + 7 - cd) % 7;
 		} else if (record.getType().equals("PAST_M")) {
 			// every month
 			while (remindDate.before(curDate)) {

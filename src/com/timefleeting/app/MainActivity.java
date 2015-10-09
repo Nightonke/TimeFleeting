@@ -97,7 +97,7 @@ public class MainActivity extends FragmentActivity {
 	private ListView listView;
 	private ListView pastListView;
 	private ListViewAdapter mAdapter;
-	private ListViewAdapter pastAdapter;
+	private PastListViewAdapter pastAdapter;
 	
 	private PagerAdapter mainAdapter;
 	
@@ -253,7 +253,7 @@ public class MainActivity extends FragmentActivity {
 		mAdapter = new ListViewAdapter(TimeFleetingData.futureRecords, mContext);
 		mAdapter.setMode(Attributes.Mode.Single);
 		
-		pastAdapter = new ListViewAdapter(TimeFleetingData.pastRecords, mContext);
+		pastAdapter = new PastListViewAdapter(TimeFleetingData.pastRecords, mContext);
 		pastAdapter.setMode(Attributes.Mode.Single);
 		
 		layoutInflater = getLayoutInflater().from(this);
@@ -311,6 +311,7 @@ public class MainActivity extends FragmentActivity {
 			}
 			break;
 		case 2:
+			pastAdapter.notifyDataSetChanged();
 			break;
 		default:
 			break;
@@ -334,7 +335,6 @@ public class MainActivity extends FragmentActivity {
 			
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-				// TODO Auto-generated method stub
 				return false;
 			}
 		});
@@ -440,6 +440,7 @@ public class MainActivity extends FragmentActivity {
 	            	intent.putExtra("CreateTime", TimeFleetingData.pastRecords.get(position).getCreateTime());
 	            	intent.putExtra("RemindTime", TimeFleetingData.pastRecords.get(position).getRemindTime());
 	            	intent.putExtra("Star", TimeFleetingData.pastRecords.get(position).getStar());
+	            	intent.putExtra("Type", TimeFleetingData.pastRecords.get(position).getType());
 	            	intent.putExtra("ID", TimeFleetingData.pastRecords.get(position).getId());
 	            	intent.putExtra("Status", TimeFleetingData.pastRecords.get(position).getStatus());
 	            	intent.putExtra("Top", TimeFleetingData.pastRecords.get(position).getBeTop());
