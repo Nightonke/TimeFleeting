@@ -32,6 +32,7 @@
 	            />
 	       
 	        <TextView
+	            android:id="@+id/past_edit_top_title"
 	            android:layout_width="wrap_content"
 	            android:layout_height="match_parent"
 	            android:textColor="#FFFFFF"
@@ -124,7 +125,6 @@
                         android:layout_gravity="center_horizontal"
                         android:textColor="@color/layout_title"
                         android:textSize="20sp"
-                        android:text="2015-09-08"
                         />
 	                
 	                <TextView

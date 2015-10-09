@@ -53,6 +53,14 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
     private Record setTimeRecord;
     private String newRemindTimeString;
     
+    private String[] dayOfWeek = {"Sunday",
+						            "Monday",
+						            "Tuesday",
+						            "Wednesday",
+						            "Thursday",
+						            "Friday",
+						            "Saturday"};
+    
     public PastListViewAdapter(List<Record> list, Context mContext) {
     	this.list = list;
         this.mContext = mContext;
@@ -113,10 +121,8 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
     	TextView dateTextView = (TextView)convertView.findViewById(R.id.date);
     	TextView titleTextView = (TextView)convertView.findViewById(R.id.past_listview_item_title);
     	titleTextView.setText(list.get(position).getTitle());
-    	TextView contentTextView = (TextView)convertView.findViewById(R.id.past_listview_item_content);
-    	contentTextView.setText(list.get(position).getText());
     	TextView remindTimeTextView = (TextView)convertView.findViewById(R.id.past_listview_item_remind_time);
-    	remindTimeTextView.setText(list.get(position).getRemindTime().substring(0, 10));
+    	remindTimeTextView.setText(list.get(position).getRemindTime().substring(0, 10) + " " + dayOfWeek[calDayOfWeek(list.get(position).getRemindTime())]);
 
     	ImageView beTop = (ImageView)convertView.findViewById(R.id.past_be_top);  // the button
     	ImageView beTopLogo = (ImageView)convertView.findViewById(R.id.past_listview_item_betop);
@@ -141,7 +147,7 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
 		}
     	
 		// add a default height to make the wave be able to be seen
-		int progress = (int)(diff * 1.0 / GlobalSettings.REMIND_TIME * 100) + GlobalSettings.DEFAULT_WAVE_HEIGHT;
+		int progress = (int)(diff * 1.0 / GlobalSettings.REMIND_DAYS * 100) + GlobalSettings.DEFAULT_WAVE_HEIGHT;
 		waveView.setProgress(progress);
     }
 
@@ -170,23 +176,32 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
     
 	private void beTop(int position) {
 		
-		Record record = TimeFleetingData.futureRecords.get(position);
-		Log.d("TimeFleeting", "Click Position is " + position);
-		Log.d("TimeFleeting", record.getTitle());
+		Record record = TimeFleetingData.pastRecords.get(position);
 		if (record.getBeTop() != 0) {
 			// is top
 			record.setBeTop(0);
 			TimeFleetingData.saveRecord(record);
-			TimeFleetingData.sortFutureRecordsByLastSort();
+			TimeFleetingData.sortPastRecordsByLastSort();
 			notifyDataSetChanged();
 		} else {
 			// is not top
-			record.setBeTop(TimeFleetingData.futureBeTopNumber + 1);
+			record.setBeTop(TimeFleetingData.pastBeTopNumber + 1);
 			TimeFleetingData.saveRecord(record);
-			TimeFleetingData.futureBeTopNumber++;
-			TimeFleetingData.sortFutureRecordsByLastSort();
+			TimeFleetingData.pastBeTopNumber++;
+			TimeFleetingData.sortPastRecordsByLastSort();
 			notifyDataSetChanged();
 		}
+	}
+	
+	private int calDayOfWeek(String ds) {
+		SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd-HH:mm:ss");     
+		Date date = new Date();
+		try {
+			date = formatter.parse(ds);
+		} catch (ParseException p) {
+			p.printStackTrace();
+		}
+		return date.getDay();
 	}
 
 }

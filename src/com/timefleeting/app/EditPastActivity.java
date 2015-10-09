@@ -185,9 +185,7 @@ public class EditPastActivity extends FragmentActivity
 				
 				infoRemainTextView.setText(String.valueOf(TimeFleetingData.calculateRemainDays(tempRecord)));
 				
-				if (position == 2) {
-					dateTextView.setText(dateTextView.getText().toString().substring(0,  10) + " " + dayOfWeek[calDayOfWeek(dateString)]);
-				}
+				dateTextView.setText(dateTextView.getText().toString().substring(0,  10) + " " + dayOfWeek[calDayOfWeek(dateString)]);
 			}
 
 			@Override
@@ -265,7 +263,7 @@ public class EditPastActivity extends FragmentActivity
 			
 			titleEditText.setText(getIntent().getStringExtra("Title"));
 			textEditText.setText(getIntent().getStringExtra("Content"));
-			dateTextView.setText(getIntent().getStringExtra("RemindTime").substring(0,  10));
+			dateTextView.setText(getIntent().getStringExtra("RemindTime").substring(0,  10) + " " + calDayOfWeek(getIntent().getStringExtra("RemindTime")));
 			for (int i = 0; i < repeatType.length; i++) {
 				if (repeatType[i].equals(getIntent().getStringExtra("Type"))) {
 					spinner.setSelection(i);
@@ -275,12 +273,12 @@ public class EditPastActivity extends FragmentActivity
 			
 			saveId = getIntent().getIntExtra("ID", -1);
 			
-			if ("PAST_W".equals(getIntent().getStringArrayExtra("Type"))) {
-				dateTextView.setText(dateTextView.getText().toString().substring(0,  10) + " " + dayOfWeek[calDayOfWeek(getIntent().getStringExtra("RemindTime"))]);
-			}
+			dateTextView.setText(dateTextView.getText().toString().substring(0,  10) + " " + dayOfWeek[calDayOfWeek(getIntent().getStringExtra("RemindTime"))]);
 			
+			((TextView)findViewById(R.id.past_edit_top_title)).setText("Change memory");
 		} else {
 			dateString = createTimeString;
+			dateTextView.setText(dateString.substring(0,  10) + " " + dayOfWeek[calDayOfWeek(dateString)]);
 			infoLinearLayout.getLayoutParams().height = 0;
 			saveId = -1;
 		}
@@ -313,9 +311,7 @@ public class EditPastActivity extends FragmentActivity
 		
 		infoRemainTextView.setText(String.valueOf(TimeFleetingData.calculateRemainDays(tempRecord)));
 		
-		if (spinner.getSelectedItemPosition() == 2) {
-			dateTextView.setText(dateTextView.getText().toString().substring(0,  10) + " " + dayOfWeek[calDayOfWeek(dateString)]);
-		}
+		dateTextView.setText(dateTextView.getText().toString().substring(0,  10) + " " + dayOfWeek[calDayOfWeek(dateString)]);
 	}
 	
 	private void save() {

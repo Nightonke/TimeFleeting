@@ -835,7 +835,7 @@ public class TimeFleetingData {
 		
 	}
 	
-	private static void sortPastRecordsByLastSort() {
+	public static void sortPastRecordsByLastSort() {
 		if (pastIsSortByRemindTime) {
 			if (pastIsSortByRemindTimeReversely) {
 				sortPastRecordsByRemindTime();
@@ -894,7 +894,7 @@ public class TimeFleetingData {
 			}
 			return (int)((remindDate.getTime() - curDate.getTime()) / GlobalSettings.A_DAY);
 		} else if (record.getType().equals("PAST_N")) {
-			return GlobalSettings.MAX_INT;
+			return (int)((curDate.getTime() - remindDate.getTime()) / GlobalSettings.A_DAY);
 		} else if (record.getType().equals("PAST_H")) {
 			// every 100 days
 			while (remindDate.before(curDate)) {
