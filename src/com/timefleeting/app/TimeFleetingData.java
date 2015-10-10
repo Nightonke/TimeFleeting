@@ -844,9 +844,9 @@ public class TimeFleetingData {
 			}
 		} else if (pastIsSortByRemainTime) {
 			if (pastIsSortByRemainTimeReversely) {
-				sortPastRecordsByRemainTime();
-			} else {
 				sortPastRecordsByRemainTimeReversely();
+			} else {
+				sortPastRecordsByRemainTime();
 			}
 		}
 	}
@@ -857,8 +857,6 @@ public class TimeFleetingData {
 		Date remindDate = new Date();
 		try {
 			remindDate = formatter.parse(record.getRemindTime());
-			Log.d("TimeFleeting", "Remind String: " + record.getRemindTime());
-			Log.d("TimeFleeting", "Remind: " + remindDate.toString());
 			remindDate.setHours(GlobalSettings.REMIND_HOUR);
 			remindDate.setMinutes(GlobalSettings.REMIND_MINUTE);
 			remindDate.setSeconds(0);

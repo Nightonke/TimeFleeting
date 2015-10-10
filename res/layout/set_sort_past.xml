@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    >
+    
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        >
+        
+        <LinearLayout
+            android:id="@+id/sort_past_by_remind_time_ly"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="@color/set_sort_background"
+            >
+            
+            <ImageView
+                android:id="@+id/sort_past_by_remind_time_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/remind_time_2"
+                android:layout_gravity="center_horizontal"
+                />
+            
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="By remind date"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="10dp"
+                />
+            
+        </LinearLayout>
+        
+        <TextView
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            />
+        
+        <LinearLayout
+            android:id="@+id/sort_past_by_remain_time_ly"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="@color/set_sort_background"
+            >
+            
+            <ImageView
+                android:id="@+id/sort_past_by_remain_time_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/remind_time"
+                android:layout_gravity="center_horizontal"
+                />
+            
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="By remain days"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="10dp"
+                />
+            
+        </LinearLayout>
+        
+    </TableRow>
+
+</TableLayout>

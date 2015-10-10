@@ -12,7 +12,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import java.util.List;
 
-public class LongRunningService extends Service {
+public class LongRunningPastService extends Service {
 
 	static public List<Remind> remindList;
 	
@@ -31,13 +31,13 @@ public class LongRunningService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		remindList = new ArrayList<Remind>();
-		remindList = GlobalSettings.REMIND_LIST;
+		remindList = GlobalSettings.REMIND_PAST_LIST;
 		new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				Log.d("TimeFleeting", "Run LongRunningFutureService");
+				Log.d("TimeFleeting", "Run LongRunningPastService");
 			}
 		}).start();
 		AlarmManager manager = (AlarmManager)getSystemService(ALARM_SERVICE);
@@ -49,8 +49,10 @@ public class LongRunningService extends Service {
 			i.putExtra("ID", remindList.get(j).id);
 			i.putExtra("TITLE", remindList.get(j).title);
 			i.putExtra("CONTENT", remindList.get(j).content);
-			i.putExtra("TAG", "TODO");
-			PendingIntent pi = PendingIntent.getBroadcast(this, remindList.get(j).id, i, 0);
+			i.putExtra("REMINDTIME", remindList.get(j).remindTime);
+			i.putExtra("Type", remindList.get(j).type);
+			i.putExtra("TAG", "MEMORY");
+			PendingIntent pi = PendingIntent.getBroadcast(this, remindList.get(j).id + GlobalSettings.REMIND_LIST.size(), i, 0);
 			manager.set(AlarmManager.RTC_WAKEUP, remindList.get(j).triggerAtTime, pi);
 		}
 		return super.onStartCommand(intent, flags, startId);
@@ -64,7 +66,9 @@ public class LongRunningService extends Service {
 			i.putExtra("ID", remindList.get(j).id);
 			i.putExtra("TITLE", remindList.get(j).title);
 			i.putExtra("CONTENT", remindList.get(j).content);
-			PendingIntent pi = PendingIntent.getBroadcast(this, remindList.get(j).id, i, 0);
+			i.putExtra("REMINDTIME", remindList.get(j).remindTime);
+			i.putExtra("Type", remindList.get(j).type);
+			PendingIntent pi = PendingIntent.getBroadcast(this, remindList.get(j).id + GlobalSettings.REMIND_LIST.size(), i, 0);
 			// you have to use both the cancel function to cancel the pendingIntent
 			pi.cancel();
 			manager.cancel(pi);

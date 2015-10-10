@@ -16,6 +16,7 @@ import net.simonvt.menudrawer.Position;
 
 import com.sleepbot.datetimepicker.time.RadialPickerLayout;
 import com.sleepbot.datetimepicker.time.TimePickerDialog;
+import com.sleepbot.datetimepicker.time.TimePickerDialog.OnTimeSetListener;
 import com.timefleeting.app.JazzyViewPager;
 import com.timefleeting.app.JazzyViewPager.TransitionEffect;
 import com.zcw.togglebutton.ToggleButton;
@@ -78,7 +79,7 @@ import com.daimajia.swipe.util.Attributes;
 import com.fourmob.datetimepicker.date.DatePickerDialog;
 import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements OnTimeSetListener {
 
 	public static final String DATEPICKER_TAG = "选择日期";
     public static final String TIMEPICKER_TAG = "选择时间";
@@ -130,10 +131,8 @@ public class MainActivity extends FragmentActivity {
 	private int statusBarHeight;
 	private LinearLayout layout1TitleLinearLayout;
 	
-	private boolean layout1RayMenuAppeared = false;
-	private boolean layout1RayMenuShown = true;
-	private boolean layout2RayMenuAppeared = false;
-	private boolean layout2RayMenuShown = true;
+	private boolean rayMenuAppeared = false;
+	private boolean rayMenuShown = true;
 	
 	private float pressDownY = -1;
 	private int moveDirection = -1;
@@ -153,6 +152,7 @@ public class MainActivity extends FragmentActivity {
 		};
 	
 	public static Intent intentService;
+	public static Intent intentPastService;
 	
 	private LinearLayout layoutTitleLinearLayout;
 	private TextView layoutTitleTextView;
@@ -165,8 +165,12 @@ public class MainActivity extends FragmentActivity {
 	private Record setTimeRecord;
 	
 	private ToggleButton remindEnableButton;
+	private ToggleButton remindPastEnableButton;
 	private ToggleButton vibrateEnableButton;
 	private ToggleButton soundEnableButton;
+	
+	private LinearLayout menuRemindTimeLinearLayout;
+	private TextView menuRemindTimeTextView;
 	
 	private MenuDrawer mMenuDrawer;
 	
@@ -190,11 +194,12 @@ public class MainActivity extends FragmentActivity {
         mMenuDrawer.setMenuView(R.layout.menu_layout);
         mMenuDrawer.setDrawerIndicatorEnabled(true);
 		mMenuDrawer.setTouchMode(MenuDrawer.TOUCH_MODE_FULLSCREEN);
-		
 		mMenuDrawer.setOnInterceptMoveEventListener(new OnInterceptMoveEventListener() {
 			
 			@Override
 			public boolean isViewDraggable(View v, int dx, int x, int y) {
+				Log.d("TimeFleeting", "DRAWINGING");
+				rayMenu.closeMenu();
 //				Log.d("TimeFleeting", "dx: " + dx);
 //				Log.d("TimeFleeting", "x: " + x);
 //				Log.d("TimeFleeting", "y: " + y);
@@ -219,17 +224,6 @@ public class MainActivity extends FragmentActivity {
 
         editor = getSharedPreferences("Values", MODE_PRIVATE).edit();
         preferences = getSharedPreferences("Values", MODE_PRIVATE);
-        
-        boolean whetherShownSplash = preferences.getBoolean("SHOWN_SPLASH", false);
-        if (!whetherShownSplash) {
-        	whetherShownSplash = true;
-        	editor.putBoolean("SHOWN_SPLASH", true);
-        	editor.commit();
-        	Intent intent = new Intent(this, Splash.class);
-        	startActivity(intent);
-        } else {
-        	Log.d("TimeFleeting", "SHOWN_SPLAST_TRUE");
-        }
 
         menuLayoutBackImageView = (ImageView)findViewById(R.id.menu_layout_back);
         menuLayoutBackImageView.setOnClickListener(new OnClickListener() {
@@ -278,6 +272,31 @@ public class MainActivity extends FragmentActivity {
 				setSort();
 			}
 		});
+		
+		boolean whetherShownSplash = preferences.getBoolean("SHOWN_SPLASH", false);
+		
+		Bundle bundle = getIntent().getBundleExtra("BUNDLE");
+        if(bundle != null){
+        	whetherShownSplash = true;
+        	Intent intent = new Intent(mContext, EditPastActivity.class);
+        	intent.putExtra("isOld", true);
+        	intent.putExtra("Title", bundle.getString("TITLE"));
+        	intent.putExtra("Content", bundle.getString("CONTENT"));
+        	intent.putExtra("RemindTime", bundle.getString("REMINDTIME"));
+        	intent.putExtra("Type", bundle.getString("Type"));
+			startActivityForResult(intent, 2);
+        }
+        
+        
+        if (!whetherShownSplash) {
+        	whetherShownSplash = true;
+        	editor.putBoolean("SHOWN_SPLASH", true);
+        	editor.commit();
+        	Intent intent = new Intent(this, Splash.class);
+        	startActivity(intent);
+        } else {
+        	Log.d("TimeFleeting", "SHOWN_SPLAST_TRUE");
+        }
 	}
 	
 	// listener to listen whether the EditActivity is finished
@@ -306,12 +325,28 @@ public class MainActivity extends FragmentActivity {
 					}
 
 				} else {
-					Log.d("TimeFleeting", "isEditActivityFinished is false");
+					Log.d("TimeFleeting", "Future isEditActivityFinished is false");
 				}
 			}
 			break;
 		case 2:
-			pastAdapter.notifyDataSetChanged();
+			if (resultCode == RESULT_OK) {
+				boolean isEditActivityFinished = data.getBooleanExtra("isEditActivityFinished", false);
+				if (isEditActivityFinished) {
+					TimeFleetingData.sortPastRecordsByLastSort();
+					pastAdapter.notifyDataSetChanged();
+					
+					if (GlobalSettings.REMIND_PAST_ENABLE) {
+				        initPastReminds();
+						LongRunningPastService.remindList = GlobalSettings.REMIND_PAST_LIST;
+						stopService(intentPastService);
+						startService(intentPastService);
+					}
+
+				} else {
+					Log.d("TimeFleeting", "Past isEditActivityFinished is false");
+				}
+			}
 			break;
 		default:
 			break;
@@ -352,7 +387,9 @@ public class MainActivity extends FragmentActivity {
 			
 			@Override
 			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+				rayMenu.closeMenu();
 				mAdapter.closeAllItems();
+				pastAdapter.closeAllItems();
 				mPagerPosition = position;
                 mPagerOffsetPixels = positionOffsetPixels;
 			}
@@ -449,32 +486,6 @@ public class MainActivity extends FragmentActivity {
             }
         });			
 
-		pastRayMenu = (RayMenu)v2.findViewById(R.id.past_layout_ray_menu);
-		
-		layout2RayMenuAppeared = true;
-		
-		for (int i = 0; i < ITEM_DRAWABLES_FUTURE.length; i++) {
-			ImageView imageView = new ImageView(mContext);
-			imageView.setImageResource(ITEM_DRAWABLES_FUTURE[i]);
-			final int menuPosition = i;
-			pastRayMenu.addItem(imageView, new OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					if (menuPosition == 0) {
-						// new
-						Intent intent = new Intent(mContext, EditPastActivity.class);
-						intent.putExtra("isOld", false);
-						startActivityForResult(intent, 2);
-					} else if (menuPosition == 1) {
-						// search
-					} else if (menuPosition == 2) {
-						// overdue
-					} 
-				}
-			});
-		}
-		
 		pastListView.setOnTouchListener(new OnTouchListener() {
 			
 			@Override
@@ -567,7 +578,7 @@ public class MainActivity extends FragmentActivity {
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount) {
-				pastRayMenu.closeMenu();
+				rayMenu.closeMenu();
 				if (pastScrollFlag && 
 						ScreenUtil.getScreenViewBottomHeight(pastListView) 
 						>= ScreenUtil.getScreenHeight(MainActivity.this) 
@@ -588,7 +599,7 @@ public class MainActivity extends FragmentActivity {
 							animationSet.addAnimation(translateAnimation);
 							animationSet.setFillAfter(true);
 							pastRayMenu.startAnimation(animationSet);
-							layout2RayMenuShown = false;
+							rayMenuShown = false;
 						} else {
 							
 						}
@@ -608,7 +619,7 @@ public class MainActivity extends FragmentActivity {
 							animationSet.addAnimation(translateAnimation);
 							animationSet.setFillAfter(true);
 							pastRayMenu.startAnimation(animationSet);
-							layout2RayMenuShown = true;
+							rayMenuShown = true;
 						} else {
 							
 						}
@@ -628,7 +639,7 @@ public class MainActivity extends FragmentActivity {
 								animationSet.addAnimation(translateAnimation);
 								animationSet.setFillAfter(true);
 								pastRayMenu.startAnimation(animationSet);
-								layout2RayMenuShown = false;
+								rayMenuShown = false;
 								pastLastDirection = -1;
 							} else {
 								
@@ -649,7 +660,7 @@ public class MainActivity extends FragmentActivity {
 								animationSet.addAnimation(translateAnimation);
 								animationSet.setFillAfter(true);
 								pastRayMenu.startAnimation(animationSet);
-								layout2RayMenuShown = true;
+								rayMenuShown = true;
 								pastLastDirection = 1;
 							} else {
 								
@@ -703,31 +714,7 @@ public class MainActivity extends FragmentActivity {
             }
         });			
 
-		rayMenu = (RayMenu)v1.findViewById(R.id.future_layout_ray_menu);
 		
-		layout1RayMenuAppeared = true;
-		
-		for (int i = 0; i < ITEM_DRAWABLES_FUTURE.length; i++) {
-			ImageView imageView = new ImageView(mContext);
-			imageView.setImageResource(ITEM_DRAWABLES_FUTURE[i]);
-			final int menuPosition = i;
-			rayMenu.addItem(imageView, new OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					if (menuPosition == 0) {
-						// new
-						Intent intent = new Intent(mContext, EditActivity.class);
-						intent.putExtra("isOld", false);
-						startActivityForResult(intent, 1);
-					} else if (menuPosition == 1) {
-						// search
-					} else if (menuPosition == 2) {
-						// overdue
-					} 
-				}
-			});
-		}
 		
 		listView.setOnTouchListener(new OnTouchListener() {
 			
@@ -842,7 +829,7 @@ public class MainActivity extends FragmentActivity {
 							animationSet.addAnimation(translateAnimation);
 							animationSet.setFillAfter(true);
 							rayMenu.startAnimation(animationSet);
-							layout1RayMenuShown = false;
+							rayMenuShown = false;
 						} else {
 							
 						}
@@ -862,7 +849,7 @@ public class MainActivity extends FragmentActivity {
 							animationSet.addAnimation(translateAnimation);
 							animationSet.setFillAfter(true);
 							rayMenu.startAnimation(animationSet);
-							layout1RayMenuShown = true;
+							rayMenuShown = true;
 						} else {
 							
 						}
@@ -882,7 +869,7 @@ public class MainActivity extends FragmentActivity {
 								animationSet.addAnimation(translateAnimation);
 								animationSet.setFillAfter(true);
 								rayMenu.startAnimation(animationSet);
-								layout1RayMenuShown = false;
+								rayMenuShown = false;
 								lastDirection = -1;
 							} else {
 								
@@ -903,7 +890,7 @@ public class MainActivity extends FragmentActivity {
 								animationSet.addAnimation(translateAnimation);
 								animationSet.setFillAfter(true);
 								rayMenu.startAnimation(animationSet);
-								layout1RayMenuShown = true;
+								rayMenuShown = true;
 								lastDirection = 1;
 							} else {
 								
@@ -915,7 +902,7 @@ public class MainActivity extends FragmentActivity {
 				}
 			}
 		});
-		layout1RayMenuAppeared = false;
+		rayMenuAppeared = false;
 		
 		mViewList.add(v1);
 	}
@@ -958,77 +945,154 @@ public class MainActivity extends FragmentActivity {
 	}
 	
 	private void setSort() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
-		View view = layoutInflater.inflate(R.layout.set_sort, null);
-		builder.setView(view);
-		builder.setCancelable(true);
-		final AlertDialog dialog = builder.show();
-		dialog.setCanceledOnTouchOutside(true);
-		YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_title_logo));
-		YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_create_time_logo));
-		YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_remind_time_logo));
-		YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_star_logo));
-		LinearLayout sortByTitleLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_title_ly);
-		sortByTitleLinearLayout.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (!TimeFleetingData.isSortedByTitleReversely) {
-					TimeFleetingData.sortFutureRecordByTitleReversely();
-				} else {
-					TimeFleetingData.sortFutureRecordByTitle();
+		if (mJazzy.getCurrentItem() == 0) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+			LayoutInflater layoutInflater = LayoutInflater.from(mContext);
+			View view = layoutInflater.inflate(R.layout.set_sort_past, null);
+			builder.setView(view);
+			builder.setCancelable(true);
+			final AlertDialog dialog = builder.show();
+			dialog.setCanceledOnTouchOutside(true);
+			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_past_by_remind_time_logo));
+			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_past_by_remain_time_logo));
+			LinearLayout sortByTitleLinearLayout = (LinearLayout)view.findViewById(R.id.sort_past_by_remind_time_ly);
+			sortByTitleLinearLayout.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (TimeFleetingData.pastIsSortByRemindTimeReversely) {
+						TimeFleetingData.sortPastRecordsByRemindTime();
+					} else {
+						TimeFleetingData.sortPastRecordsByRemindTimeReversely();
+					}
+					pastAdapter.notifyDataSetChanged();
+					dialog.dismiss();
 				}
-				mAdapter.notifyDataSetChanged();
-				dialog.dismiss();
-			}
-		});
-		LinearLayout sortByCreateTimeLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_create_time_ly);
-		sortByCreateTimeLinearLayout.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (TimeFleetingData.isSortedByCreateTimeReversely) {
-					TimeFleetingData.sortFutureRecordByCreateTime();
-				} else {
-					TimeFleetingData.sortFutureRecordByCreateTimeReversely();
+			});
+			LinearLayout sortByCreateTimeLinearLayout = (LinearLayout)view.findViewById(R.id.sort_past_by_remain_time_ly);
+			sortByCreateTimeLinearLayout.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (TimeFleetingData.pastIsSortByRemainTimeReversely) {
+						TimeFleetingData.sortPastRecordsByRemainTime();
+					} else {
+						TimeFleetingData.sortPastRecordsByRemainTimeReversely();
+					}
+					pastAdapter.notifyDataSetChanged();
+					dialog.dismiss();
 				}
-				mAdapter.notifyDataSetChanged();
-				dialog.dismiss();
-			}
-		});
-		LinearLayout sortByRemindTimeLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_remind_time_ly);
-		sortByRemindTimeLinearLayout.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (!TimeFleetingData.isSortedByRemindTimeReversely) {
-					TimeFleetingData.sortFutureRecordByRemindTimeReversely();
-				} else {
-					TimeFleetingData.sortFutureRecordByRemindTime();
+			});
+		} else if (mJazzy.getCurrentItem() == 1) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+			LayoutInflater layoutInflater = LayoutInflater.from(mContext);
+			View view = layoutInflater.inflate(R.layout.set_sort, null);
+			builder.setView(view);
+			builder.setCancelable(true);
+			final AlertDialog dialog = builder.show();
+			dialog.setCanceledOnTouchOutside(true);
+			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_title_logo));
+			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_create_time_logo));
+			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_remind_time_logo));
+			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_star_logo));
+			LinearLayout sortByTitleLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_title_ly);
+			sortByTitleLinearLayout.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (!TimeFleetingData.isSortedByTitleReversely) {
+						TimeFleetingData.sortFutureRecordByTitleReversely();
+					} else {
+						TimeFleetingData.sortFutureRecordByTitle();
+					}
+					mAdapter.notifyDataSetChanged();
+					dialog.dismiss();
 				}
-				mAdapter.notifyDataSetChanged();
-				dialog.dismiss();
-			}
-		});
-		LinearLayout sortByStarLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_star_ly);
-		sortByStarLinearLayout.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (!TimeFleetingData.isSortedByStarReversely) {
-					TimeFleetingData.sortFutureRecordByStarReversely();
-				} else {
-					TimeFleetingData.sortFutureRecordByStar();
+			});
+			LinearLayout sortByCreateTimeLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_create_time_ly);
+			sortByCreateTimeLinearLayout.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (TimeFleetingData.isSortedByCreateTimeReversely) {
+						TimeFleetingData.sortFutureRecordByCreateTime();
+					} else {
+						TimeFleetingData.sortFutureRecordByCreateTimeReversely();
+					}
+					mAdapter.notifyDataSetChanged();
+					dialog.dismiss();
 				}
-				mAdapter.notifyDataSetChanged();
-				dialog.dismiss();
-			}
-		});
+			});
+			LinearLayout sortByRemindTimeLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_remind_time_ly);
+			sortByRemindTimeLinearLayout.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (!TimeFleetingData.isSortedByRemindTimeReversely) {
+						TimeFleetingData.sortFutureRecordByRemindTimeReversely();
+					} else {
+						TimeFleetingData.sortFutureRecordByRemindTime();
+					}
+					mAdapter.notifyDataSetChanged();
+					dialog.dismiss();
+				}
+			});
+			LinearLayout sortByStarLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_star_ly);
+			sortByStarLinearLayout.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (!TimeFleetingData.isSortedByStarReversely) {
+						TimeFleetingData.sortFutureRecordByStarReversely();
+					} else {
+						TimeFleetingData.sortFutureRecordByStar();
+					}
+					mAdapter.notifyDataSetChanged();
+					dialog.dismiss();
+				}
+			});
+		}
 	}
 	
 	private void initValues() {
+		
+		rayMenu = (RayMenu)findViewById(R.id.ray_menu);
+		
+		rayMenuAppeared = true;
+		
+		for (int i = 0; i < ITEM_DRAWABLES_FUTURE.length; i++) {
+			ImageView imageView = new ImageView(mContext);
+			imageView.setImageResource(ITEM_DRAWABLES_FUTURE[i]);
+			final int menuPosition = i;
+			rayMenu.addItem(imageView, new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					if (menuPosition == 0) {
+						// new
+						if (mJazzy.getCurrentItem() == 0) {
+							Intent intent = new Intent(mContext, EditPastActivity.class);
+							intent.putExtra("isOld", false);
+							startActivityForResult(intent, 2);
+						} else if (mJazzy.getCurrentItem() == 1) {
+							Intent intent = new Intent(mContext, EditActivity.class);
+							intent.putExtra("isOld", false);
+							startActivityForResult(intent, 1);
+						}
+					} else if (menuPosition == 1) {
+						// search
+					} else if (menuPosition == 2) {
+						// overdue
+					} 
+				}
+			});
+		}
+		
 		intentService = new Intent(mContext, LongRunningService.class);
         intentService.setAction("TimeFleeting Reminder");
+        
+        intentPastService = new Intent(mContext, LongRunningPastService.class);
+        intentPastService.setAction("TimeFleeting Memory Reminder");
 		
 		GlobalSettings.REMIND_ENABLE = preferences.getBoolean("REMIND_ENABLE", true);
+		GlobalSettings.REMIND_PAST_ENABLE = preferences.getBoolean("REMIND_PAST_ENABLE", true);
 		remindEnableButton = (ToggleButton)findViewById(R.id.menu_layout_remind_enable);
+		remindPastEnableButton = (ToggleButton)findViewById(R.id.menu_layout_remind_past_enable);
+		
 		if (GlobalSettings.REMIND_ENABLE) {
 			remindEnableButton.setToggleOff();
 	        initReminds();
@@ -1038,6 +1102,17 @@ public class MainActivity extends FragmentActivity {
 			remindEnableButton.setToggleOn();
 			stopService(intentService);
 		}
+		
+		if (GlobalSettings.REMIND_PAST_ENABLE) {
+			remindPastEnableButton.setToggleOff();
+			initPastReminds();
+			LongRunningPastService.remindList = GlobalSettings.REMIND_PAST_LIST;
+			startService(intentPastService);
+		} else {
+			remindPastEnableButton.setToggleOn();
+			stopService(intentPastService);
+		}
+		
         remindEnableButton.setOnToggleChanged(new OnToggleChanged() {
 			
 			@Override
@@ -1048,13 +1123,34 @@ public class MainActivity extends FragmentActivity {
 					LongRunningService.remindList = GlobalSettings.REMIND_LIST;
 					startService(intentService);
 					GlobalSettings.REMIND_ENABLE = true;
-					Log.d("TimeFleeting", "on");
+					Log.d("TimeFleeting remind todo", "on");
 				} else {
 					stopService(intentService);
 					GlobalSettings.REMIND_ENABLE = false;
-					Log.d("TimeFleeting", "off");
+					Log.d("TimeFleeting remind todo", "off");
 				}
 				editor.putBoolean("REMIND_ENABLE", GlobalSettings.REMIND_ENABLE);
+				editor.commit();
+			}
+		});
+        
+        remindPastEnableButton.setOnToggleChanged(new OnToggleChanged() {
+			
+			@Override
+			public void onToggle(boolean on) {
+				if (!on) {
+					// start every service
+			        initPastReminds();
+					LongRunningPastService.remindList = GlobalSettings.REMIND_PAST_LIST;
+					startService(intentPastService);
+					GlobalSettings.REMIND_PAST_ENABLE = true;
+					Log.d("TimeFleeting remind memory", "on");
+				} else {
+					stopService(intentPastService);
+					GlobalSettings.REMIND_PAST_ENABLE = false;
+					Log.d("TimeFleeting remind memory", "off");
+				}
+				editor.putBoolean("REMIND_PAST_ENABLE", GlobalSettings.REMIND_PAST_ENABLE);
 				editor.commit();
 			}
 		});
@@ -1100,6 +1196,40 @@ public class MainActivity extends FragmentActivity {
 				editor.commit();
 			}
 		});
+        GlobalSettings.REMIND_HOUR = preferences.getInt("REMIND_HOUR", 9);
+        GlobalSettings.REMIND_MINUTE = preferences.getInt("REMIND_MINUTE", 0);
+        menuRemindTimeTextView = (TextView)findViewById(R.id.menu_layout_remind_time_text);
+        menuRemindTimeTextView.setText(
+        		(GlobalSettings.REMIND_HOUR < 10 ? 
+        				"0" + String.valueOf(GlobalSettings.REMIND_HOUR) : 
+        					String.valueOf(GlobalSettings.REMIND_HOUR)) + ":" + 
+        	    (GlobalSettings.REMIND_MINUTE < 10 ? 
+        				"0" + String.valueOf(GlobalSettings.REMIND_MINUTE) : 
+        					String.valueOf(GlobalSettings.REMIND_MINUTE)));
+        menuRemindTimeLinearLayout = (LinearLayout)findViewById(R.id.menu_layout_remind_time_ly);
+        menuRemindTimeLinearLayout.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				setRemindTime();
+				initPastReminds();
+				LongRunningPastService.remindList = GlobalSettings.REMIND_PAST_LIST;
+				stopService(intentPastService);
+				startService(intentPastService);
+			}
+		});
+        
+	}
+	
+	private void setRemindTime() {
+		final Calendar calendar = Calendar.getInstance();
+		
+	    final TimePickerDialog timePickerDialog = TimePickerDialog.newInstance(this, calendar.get(Calendar.HOUR_OF_DAY) ,calendar.get(Calendar.MINUTE), false, false);
+		
+		timePickerDialog.setVibrate(false);
+        timePickerDialog.setCloseOnSingleTapMinute(false);
+        timePickerDialog.setCancelable(true);
+        timePickerDialog.show(getSupportFragmentManager(), GlobalSettings.TIMEPICKER_TAG);
 	}
 	
 	public static void initReminds() {
@@ -1107,7 +1237,13 @@ public class MainActivity extends FragmentActivity {
 		for (int i = 0; i < TimeFleetingData.futureRecords.size(); i++) {
 			Remind remind = new Remind();
 			remind.id = TimeFleetingData.futureRecords.get(i).getId();
-			remind.titleString = TimeFleetingData.futureRecords.get(i).getTitle();
+			remind.title = TimeFleetingData.futureRecords.get(i).getTitle();
+			remind.createTime = TimeFleetingData.futureRecords.get(i).getCreateTime();
+			remind.remindTime = TimeFleetingData.futureRecords.get(i).getRemindTime();
+			remind.star = TimeFleetingData.futureRecords.get(i).getStar();
+			remind.type = TimeFleetingData.futureRecords.get(i).getType();
+			remind.status = TimeFleetingData.futureRecords.get(i).getStatus();
+			remind.Top = TimeFleetingData.futureRecords.get(i).getBeTop();
 			remind.content = TimeFleetingData.futureRecords.get(i).getText();
 			SimpleDateFormat formatter = new SimpleDateFormat (GlobalSettings.FULL_DATE_FORMAT); 
 			Date remindDate = new Date(System.currentTimeMillis());
@@ -1129,6 +1265,54 @@ public class MainActivity extends FragmentActivity {
 			GlobalSettings.REMIND_LIST.add(remind);
 		}
 		Log.d("TimeFleeting", "Finishing loading " + GlobalSettings.REMIND_LIST.size() + " reminds.");
+	}
+	
+	public static void initPastReminds() {
+		GlobalSettings.REMIND_PAST_LIST = new ArrayList<Remind>();
+		for (int i = 0; i < TimeFleetingData.pastRecords.size(); i++) {
+			if (TimeFleetingData.pastRecords.get(i).getType().equals("PAST_N")) {
+				continue;
+			}
+			Remind remind = new Remind();
+			remind.id = TimeFleetingData.pastRecords.get(i).getId();
+			remind.title = TimeFleetingData.pastRecords.get(i).getTitle();
+			remind.createTime = TimeFleetingData.pastRecords.get(i).getCreateTime();
+			remind.remindTime = TimeFleetingData.pastRecords.get(i).getRemindTime();
+			remind.star = TimeFleetingData.pastRecords.get(i).getStar();
+			remind.type = TimeFleetingData.pastRecords.get(i).getType();
+			remind.status = TimeFleetingData.pastRecords.get(i).getStatus();
+			remind.Top = TimeFleetingData.pastRecords.get(i).getBeTop();
+			remind.content = TimeFleetingData.pastRecords.get(i).getText();
+			Date remindDate = new Date(System.currentTimeMillis());
+			Date currentDate = new Date(System.currentTimeMillis());
+			int days = TimeFleetingData.calculateRemainDays(TimeFleetingData.pastRecords.get(i));
+			
+			remindDate.setTime(remindDate.getTime() + (days - GlobalSettings.AHEAD_DAYS) * GlobalSettings.A_DAY);
+			remindDate.setHours(GlobalSettings.REMIND_HOUR);
+			remindDate.setMinutes(GlobalSettings.REMIND_MINUTE);
+			remindDate.setSeconds(0);
+			
+			if (currentDate.getTime() > remindDate.getTime()) {
+				// overdue
+				continue;
+			}
+			remind.triggerAtTime = remindDate.getTime();
+			GlobalSettings.REMIND_PAST_LIST.add(remind);
+		}
+		Log.d("TimeFleeting", "Finishing loading " + GlobalSettings.REMIND_PAST_LIST.size() + " memory.");
+	}
+
+	@Override
+	public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
+		GlobalSettings.REMIND_HOUR = hourOfDay;
+		GlobalSettings.REMIND_MINUTE = minute;
+		menuRemindTimeTextView.setText(
+        		(GlobalSettings.REMIND_HOUR < 10 ? 
+        				"0" + String.valueOf(GlobalSettings.REMIND_HOUR) : 
+        					String.valueOf(GlobalSettings.REMIND_HOUR)) + ":" + 
+        	    (GlobalSettings.REMIND_MINUTE < 10 ? 
+        				"0" + String.valueOf(GlobalSettings.REMIND_MINUTE) : 
+        					String.valueOf(GlobalSettings.REMIND_MINUTE)));
 	}
 	
 }

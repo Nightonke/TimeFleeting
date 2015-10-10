@@ -14,10 +14,10 @@ public class GlobalSettings {
 	public static long REMIND_TIME = 7 * 1000 * 60 * 60 * 24;
 	
 	// the hour time of a day to remind
-	public static int REMIND_HOUR = 9;
+	public static int REMIND_HOUR = 19;
 	
 	// the minute time of a day to remind
-	public static int REMIND_MINUTE = 0;
+	public static int REMIND_MINUTE = 28;
 	
 	// a week
 	public static long A_WEEK = 7 * 24 * 60 * 60 * 1000;
@@ -74,16 +74,25 @@ public class GlobalSettings {
 	public static String FUTURE_TITLE = "Future";
 	
 	// the title of the past
-	public static String PAST_TITLE = "Anniversary";
+	public static String PAST_TITLE = "Memory";
 	
 	// the remind time
 	public static int ALARM_TIME = 0;
 	
+	// the ahead days
+	public static int AHEAD_DAYS = 3;
+	
 	// whether open reminder
 	public static boolean REMIND_ENABLE = true;
 	
+	// whether open memory reminder
+	public static boolean REMIND_PAST_ENABLE = true;
+	
 	// the global remind list
 	public static List<Remind> REMIND_LIST;
+	
+	// the global remind past list
+	public static List<Remind> REMIND_PAST_LIST;
 	
 	// whether vibrate
 	public static boolean VIBRATE_ENABLE = true;

@@ -7,8 +7,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.fourmob.datetimepicker.date.DatePickerDialog;
 import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.Animator.AnimatorListener;
+import com.timefleeting.app.TopBottomScrollView.OnScrollToBottomListener;
+import com.timefleeting.app.TopBottomScrollView.OnScrollToTopListener;
+
 
 import android.app.Activity;
 import android.content.Context;
@@ -31,8 +38,10 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class EditPastActivity extends FragmentActivity 
 	implements OnDateSetListener {
@@ -56,8 +65,11 @@ public class EditPastActivity extends FragmentActivity
 	private TextView infoDateTextView;
 	private TextView infoContentTextView;
 	
+	private TopBottomScrollView scrollView = null;
+	
 	private ImageView check;
 	private ImageView back;
+	private ImageView editLogo;
 
 	private String createTimeString;
 	
@@ -123,8 +135,11 @@ public class EditPastActivity extends FragmentActivity
 		infoDateTextView = (TextView)findViewById(R.id.info_date);
 		infoContentTextView = (TextView)findViewById(R.id.info_content);
 		
+		scrollView = (TopBottomScrollView)findViewById(R.id.tb_scrollview);
+		
 		check = (ImageView)findViewById(R.id.past_edit_check);
 		back = (ImageView)findViewById(R.id.past_edit_back);
+		editLogo = (ImageView)findViewById(R.id.edit_logo);
 		
 		titleLinearLayout.setOnClickListener(new OnClickListener() {
 			
@@ -276,6 +291,17 @@ public class EditPastActivity extends FragmentActivity
 			dateTextView.setText(dateTextView.getText().toString().substring(0,  10) + " " + dayOfWeek[calDayOfWeek(getIntent().getStringExtra("RemindTime"))]);
 			
 			((TextView)findViewById(R.id.past_edit_top_title)).setText("Change memory");
+
+			YoYo.with(Techniques.Shake)
+			.duration(2000)
+			.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+			.playOn(infoRemainTextView);
+			
+			YoYo.with(Techniques.Shake)
+			.duration(2000)
+			.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+			.playOn(editLogo);
+			
 		} else {
 			dateString = createTimeString;
 			dateTextView.setText(dateString.substring(0,  10) + " " + dayOfWeek[calDayOfWeek(dateString)]);
@@ -283,8 +309,40 @@ public class EditPastActivity extends FragmentActivity
 			saveId = -1;
 		}
 		
-	}
+		
+		if (scrollView == null) {
+			Log.d("TimeFleeting", "ISNULL");
+		} else {
+			scrollView.setOnScrollToBottomLintener(new OnScrollToBottomListener() {
+				
+				@Override
+				public void onScrollBottomListener(boolean isBottom) {
+					YoYo.with(Techniques.Shake)
+					.duration(2000)
+					.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+					.playOn(check);
+				}
+			});
+			scrollView.setOnScrollToTopLintener(new OnScrollToTopListener() {
+				
+				@Override
+				public void onScrollTopListener(boolean isTop) {
+					YoYo.with(Techniques.Shake)
+					.duration(2000)
+					.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+					.playOn(infoRemainTextView);
+					
+					YoYo.with(Techniques.Shake)
+					.duration(2000)
+					.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+					.playOn(editLogo);
+				}
+			});
+		}
 
+		
+	}
+	
 	private void setTime() {
 		final Calendar calendar = Calendar.getInstance();
 		final DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), false);
@@ -315,6 +373,14 @@ public class EditPastActivity extends FragmentActivity
 	}
 	
 	private void save() {
+		if (titleEditText.getText().toString().length() == 0) {
+			YoYo.with(Techniques.Shake)
+			.duration(2000)
+			.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+			.playOn(titleEditText);
+			Toast.makeText(mContext, "May I get a title?", Toast.LENGTH_SHORT).show();
+			return;
+		}
 		TimeFleetingData.saveRecord(new Record(
 				saveId,
 				titleEditText.getText().toString(),
@@ -332,7 +398,7 @@ public class EditPastActivity extends FragmentActivity
 
 	private void returnHome() {
 		Intent intent = new Intent();
-
+		intent.putExtra("isEditActivityFinished", true);
 		setResult(RESULT_OK, intent);
 
 		finish();

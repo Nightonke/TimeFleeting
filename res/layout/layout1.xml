@@ -34,15 +34,6 @@
 	        android:scrollbars="none"
 	        />
 
-        <com.capricorn.RayMenu
-	        android:id="@+id/future_layout_ray_menu"
-	        android:layout_width="400dp"
-	        android:layout_height="80dp"
-	        android:paddingLeft="5dp"
-	        android:paddingRight="150dp"
-	        android:layout_gravity="bottom"
-	        />
-        
     </FrameLayout>
    
 </LinearLayout>

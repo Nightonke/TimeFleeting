@@ -63,6 +63,7 @@
         />
     
     <LinearLayout
+        android:id="@+id/menu_layout_remind_ly"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -73,7 +74,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Notification"
+            android:text="Todo Notification"
             android:textColor="@color/future_listview_title"
             android:gravity="center_vertical|left"
             />
@@ -99,6 +100,7 @@
         />
     
     <LinearLayout
+        android:id="@+id/menu_layout_remind_past_ly"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -109,7 +111,44 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Vebrate"
+            android:text="Memory Notification"
+            android:textColor="@color/future_listview_title"
+            android:gravity="center_vertical|left"
+            />
+        
+        <com.zcw.togglebutton.ToggleButton
+            android:id="@+id/menu_layout_remind_past_enable"
+            android:layout_width="36dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            toggle:offColor="@color/layout_title"
+            toggle:offBorderColor="@color/layout_title"
+            toggle:onColor="#FFFFFF"
+            toggle:spotColor="#080"
+            toggle:borderWidth="0.5dp"
+            android:rotation="180"
+            />
+        
+    </LinearLayout>
+	
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        />
+    
+    <LinearLayout
+        android:id="@+id/menu_layout_vibrate_ly"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        >
+    
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Vibrate"
             android:textColor="@color/future_listview_title"
             android:gravity="center_vertical|left"
             />
@@ -135,6 +174,7 @@
         />
     
     <LinearLayout
+        android:id="@+id/menu_layout_sound_ly"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -161,6 +201,39 @@
             toggle:spotColor="#080"
             toggle:borderWidth="0.5dp"
             android:rotation="180"
+            />
+        
+    </LinearLayout>
+    
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        />
+    
+    <LinearLayout
+        android:id="@+id/menu_layout_remind_time_ly"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        >
+    
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Memory remind time"
+            android:textColor="@color/future_listview_title"
+            android:gravity="center_vertical|left"
+            />
+        
+        <TextView
+            android:id="@+id/menu_layout_remind_time_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/future_listview_title"
+            android:gravity="center_vertical|right"
             />
         
     </LinearLayout>

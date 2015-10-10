@@ -29,8 +29,12 @@
         <activity android:name=".Splash" />
 
         <service android:name=".LongRunningService" />
+        
+        <service android:name=".LongRunningPastService" />
 
         <receiver android:name=".AlarmReceiver" />
+        
+        <receiver android:name=".RecoverNotification" />
 
         <activity
             android:name=".EditPastActivity"
