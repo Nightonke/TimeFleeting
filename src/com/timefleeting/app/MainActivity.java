@@ -61,12 +61,14 @@ import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.view.MotionEvent;
@@ -168,6 +170,16 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 	private ToggleButton remindPastEnableButton;
 	private ToggleButton vibrateEnableButton;
 	private ToggleButton soundEnableButton;
+	
+	private LinearLayout menuAdvancedTimeLinearLayout;
+	private Spinner spinner;
+	private SpinnerArrayAdapter spinnerArrayAdapter;
+	
+	private String[] spinnerStrings = {"1 day",
+									   "3 days",
+									   "1 week",
+									   "2 weeks",
+									   "1 month"};
 	
 	private LinearLayout menuRemindTimeLinearLayout;
 	private TextView menuRemindTimeTextView;
@@ -1212,10 +1224,43 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			@Override
 			public void onClick(View v) {
 				setRemindTime();
+			}
+		});
+        
+        spinner = (Spinner)findViewById(R.id.past_advanced_spinner);
+        spinnerArrayAdapter = new SpinnerArrayAdapter(mContext, spinnerStrings, 13);
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerArrayAdapter);
+        
+        spinner.setSelection(preferences.getInt("AHEAD_DAYS_POSITION", 2));
+        
+        spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				if (position == 0) {
+					GlobalSettings.AHEAD_DAYS = 1;
+				} else if (position == 1) {
+					GlobalSettings.AHEAD_DAYS = 3;
+				} else if (position == 2) {
+					GlobalSettings.AHEAD_DAYS = 7;
+				} else if (position == 3) {
+					GlobalSettings.AHEAD_DAYS = 14;
+				} else if (position == 4) {
+					GlobalSettings.AHEAD_DAYS = 30;
+				}
+				editor.putInt("AHEAD_DAYS_POSITION", position);
+				editor.commit();
 				initPastReminds();
 				LongRunningPastService.remindList = GlobalSettings.REMIND_PAST_LIST;
 				stopService(intentPastService);
 				startService(intentPastService);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				
 			}
 		});
         
@@ -1285,9 +1330,14 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			remind.content = TimeFleetingData.pastRecords.get(i).getText();
 			Date remindDate = new Date(System.currentTimeMillis());
 			Date currentDate = new Date(System.currentTimeMillis());
+			currentDate.setSeconds(0);
 			int days = TimeFleetingData.calculateRemainDays(TimeFleetingData.pastRecords.get(i));
-			
-			remindDate.setTime(remindDate.getTime() + (days - GlobalSettings.AHEAD_DAYS) * GlobalSettings.A_DAY);
+			if (days <= GlobalSettings.AHEAD_DAYS) {
+				days = 0;
+			} else {
+				days -= GlobalSettings.AHEAD_DAYS;
+			}
+			remindDate.setTime(remindDate.getTime() + days * GlobalSettings.A_DAY);
 			remindDate.setHours(GlobalSettings.REMIND_HOUR);
 			remindDate.setMinutes(GlobalSettings.REMIND_MINUTE);
 			remindDate.setSeconds(0);
@@ -1313,6 +1363,13 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
         	    (GlobalSettings.REMIND_MINUTE < 10 ? 
         				"0" + String.valueOf(GlobalSettings.REMIND_MINUTE) : 
         					String.valueOf(GlobalSettings.REMIND_MINUTE)));
+		editor.putInt("REMIND_HOUR", GlobalSettings.REMIND_HOUR);
+		editor.putInt("REMIND_MINUTE", GlobalSettings.REMIND_MINUTE);
+		editor.commit();
+		initPastReminds();
+		LongRunningPastService.remindList = GlobalSettings.REMIND_PAST_LIST;
+		stopService(intentPastService);
+		startService(intentPastService);
 	}
 	
 }

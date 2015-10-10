@@ -12,11 +12,13 @@ public class SpinnerArrayAdapter extends ArrayAdapter<String> {
 
 	private Context mContext;
 	private String[] stringArray;
+	private int textSize;
 	
-	public SpinnerArrayAdapter(Context context, String[] stringArray) {
+	public SpinnerArrayAdapter(Context context, String[] stringArray, int textSize) {
 		super(context, android.R.layout.simple_spinner_item, stringArray);
 		this.mContext = context;
 		this.stringArray = stringArray;
+		this.textSize = textSize;
 	}
 	
 	@Override
@@ -28,7 +30,7 @@ public class SpinnerArrayAdapter extends ArrayAdapter<String> {
 
 	    TextView tv = (TextView) convertView.findViewById(android.R.id.text1);
 	    tv.setText(stringArray[position]);
-	    tv.setTextSize(18);
+	    tv.setTextSize(textSize);
 	    tv.setTextColor(mContext.getResources().getColor(R.color.future_listview_title));
 
 	    return convertView;
@@ -44,7 +46,7 @@ public class SpinnerArrayAdapter extends ArrayAdapter<String> {
 
 	    TextView tv = (TextView) convertView.findViewById(android.R.id.text1);
 	    tv.setText(stringArray[position]);
-	    tv.setTextSize(20);
+	    tv.setTextSize(textSize);
 	    tv.setTextColor(mContext.getResources().getColor(R.color.future_listview_title));
 	    return convertView;
 	  }

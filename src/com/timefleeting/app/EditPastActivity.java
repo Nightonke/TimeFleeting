@@ -178,7 +178,7 @@ public class EditPastActivity extends FragmentActivity
 		
 		spinner = (Spinner)findViewById(R.id.past_edit_spinner);
         
-        arr_adapter= new SpinnerArrayAdapter(mContext, dataStrings);
+        arr_adapter= new SpinnerArrayAdapter(mContext, dataStrings, 20);
         arr_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(arr_adapter);
         
