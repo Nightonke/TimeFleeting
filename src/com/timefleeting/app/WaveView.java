@@ -17,8 +17,8 @@ public class WaveView extends LinearLayout {
     protected static final int MIDDLE = 2;
     protected static final int LITTLE = 3;
 
-    private int mAboveWaveColor;
-    private int mBlowWaveColor;
+    public int mAboveWaveColor;
+    public int mBlowWaveColor;
     private int mProgress;
     private int mWaveHeight;
     private int mWaveMultiple;
@@ -26,11 +26,11 @@ public class WaveView extends LinearLayout {
 
     private int mWaveToTop;
 
-    private Wave mWave;
-    private Solid mSolid;
+    public Wave mWave;
+    public Solid mSolid;
 
-    private final int DEFAULT_ABOVE_WAVE_COLOR = Color.WHITE;
-    private final int DEFAULT_BLOW_WAVE_COLOR = Color.WHITE;
+    public int DEFAULT_ABOVE_WAVE_COLOR;
+    public int DEFAULT_BLOW_WAVE_COLOR;
     private final int DEFAULT_PROGRESS = 80;
 
     public WaveView(Context context, AttributeSet attrs) {
@@ -62,6 +62,19 @@ public class WaveView extends LinearLayout {
         setProgress(mProgress);
     }
 
+    public void reDraw() {
+    	 mWave.initializeWaveSize(mWaveMultiple, mWaveHeight, mWaveHz);
+         mWave.setAboveWaveColor(mAboveWaveColor);
+         mWave.setBlowWaveColor(mBlowWaveColor);
+         mWave.initializePainters();
+
+         mSolid.setAboveWavePaint(mWave.getAboveWavePaint());
+         mSolid.setBlowWavePaint(mWave.getBlowWavePaint());
+         
+         mWave.invalidate();
+         mSolid.invalidate();
+    }
+    
     public void setProgress(int progress) {
         this.mProgress = progress > 100 ? 100 : progress;
         computeWaveToTop();

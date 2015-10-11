@@ -25,8 +25,8 @@
     <color name="future_listview_set_star">#44AA44</color>
     <color name="future_listview_delete">#339933</color>
     
-    <color name="future_listview_above_wave">#009E10</color>
-    <color name="future_listview_below_wave">#009E10</color>
+    <color name="future_listview_above_wave">#777777</color>
+    <color name="future_listview_below_wave">#777777</color>
     
     <color name="set_sort_background">#66CC69</color>
     <color name="whether_save_background">#66CC69</color>

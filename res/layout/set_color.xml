@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+
+    <com.timefleeting.app.larswerkman.holocolorpicker.ColorPicker
+	    android:id="@+id/picker"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_gravity="center_horizontal">
+        
+    </com.timefleeting.app.larswerkman.holocolorpicker.ColorPicker>
+    
+    <com.timefleeting.app.larswerkman.holocolorpicker.SVBar
+	    android:id="@+id/svbar"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_gravity="center_horizontal"/>
+    
+    
+    <com.timefleeting.app.larswerkman.holocolorpicker.SaturationBar
+	    android:id="@+id/saturationbar"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_gravity="center_horizontal"/>
+    
+    <com.timefleeting.app.larswerkman.holocolorpicker.ValueBar
+	    android:id="@+id/valuebar"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_gravity="center_horizontal"/>
+    
+    <Spinner
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:id="@+id/set_color_spinner"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:spinnerMode="dropdown"
+        android:paddingRight="20dp"
+        android:paddingLeft="20dp"
+        />
+    
+    
+</LinearLayout>

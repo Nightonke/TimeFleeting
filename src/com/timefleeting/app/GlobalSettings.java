@@ -2,6 +2,8 @@ package com.timefleeting.app;
 
 import java.util.List;
 
+import android.graphics.Color;
+
 import com.daimajia.androidanimations.library.Techniques;
 
 public class GlobalSettings {
@@ -100,4 +102,23 @@ public class GlobalSettings {
 	// whether sound
 	public static boolean SOUND_ENABLE = true;
 	
+	// default title background color
+	public static int DEFAULT_TITLE_BACKGROUND_COLOR = Color.parseColor("#66CC69");
+	// title background color
+	public static int TITLE_BACKGROUND_COLOR;
+	
+	// default title title color
+	public static int DEFAULT_TITLE_TEXT_COLOR = Color.parseColor("#004000");
+	// title background color
+	public static int TITLE_TEXT_COLOR;
+	
+	// default item background color
+	public static int DEFAULT_ITEM_BACKGROUND_COLOR = Color.parseColor("#3FFF00");
+	// item background color
+	public static int ITEM_BACKGROUND_COLOR;
+	
+	// default item wave color
+	public static int DEFAULT_ITEM_WAVE_COLOR = Color.parseColor("#009E10");
+	// item wave color
+	public static int ITEM_WAVE_COLOR;
 }

@@ -4,7 +4,6 @@
     android:paddingLeft="5dip"
     android:paddingRight="5dip"
     android:gravity="center_vertical"
-    android:textColor="#FF0000"
     android:singleLine="true"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"

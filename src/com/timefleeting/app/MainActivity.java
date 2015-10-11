@@ -19,6 +19,14 @@ import com.sleepbot.datetimepicker.time.TimePickerDialog;
 import com.sleepbot.datetimepicker.time.TimePickerDialog.OnTimeSetListener;
 import com.timefleeting.app.JazzyViewPager;
 import com.timefleeting.app.JazzyViewPager.TransitionEffect;
+import com.timefleeting.app.R.color;
+import com.timefleeting.app.larswerkman.holocolorpicker.ColorPicker;
+import com.timefleeting.app.larswerkman.holocolorpicker.ColorPicker.OnColorChangedListener;
+import com.timefleeting.app.larswerkman.holocolorpicker.ColorPicker.OnColorSelectedListener;
+import com.timefleeting.app.larswerkman.holocolorpicker.OpacityBar;
+import com.timefleeting.app.larswerkman.holocolorpicker.SVBar;
+import com.timefleeting.app.larswerkman.holocolorpicker.SaturationBar;
+import com.timefleeting.app.larswerkman.holocolorpicker.ValueBar;
 import com.zcw.togglebutton.ToggleButton;
 import com.zcw.togglebutton.ToggleButton.OnToggleChanged;
 
@@ -29,6 +37,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Build;
@@ -39,6 +49,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TimingLogger;
 import android.view.DragEvent;
@@ -82,12 +93,31 @@ import com.fourmob.datetimepicker.date.DatePickerDialog;
 import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 
 public class MainActivity extends FragmentActivity implements OnTimeSetListener {
-
-	public static final String DATEPICKER_TAG = "选择日期";
-    public static final String TIMEPICKER_TAG = "选择时间";
+	
+	private Button defaultColorButton;
+	
+	private TextView showTextView0;
+	private TextView showTextView1;
+	private TextView showTextView2;
+	private TextView showTextView3;
+	private TextView showTextView4;
+	private TextView showTextView5;
 	
 	private JazzyViewPager mJazzy;
 	private LayoutInflater layoutInflater;	
+	
+	private boolean spinnerInitialization;
+	
+	private ColorPicker colorPicker;
+	private SVBar svBar;
+	private OpacityBar opacityBar;
+	private SaturationBar saturationBar;
+	private ValueBar valueBar;
+	
+	private Spinner setColorSpinner;
+	private SpinnerArrayAdapter setColorSpinnerArrayAdapter;
+	
+	private Button setColorButton;
 	
 	private List<View> mViewList;
 	
@@ -132,6 +162,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 	
 	private int statusBarHeight;
 	private LinearLayout layout1TitleLinearLayout;
+	private LinearLayout menuTitleLinearLayout;
 	
 	private boolean rayMenuAppeared = false;
 	private boolean rayMenuShown = true;
@@ -148,9 +179,10 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 	private SharedPreferences preferences;
 	
 	private static final int[] ITEM_DRAWABLES_FUTURE = {
-		R.drawable.create,
-		R.drawable.search,
-		R.drawable.over_due,
+		R.drawable.edit_pen,
+		R.drawable.search_logo,
+		R.drawable.upload,
+		R.drawable.download
 		};
 	
 	public static Intent intentService;
@@ -181,6 +213,10 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 									   "2 weeks",
 									   "1 month"};
 	
+	private String[] setColorSpinnerStrings = {"Title background color",
+											   "Title text color",
+											   "Item background color"};
+	
 	private LinearLayout menuRemindTimeLinearLayout;
 	private TextView menuRemindTimeTextView;
 	
@@ -200,7 +236,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 		getWindow().setFormat(PixelFormat.RGBA_8888);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DITHER);
 		setContentView(R.layout.activity_main);
-		
+
 		mMenuDrawer = MenuDrawer.attach(this, MenuDrawer.Type.BEHIND, Position.LEFT, MenuDrawer.MENU_DRAG_CONTENT);
         mMenuDrawer.setContentView(R.layout.activity_main);
         mMenuDrawer.setMenuView(R.layout.menu_layout);
@@ -210,7 +246,6 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			
 			@Override
 			public boolean isViewDraggable(View v, int dx, int x, int y) {
-				Log.d("TimeFleeting", "DRAWINGING");
 				rayMenu.closeMenu();
 //				Log.d("TimeFleeting", "dx: " + dx);
 //				Log.d("TimeFleeting", "x: " + x);
@@ -285,6 +320,8 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			}
 		});
 		
+		menuTitleLinearLayout = (LinearLayout)findViewById(R.id.menu_title_layout);
+		
 		boolean whetherShownSplash = preferences.getBoolean("SHOWN_SPLASH", false);
 		
 		Bundle bundle = getIntent().getBundleExtra("BUNDLE");
@@ -309,6 +346,10 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
         } else {
         	Log.d("TimeFleeting", "SHOWN_SPLAST_TRUE");
         }
+        
+        initColor();
+		
+        
 	}
 	
 	// listener to listen whether the EditActivity is finished
@@ -610,7 +651,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 							translateAnimation.setDuration(1000);
 							animationSet.addAnimation(translateAnimation);
 							animationSet.setFillAfter(true);
-							pastRayMenu.startAnimation(animationSet);
+							rayMenu.startAnimation(animationSet);
 							rayMenuShown = false;
 						} else {
 							
@@ -630,7 +671,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 							translateAnimation.setDuration(1000);
 							animationSet.addAnimation(translateAnimation);
 							animationSet.setFillAfter(true);
-							pastRayMenu.startAnimation(animationSet);
+							rayMenu.startAnimation(animationSet);
 							rayMenuShown = true;
 						} else {
 							
@@ -650,7 +691,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 								translateAnimation.setDuration(1000);
 								animationSet.addAnimation(translateAnimation);
 								animationSet.setFillAfter(true);
-								pastRayMenu.startAnimation(animationSet);
+								rayMenu.startAnimation(animationSet);
 								rayMenuShown = false;
 								pastLastDirection = -1;
 							} else {
@@ -671,7 +712,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 								translateAnimation.setDuration(1000);
 								animationSet.addAnimation(translateAnimation);
 								animationSet.setFillAfter(true);
-								pastRayMenu.startAnimation(animationSet);
+								rayMenu.startAnimation(animationSet);
 								rayMenuShown = true;
 								pastLastDirection = 1;
 							} else {
@@ -1076,20 +1117,35 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 				public void onClick(View v) {
 					if (menuPosition == 0) {
 						// new
-						if (mJazzy.getCurrentItem() == 0) {
-							Intent intent = new Intent(mContext, EditPastActivity.class);
-							intent.putExtra("isOld", false);
-							startActivityForResult(intent, 2);
-						} else if (mJazzy.getCurrentItem() == 1) {
-							Intent intent = new Intent(mContext, EditActivity.class);
-							intent.putExtra("isOld", false);
-							startActivityForResult(intent, 1);
-						}
+						rayMenu.closeMenu();
+						new Thread (new Runnable() { 
+						    public void run() { 
+						    	try {
+						    		Thread.sleep(500); 
+						    		if (mJazzy.getCurrentItem() == 0) {
+										Intent intent = new Intent(mContext, EditPastActivity.class);
+										intent.putExtra("isOld", false);
+										startActivityForResult(intent, 2);
+									} else if (mJazzy.getCurrentItem() == 1) {
+										Intent intent = new Intent(mContext, EditActivity.class);
+										intent.putExtra("isOld", false);
+										startActivityForResult(intent, 1);
+									}
+						    	} catch (InterruptedException e) {
+						    		 e.printStackTrace();
+						    	}
+						    } 
+						}).start(); 
+						
 					} else if (menuPosition == 1) {
 						// search
+						rayMenu.closeMenu();
 					} else if (menuPosition == 2) {
 						// overdue
-					} 
+						rayMenu.closeMenu();
+					} else if (menuPosition == 3) {
+						rayMenu.closeMenu();
+					}
 				}
 			});
 		}
@@ -1233,12 +1289,16 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
         spinner.setAdapter(spinnerArrayAdapter);
         
         spinner.setSelection(preferences.getInt("AHEAD_DAYS_POSITION", 2));
-        
+
         spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
+				if (spinnerInitialization) {
+					spinnerInitialization = false;
+					return;
+				}
 				if (position == 0) {
 					GlobalSettings.AHEAD_DAYS = 1;
 				} else if (position == 1) {
@@ -1261,6 +1321,33 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
 				
+			}
+		});
+        
+        setColorButton = (Button)findViewById(R.id.set_color_button);
+        setColorButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				setColor();
+			}
+		});
+        
+        showTextView0 = (TextView)findViewById(R.id.menu_text_view_0);
+        showTextView1 = (TextView)findViewById(R.id.menu_text_view_1);
+        showTextView2 = (TextView)findViewById(R.id.menu_text_view_2);
+        showTextView3 = (TextView)findViewById(R.id.menu_text_view_3);
+        showTextView4 = (TextView)findViewById(R.id.menu_text_view_4);
+        showTextView5 = (TextView)findViewById(R.id.menu_text_view_5);
+        
+        defaultColorButton = (Button)findViewById(R.id.default_color_button);
+        
+        defaultColorButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				setDefaultColor();
+				changeColor(true);
 			}
 		});
         
@@ -1370,6 +1457,182 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 		LongRunningPastService.remindList = GlobalSettings.REMIND_PAST_LIST;
 		stopService(intentPastService);
 		startService(intentPastService);
+	}
+	
+	private void setColor() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext, R.style.DialogStyle);
+		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
+		View view = layoutInflater.inflate(R.layout.set_color, null);
+		builder.setView(view);
+		builder.setCancelable(true);
+		final AlertDialog dialog = builder.show();
+		dialog.setCanceledOnTouchOutside(true);
+		
+		Window mWindow = dialog.getWindow();  
+        WindowManager.LayoutParams lp = mWindow.getAttributes();  
+        lp.dimAmount = 0f;
+        mWindow.setAttributes(lp);
+		
+		colorPicker = (ColorPicker)view.findViewById(R.id.picker);
+		svBar = (SVBar)view.findViewById(R.id.svbar);
+		saturationBar = (SaturationBar)view.findViewById(R.id.saturationbar);
+		valueBar = (ValueBar)view.findViewById(R.id.valuebar);
+
+		colorPicker.addSVBar(svBar);
+		colorPicker.addSaturationBar(saturationBar);
+		colorPicker.addValueBar(valueBar);
+
+		setColorSpinner = (Spinner)view.findViewById(R.id.set_color_spinner);
+        setColorSpinnerArrayAdapter = new SpinnerArrayAdapter(mContext, setColorSpinnerStrings, 15);
+        setColorSpinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        setColorSpinner.setAdapter(setColorSpinnerArrayAdapter);
+        
+        setColorSpinner.setSelection(preferences.getInt("SET_COLOR_POSITION", 0));
+        
+        setColorSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				if (position == 0) {
+					colorPicker.setOldCenterColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
+				} else if (position == 1) {
+					colorPicker.setOldCenterColor(GlobalSettings.TITLE_TEXT_COLOR);
+				} else if (position == 2) {
+					colorPicker.setOldCenterColor(GlobalSettings.ITEM_BACKGROUND_COLOR);
+				}
+				editor.putInt("SET_COLOR_POSITION", position);
+				editor.commit();
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				
+			}
+		});
+
+        colorPicker.setOnColorChangedListener(new OnColorChangedListener() {
+			
+			@Override
+			public void onColorChanged(int color) {
+				changeColor(false);
+			}
+			
+		});
+        
+		colorPicker.setOnColorSelectedListener(new OnColorSelectedListener() {
+			
+			@Override
+			public void onColorSelected(int color) {
+				saveChangeOfColor();
+			}
+		});
+	}
+	
+	private void initColor() {
+		GlobalSettings.TITLE_BACKGROUND_COLOR = preferences.getInt("TITLE_BACKGROUND_COLOR", GlobalSettings.DEFAULT_TITLE_BACKGROUND_COLOR);
+		layoutTitleLinearLayout.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
+		menuTitleLinearLayout.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
+		remindEnableButton.offColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+		remindEnableButton.offBorderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+		remindEnableButton.borderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+		remindEnableButton.invalidate();
+		remindPastEnableButton.offColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+		remindPastEnableButton.offBorderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+		remindPastEnableButton.borderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+		remindPastEnableButton.invalidate();
+		vibrateEnableButton.offColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+		vibrateEnableButton.offBorderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+		vibrateEnableButton.borderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+		vibrateEnableButton.invalidate();
+		soundEnableButton.offColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+		soundEnableButton.offBorderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+		soundEnableButton.borderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+		soundEnableButton.invalidate();
+		
+		GlobalSettings.TITLE_TEXT_COLOR = preferences.getInt("TITLE_TEXT_COLOR", GlobalSettings.DEFAULT_TITLE_TEXT_COLOR);
+		showTextView0.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		showTextView1.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		showTextView2.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		showTextView3.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		showTextView4.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		showTextView5.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		menuRemindTimeTextView.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		setColorButton.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		defaultColorButton.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		
+		GlobalSettings.ITEM_BACKGROUND_COLOR = preferences.getInt("ITEM_BACKGROUND_COLOR", GlobalSettings.DEFAULT_ITEM_BACKGROUND_COLOR);
+		pastAdapter.notifyDataSetInvalidated();
+		mAdapter.notifyDataSetInvalidated();
+	}
+	
+	private void setDefaultColor() {
+		GlobalSettings.TITLE_BACKGROUND_COLOR = GlobalSettings.DEFAULT_TITLE_BACKGROUND_COLOR;
+		GlobalSettings.TITLE_TEXT_COLOR = GlobalSettings.DEFAULT_TITLE_TEXT_COLOR;
+		GlobalSettings.ITEM_BACKGROUND_COLOR = GlobalSettings.DEFAULT_ITEM_BACKGROUND_COLOR;
+		editor.putInt("TITLE_BACKGROUND_COLOR", GlobalSettings.DEFAULT_TITLE_BACKGROUND_COLOR);
+		editor.putInt("TITLE_TEXT_COLOR", GlobalSettings.DEFAULT_TITLE_TEXT_COLOR);
+		editor.putInt("ITEM_BACKGROUND_COLOR", GlobalSettings.DEFAULT_ITEM_BACKGROUND_COLOR);
+		editor.commit();
+	}
+	
+	private void changeColor(boolean allChange) {
+		if (allChange || setColorSpinner.getSelectedItemPosition() == 0) {
+			if (!allChange) {
+				GlobalSettings.TITLE_BACKGROUND_COLOR = colorPicker.getColor();
+			}
+			layoutTitleLinearLayout.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
+			menuTitleLinearLayout.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
+			remindEnableButton.offColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+			remindEnableButton.offBorderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+			remindEnableButton.borderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+			remindEnableButton.invalidate();
+			remindPastEnableButton.offColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+			remindPastEnableButton.offBorderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+			remindPastEnableButton.borderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+			remindPastEnableButton.invalidate();
+			vibrateEnableButton.offColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+			vibrateEnableButton.offBorderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+			vibrateEnableButton.borderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+			vibrateEnableButton.invalidate();
+			soundEnableButton.offColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+			soundEnableButton.offBorderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+			soundEnableButton.borderColor = GlobalSettings.TITLE_BACKGROUND_COLOR;
+			soundEnableButton.invalidate();
+		}
+		if (allChange || setColorSpinner.getSelectedItemPosition() == 1) {
+			if (!allChange) {
+				GlobalSettings.TITLE_TEXT_COLOR = colorPicker.getColor();
+			}
+			showTextView0.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+			showTextView1.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+			showTextView2.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+			showTextView3.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+			showTextView4.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+			showTextView5.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+			menuRemindTimeTextView.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+			setColorButton.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+			defaultColorButton.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		}
+		if (allChange || setColorSpinner.getSelectedItemPosition() == 2) {
+			if (!allChange) {
+				GlobalSettings.ITEM_BACKGROUND_COLOR = colorPicker.getColor();
+			}
+			pastAdapter.notifyDataSetInvalidated();
+			mAdapter.notifyDataSetInvalidated();
+		}
+		
+	}
+	
+	private void saveChangeOfColor() {
+		if (setColorSpinner.getSelectedItemPosition() == 0) {
+			editor.putInt("TITLE_BACKGROUND_COLOR", GlobalSettings.TITLE_BACKGROUND_COLOR);
+		} else if (setColorSpinner.getSelectedItemPosition() == 1) {
+			editor.putInt("TITLE_TEXT_COLOR", GlobalSettings.TITLE_TEXT_COLOR);
+		} else if (setColorSpinner.getSelectedItemPosition() == 2) {
+			editor.putInt("ITEM_BACKGROUND_COLOR", GlobalSettings.ITEM_BACKGROUND_COLOR);
+		}
+		editor.commit();
 	}
 	
 }

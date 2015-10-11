@@ -87,10 +87,10 @@
 	   
 	    <com.capricorn.RayMenu
             android:id="@+id/ray_menu"
-            android:layout_width="400dp"
+            android:layout_width="match_parent"
             android:layout_height="80dp"
             android:paddingLeft="5dp"
-            android:paddingRight="150dp"
+            android:paddingRight="5dp"
             android:layout_gravity="bottom"
             />
 	   

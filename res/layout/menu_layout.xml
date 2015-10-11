@@ -8,6 +8,7 @@
     android:background="@color/menu_layout_background">
     
     <LinearLayout
+        android:id="@+id/menu_title_layout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@color/layout_title"
@@ -71,6 +72,7 @@
         >
     
         <TextView
+            android:id="@+id/menu_text_view_0"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -84,11 +86,6 @@
 	        android:layout_width="36dp"
 	        android:layout_height="20dp"
 	        android:layout_gravity="center_vertical"
-	        toggle:offColor="@color/layout_title"
-	        toggle:offBorderColor="@color/layout_title"
-	        toggle:onColor="#FFFFFF"
-	        toggle:spotColor="#080"
-	        toggle:borderWidth="0.5dp"
 	        android:rotation="180"
 	        />
 	    
@@ -108,6 +105,7 @@
         >
     
         <TextView
+            android:id="@+id/menu_text_view_1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -121,11 +119,6 @@
             android:layout_width="36dp"
             android:layout_height="20dp"
             android:layout_gravity="center_vertical"
-            toggle:offColor="@color/layout_title"
-            toggle:offBorderColor="@color/layout_title"
-            toggle:onColor="#FFFFFF"
-            toggle:spotColor="#080"
-            toggle:borderWidth="0.5dp"
             android:rotation="180"
             />
         
@@ -145,6 +138,7 @@
         >
     
         <TextView
+            android:id="@+id/menu_text_view_2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -158,11 +152,6 @@
             android:layout_width="36dp"
             android:layout_height="20dp"
             android:layout_gravity="center_vertical"
-            toggle:offColor="@color/layout_title"
-            toggle:offBorderColor="@color/layout_title"
-            toggle:onColor="#FFFFFF"
-            toggle:spotColor="#080"
-            toggle:borderWidth="0.5dp"
             android:rotation="180"
             />
         
@@ -182,6 +171,7 @@
         >
     
         <TextView
+            android:id="@+id/menu_text_view_3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -195,11 +185,6 @@
             android:layout_width="36dp"
             android:layout_height="20dp"
             android:layout_gravity="center_vertical"
-            toggle:offColor="@color/layout_title"
-            toggle:offBorderColor="@color/layout_title"
-            toggle:onColor="#FFFFFF"
-            toggle:spotColor="#080"
-            toggle:borderWidth="0.5dp"
             android:rotation="180"
             />
         
@@ -219,6 +204,7 @@
         >
     
         <TextView
+            android:id="@+id/menu_text_view_4"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -252,6 +238,7 @@
         >
     
         <TextView
+            android:id="@+id/menu_text_view_5"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -271,6 +258,54 @@
             android:paddingRight="20dp"
             android:spinnerMode="dropdown"
             android:textColor="@color/future_listview_title"
+            />
+        
+    </LinearLayout>
+    
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        />
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        >
+    
+        <Button
+            android:id="@+id/set_color_button"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:text="Draw me!"
+            android:textSize="14sp"
+            android:background="#dadbda"
+            android:paddingRight="10dp"
+            />
+        
+    </LinearLayout>
+    
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        />
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        >
+    
+        <Button
+            android:id="@+id/default_color_button"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:text="Original me!"
+            android:textSize="14sp"
+            android:background="#dadbda"
+            android:paddingRight="10dp"
             />
         
     </LinearLayout>

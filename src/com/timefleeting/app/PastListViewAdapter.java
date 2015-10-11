@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.provider.Settings.Global;
 import android.support.v4.widget.TextViewCompat;
 import android.util.Log;
@@ -135,7 +136,7 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
     	}
     	
     	WaveView waveView = (WaveView)convertView.findViewById(R.id.past_wave_view);
-    	
+    	waveView.setBackgroundColor(GlobalSettings.ITEM_BACKGROUND_COLOR);
     	int remainDays = TimeFleetingData.calculateRemainDays(list.get(position));
     	dateTextView.setText(String.valueOf(String.valueOf(remainDays)));
 		

@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.provider.Settings.Global;
 import android.support.v4.widget.TextViewCompat;
 import android.util.Log;
@@ -223,6 +224,7 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
     	}
     	
     	WaveView waveView = (WaveView)convertView.findViewById(R.id.wave_view);
+    	waveView.setBackgroundColor(GlobalSettings.ITEM_BACKGROUND_COLOR);
     	
     	SimpleDateFormat formatter = new SimpleDateFormat (GlobalSettings.FULL_DATE_FORMAT);     
 		Date curDate = new Date(System.currentTimeMillis());
