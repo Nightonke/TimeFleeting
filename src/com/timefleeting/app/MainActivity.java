@@ -96,6 +96,8 @@ import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 
 public class MainActivity extends FragmentActivity implements OnTimeSetListener {
 	
+	private Button changeLanguageButton;
+	
 	private WaveView menuWaveView;
 	private WaveView bodyWaveView;
 	
@@ -1490,6 +1492,16 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 		});
 		
 		bodyWaveView.startAnimation(bodyUpTranslateAnimation);
+		
+		changeLanguageButton = (Button)findViewById(R.id.change_language_button);
+		changeLanguageButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				DatePickerDialog.isChinese = !DatePickerDialog.isChinese;
+				TimePickerDialog.isChinese = !TimePickerDialog.isChinese;
+			}
+		});
 	}
 	
 	private void setRemindTime() {

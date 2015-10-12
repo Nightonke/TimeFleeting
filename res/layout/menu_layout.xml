@@ -335,6 +335,31 @@
 		        
 		    </LinearLayout>
 		    
+		    <TextView
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                />
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp"
+                >
+            
+                <Button
+                    android:id="@+id/change_language_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:text="Change language"
+                    android:textSize="14sp"
+                    android:background="#dadbda"
+                    android:paddingRight="10dp"
+                    />
+                
+            </LinearLayout>
+		    
+		    
 		</LinearLayout>
 		
     </FrameLayout>
