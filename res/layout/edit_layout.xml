@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:wave="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
@@ -9,6 +11,18 @@
         android:layout_height="match_parent"
         >
     
+        <com.timefleeting.app.WaveView
+            android:id="@+id/edit_waveview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/viewpager_background"
+            wave:above_wave_color="@color/viewpager_above_wave"
+            wave:blow_wave_color="@color/viewpager_below_wave"
+            wave:progress="60"
+            wave:wave_height="little"
+            wave:wave_hz="normal"
+            wave:wave_length="middle" />
+        
 	    <com.timefleeting.app.ObservableScrollView
 	        android:id="@+id/editview_scrollview"
 	        android:layout_width="match_parent"

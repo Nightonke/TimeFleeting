@@ -50,6 +50,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TimingLogger;
 import android.view.DragEvent;
@@ -93,6 +94,15 @@ import com.fourmob.datetimepicker.date.DatePickerDialog;
 import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 
 public class MainActivity extends FragmentActivity implements OnTimeSetListener {
+	
+	private WaveView menuWaveView;
+	private WaveView bodyWaveView;
+	
+	private boolean sortRayMenuExpand = false;;
+	
+	private RayMenu sortRayMenu;
+	
+	private LinearLayout rayLinearLayout;
 	
 	private Button defaultColorButton;
 	
@@ -185,6 +195,13 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 		R.drawable.download
 		};
 	
+	private static final int[] ITEM_SORT_RAY_MENU = {
+		R.drawable.remind_time,
+		R.drawable.remind_time_2,
+		R.drawable.sort_by_title_logo,
+		R.drawable.star_logo
+	};
+	
 	public static Intent intentService;
 	public static Intent intentPastService;
 	
@@ -215,7 +232,8 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 	
 	private String[] setColorSpinnerStrings = {"Title background color",
 											   "Title text color",
-											   "Item background color"};
+											   "Item background color",
+											   "Body background color"};
 	
 	private LinearLayout menuRemindTimeLinearLayout;
 	private TextView menuRemindTimeTextView;
@@ -247,6 +265,8 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			@Override
 			public boolean isViewDraggable(View v, int dx, int x, int y) {
 				rayMenu.closeMenu();
+				sortRayMenu.closeMenu();
+				sortRayMenuExpand = false;
 //				Log.d("TimeFleeting", "dx: " + dx);
 //				Log.d("TimeFleeting", "x: " + x);
 //				Log.d("TimeFleeting", "y: " + y);
@@ -441,6 +461,8 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			@Override
 			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 				rayMenu.closeMenu();
+				sortRayMenu.closeMenu();
+				sortRayMenuExpand = false;
 				mAdapter.closeAllItems();
 				pastAdapter.closeAllItems();
 				mPagerPosition = position;
@@ -632,6 +654,8 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			public void onScroll(AbsListView view, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount) {
 				rayMenu.closeMenu();
+				sortRayMenu.closeMenu();
+				sortRayMenuExpand = false;
 				if (pastScrollFlag && 
 						ScreenUtil.getScreenViewBottomHeight(pastListView) 
 						>= ScreenUtil.getScreenHeight(MainActivity.this) 
@@ -862,6 +886,8 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			public void onScroll(AbsListView view, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount) {
 				rayMenu.closeMenu();
+				sortRayMenu.closeMenu();
+				sortRayMenuExpand = false;
 				if (scrollFlag && 
 						ScreenUtil.getScreenViewBottomHeight(listView) 
 						>= ScreenUtil.getScreenHeight(MainActivity.this) 
@@ -998,113 +1024,25 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 	}
 	
 	private void setSort() {
-		if (mJazzy.getCurrentItem() == 0) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-			LayoutInflater layoutInflater = LayoutInflater.from(mContext);
-			View view = layoutInflater.inflate(R.layout.set_sort_past, null);
-			builder.setView(view);
-			builder.setCancelable(true);
-			final AlertDialog dialog = builder.show();
-			dialog.setCanceledOnTouchOutside(true);
-			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_past_by_remind_time_logo));
-			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_past_by_remain_time_logo));
-			LinearLayout sortByTitleLinearLayout = (LinearLayout)view.findViewById(R.id.sort_past_by_remind_time_ly);
-			sortByTitleLinearLayout.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (TimeFleetingData.pastIsSortByRemindTimeReversely) {
-						TimeFleetingData.sortPastRecordsByRemindTime();
-					} else {
-						TimeFleetingData.sortPastRecordsByRemindTimeReversely();
-					}
-					pastAdapter.notifyDataSetChanged();
-					dialog.dismiss();
-				}
-			});
-			LinearLayout sortByCreateTimeLinearLayout = (LinearLayout)view.findViewById(R.id.sort_past_by_remain_time_ly);
-			sortByCreateTimeLinearLayout.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (TimeFleetingData.pastIsSortByRemainTimeReversely) {
-						TimeFleetingData.sortPastRecordsByRemainTime();
-					} else {
-						TimeFleetingData.sortPastRecordsByRemainTimeReversely();
-					}
-					pastAdapter.notifyDataSetChanged();
-					dialog.dismiss();
-				}
-			});
-		} else if (mJazzy.getCurrentItem() == 1) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-			LayoutInflater layoutInflater = LayoutInflater.from(mContext);
-			View view = layoutInflater.inflate(R.layout.set_sort, null);
-			builder.setView(view);
-			builder.setCancelable(true);
-			final AlertDialog dialog = builder.show();
-			dialog.setCanceledOnTouchOutside(true);
-			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_title_logo));
-			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_create_time_logo));
-			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_remind_time_logo));
-			YoYo.with(Techniques.Tada).duration(1000).delay(500).playOn(view.findViewById(R.id.sort_by_star_logo));
-			LinearLayout sortByTitleLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_title_ly);
-			sortByTitleLinearLayout.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (!TimeFleetingData.isSortedByTitleReversely) {
-						TimeFleetingData.sortFutureRecordByTitleReversely();
-					} else {
-						TimeFleetingData.sortFutureRecordByTitle();
-					}
-					mAdapter.notifyDataSetChanged();
-					dialog.dismiss();
-				}
-			});
-			LinearLayout sortByCreateTimeLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_create_time_ly);
-			sortByCreateTimeLinearLayout.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (TimeFleetingData.isSortedByCreateTimeReversely) {
-						TimeFleetingData.sortFutureRecordByCreateTime();
-					} else {
-						TimeFleetingData.sortFutureRecordByCreateTimeReversely();
-					}
-					mAdapter.notifyDataSetChanged();
-					dialog.dismiss();
-				}
-			});
-			LinearLayout sortByRemindTimeLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_remind_time_ly);
-			sortByRemindTimeLinearLayout.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (!TimeFleetingData.isSortedByRemindTimeReversely) {
-						TimeFleetingData.sortFutureRecordByRemindTimeReversely();
-					} else {
-						TimeFleetingData.sortFutureRecordByRemindTime();
-					}
-					mAdapter.notifyDataSetChanged();
-					dialog.dismiss();
-				}
-			});
-			LinearLayout sortByStarLinearLayout = (LinearLayout)view.findViewById(R.id.sort_by_star_ly);
-			sortByStarLinearLayout.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (!TimeFleetingData.isSortedByStarReversely) {
-						TimeFleetingData.sortFutureRecordByStarReversely();
-					} else {
-						TimeFleetingData.sortFutureRecordByStar();
-					}
-					mAdapter.notifyDataSetChanged();
-					dialog.dismiss();
-				}
-			});
+		if (sortRayMenuExpand) {
+			sortRayMenu.closeMenu();
+		} else {
+			sortRayMenu.expandMenu();
 		}
+		sortRayMenuExpand = !sortRayMenuExpand;
 	}
 	
 	private void initValues() {
 		
-		rayMenu = (RayMenu)findViewById(R.id.ray_menu);
+		rayLinearLayout = (LinearLayout)findViewById(R.id.ray_layout);
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+		rayLinearLayout.getLayoutParams().width = 2 * metrics.widthPixels;
 		
+		rayMenu = (RayMenu)findViewById(R.id.ray_menu);
+		rayMenu.getLayoutParams().width = metrics.widthPixels;
+	
 		rayMenuAppeared = true;
 		
 		for (int i = 0; i < ITEM_DRAWABLES_FUTURE.length; i++) {
@@ -1145,6 +1083,78 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 						rayMenu.closeMenu();
 					} else if (menuPosition == 3) {
 						rayMenu.closeMenu();
+					}
+				}
+			});
+		}
+		
+		sortRayMenu = (RayMenu)findViewById(R.id.sort_ray_menu);
+		for (int i = 0; i < ITEM_SORT_RAY_MENU.length; i++) {
+			ImageView imageView = new ImageView(mContext);
+			imageView.setImageResource(ITEM_SORT_RAY_MENU[i]);
+			final int menuPosition = i;
+			sortRayMenu.addItem(imageView, new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					if (mJazzy.getCurrentItem() == 0) {
+						if (menuPosition == 0) {
+							sortRayMenu.closeMenu();
+							sortRayMenuExpand = false;
+							if (TimeFleetingData.pastIsSortByRemainTimeReversely) {
+								TimeFleetingData.sortPastRecordsByRemainTime();
+							} else {
+								TimeFleetingData.sortPastRecordsByRemainTimeReversely();
+							}
+							pastAdapter.notifyDataSetChanged();
+						} else if (menuPosition == 1) {
+							sortRayMenu.closeMenu();
+							sortRayMenuExpand = false;
+							if (TimeFleetingData.pastIsSortByRemindTimeReversely) {
+								TimeFleetingData.sortPastRecordsByRemindTime();
+							} else {
+								TimeFleetingData.sortPastRecordsByRemindTimeReversely();
+							}
+							pastAdapter.notifyDataSetChanged();
+						}
+					} else if (mJazzy.getCurrentItem() == 1) {
+						if (menuPosition == 0) {
+							sortRayMenu.closeMenu();
+							sortRayMenuExpand = false;
+							if (TimeFleetingData.isSortedByCreateTimeReversely) {
+								TimeFleetingData.sortFutureRecordByCreateTime();
+							} else {
+								TimeFleetingData.sortFutureRecordByCreateTimeReversely();
+							}
+							mAdapter.notifyDataSetChanged();
+						} else if (menuPosition == 1) {
+							sortRayMenu.closeMenu();
+							sortRayMenuExpand = false;
+							if (!TimeFleetingData.isSortedByRemindTimeReversely) {
+								TimeFleetingData.sortFutureRecordByRemindTimeReversely();
+							} else {
+								TimeFleetingData.sortFutureRecordByRemindTime();
+							}
+							mAdapter.notifyDataSetChanged();
+						} else if (menuPosition == 2) {
+							sortRayMenu.closeMenu();
+							sortRayMenuExpand = false;
+							if (!TimeFleetingData.isSortedByTitleReversely) {
+								TimeFleetingData.sortFutureRecordByTitleReversely();
+							} else {
+								TimeFleetingData.sortFutureRecordByTitle();
+							}
+							mAdapter.notifyDataSetChanged();
+						} else if (menuPosition == 3) {
+							sortRayMenu.closeMenu();
+							sortRayMenuExpand = false;
+							if (!TimeFleetingData.isSortedByStarReversely) {
+								TimeFleetingData.sortFutureRecordByStarReversely();
+							} else {
+								TimeFleetingData.sortFutureRecordByStar();
+							}
+							mAdapter.notifyDataSetChanged();
+						}
 					}
 				}
 			});
@@ -1351,6 +1361,8 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			}
 		});
         
+        bodyWaveView = (WaveView)findViewById(R.id.body_wave_view);
+        menuWaveView = (WaveView)findViewById(R.id.menu_wave_view);
 	}
 	
 	private void setRemindTime() {
@@ -1500,6 +1512,8 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 					colorPicker.setOldCenterColor(GlobalSettings.TITLE_TEXT_COLOR);
 				} else if (position == 2) {
 					colorPicker.setOldCenterColor(GlobalSettings.ITEM_BACKGROUND_COLOR);
+				} else if (position == 3) {
+					colorPicker.setOldCenterColor(GlobalSettings.BODY_BACKGROUND_COLOR);
 				}
 				editor.putInt("SET_COLOR_POSITION", position);
 				editor.commit();
@@ -1564,15 +1578,21 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 		GlobalSettings.ITEM_BACKGROUND_COLOR = preferences.getInt("ITEM_BACKGROUND_COLOR", GlobalSettings.DEFAULT_ITEM_BACKGROUND_COLOR);
 		pastAdapter.notifyDataSetInvalidated();
 		mAdapter.notifyDataSetInvalidated();
+		
+		GlobalSettings.BODY_BACKGROUND_COLOR = preferences.getInt("BODY_BACKGROUND_COLOR", GlobalSettings.DEFAULT_BODY_BACKGROUND_COLOR);
+		bodyWaveView.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+		menuWaveView.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
 	}
 	
 	private void setDefaultColor() {
 		GlobalSettings.TITLE_BACKGROUND_COLOR = GlobalSettings.DEFAULT_TITLE_BACKGROUND_COLOR;
 		GlobalSettings.TITLE_TEXT_COLOR = GlobalSettings.DEFAULT_TITLE_TEXT_COLOR;
 		GlobalSettings.ITEM_BACKGROUND_COLOR = GlobalSettings.DEFAULT_ITEM_BACKGROUND_COLOR;
+		GlobalSettings.BODY_BACKGROUND_COLOR = GlobalSettings.DEFAULT_BODY_BACKGROUND_COLOR;
 		editor.putInt("TITLE_BACKGROUND_COLOR", GlobalSettings.DEFAULT_TITLE_BACKGROUND_COLOR);
 		editor.putInt("TITLE_TEXT_COLOR", GlobalSettings.DEFAULT_TITLE_TEXT_COLOR);
 		editor.putInt("ITEM_BACKGROUND_COLOR", GlobalSettings.DEFAULT_ITEM_BACKGROUND_COLOR);
+		editor.putInt("BODY_BACKGROUND_COLOR", GlobalSettings.DEFAULT_BODY_BACKGROUND_COLOR);
 		editor.commit();
 	}
 	
@@ -1621,6 +1641,13 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			pastAdapter.notifyDataSetInvalidated();
 			mAdapter.notifyDataSetInvalidated();
 		}
+		if (allChange || setColorSpinner.getSelectedItemPosition() == 3) {
+			if (!allChange) {
+				GlobalSettings.BODY_BACKGROUND_COLOR = colorPicker.getColor();
+			}
+			bodyWaveView.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+			menuWaveView.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+		}
 		
 	}
 	
@@ -1631,6 +1658,8 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			editor.putInt("TITLE_TEXT_COLOR", GlobalSettings.TITLE_TEXT_COLOR);
 		} else if (setColorSpinner.getSelectedItemPosition() == 2) {
 			editor.putInt("ITEM_BACKGROUND_COLOR", GlobalSettings.ITEM_BACKGROUND_COLOR);
+		} else if (setColorSpinner.getSelectedItemPosition() == 3) {
+			editor.putInt("BODY_BACKGROUND_COLOR", GlobalSettings.BODY_BACKGROUND_COLOR);
 		}
 		editor.commit();
 	}

@@ -121,4 +121,9 @@ public class GlobalSettings {
 	public static int DEFAULT_ITEM_WAVE_COLOR = Color.parseColor("#009E10");
 	// item wave color
 	public static int ITEM_WAVE_COLOR;
+	
+	// default body background color
+	public static int DEFAULT_BODY_BACKGROUND_COLOR = Color.parseColor("#f4f4f4");
+	// body background color
+	public static int BODY_BACKGROUND_COLOR;
 }

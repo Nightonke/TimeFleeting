@@ -63,7 +63,7 @@
         >
        
         <com.timefleeting.app.WaveView
-            android:id="@+id/wave_view_2"
+            android:id="@+id/body_wave_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/viewpager_background"
@@ -85,6 +85,37 @@
 
 	   </com.timefleeting.app.JazzyViewPager>
 	   
+	    <LinearLayout
+	        android:id="@+id/ray_layout"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:rotation="90"
+	        android:layout_gravity="top"
+	        android:paddingTop="60dp"
+	        >
+	    
+	        <TextView
+	            android:layout_width="220dp"
+	            android:layout_height="match_parent"
+	            />
+	        
+		    <com.capricorn.RayMenu
+	            android:id="@+id/sort_ray_menu"
+	            android:layout_width="0dp"
+	            android:layout_height="80dp"
+	            android:layout_weight="1"
+	            android:paddingLeft="5dp"
+	            android:paddingRight="5dp"
+	            android:layout_gravity="center_vertical"
+	            />
+		    
+		    <TextView
+                android:layout_width="200dp"
+                android:layout_height="match_parent"
+                />
+		    
+		</LinearLayout>
+	   
 	    <com.capricorn.RayMenu
             android:id="@+id/ray_menu"
             android:layout_width="match_parent"
@@ -93,7 +124,7 @@
             android:paddingRight="5dp"
             android:layout_gravity="bottom"
             />
-	   
+	    
     </FrameLayout>
 
 </LinearLayout>

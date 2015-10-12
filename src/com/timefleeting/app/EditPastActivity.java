@@ -65,6 +65,11 @@ public class EditPastActivity extends FragmentActivity
 	private TextView infoDateTextView;
 	private TextView infoContentTextView;
 	
+	private TextView editPastTextView0;
+	private TextView editPastTextView1;
+	private TextView editPastTextView2;
+	private TextView editPastTextView3;
+	
 	private TopBottomScrollView scrollView = null;
 	
 	private ImageView check;
@@ -111,6 +116,8 @@ public class EditPastActivity extends FragmentActivity
 	private int beTop = 0;
 	private String status = "DOING";
 	
+	private WaveView pastEditWaveView;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -119,7 +126,11 @@ public class EditPastActivity extends FragmentActivity
 		
 		mContext = this;
 		
+		pastEditWaveView = (WaveView)findViewById(R.id.past_edit_waveview);
+		pastEditWaveView.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+		
 		topTitleLinearLayout = (LinearLayout)findViewById(R.id.past_edit_layout_title);
+		topTitleLinearLayout.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
 		infoLinearLayout = (LinearLayout)findViewById(R.id.info_ly);
 		titleLinearLayout = (LinearLayout)findViewById(R.id.past_edit_title_ly);
 		dateLinearLayout = (LinearLayout)findViewById(R.id.past_edit_date_ly);
@@ -127,13 +138,29 @@ public class EditPastActivity extends FragmentActivity
 		remarksLinearLayout = (LinearLayout)findViewById(R.id.past_edit_text_ly);
 		
 		titleEditText = (EditText)findViewById(R.id.past_edit_title);
+		titleEditText.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 		textEditText = (EditText)findViewById(R.id.past_edit_text);
+		textEditText.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 		
 		dateTextView = (TextView)findViewById(R.id.past_edit_date);
+		dateTextView.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 		infoTitleTextView = (TextView)findViewById(R.id.info_title);
+		infoTitleTextView.setTextColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
 		infoRemainTextView = (TextView)findViewById(R.id.info_remain);
+		infoRemainTextView.setTextColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
 		infoDateTextView = (TextView)findViewById(R.id.info_date);
+		infoDateTextView.setTextColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
 		infoContentTextView = (TextView)findViewById(R.id.info_content);
+		infoContentTextView.setTextColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
+		
+		editPastTextView0 = (TextView)findViewById(R.id.edit_past_text_view_0);
+		editPastTextView0.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		editPastTextView1 = (TextView)findViewById(R.id.edit_past_text_view_1);
+		editPastTextView1.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		editPastTextView2 = (TextView)findViewById(R.id.edit_past_text_view_2);
+		editPastTextView2.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		editPastTextView3 = (TextView)findViewById(R.id.edit_past_text_view_3);
+		editPastTextView3.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 		
 		scrollView = (TopBottomScrollView)findViewById(R.id.tb_scrollview);
 		

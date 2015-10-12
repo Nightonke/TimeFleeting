@@ -75,13 +75,15 @@ public class EditActivity extends FragmentActivity
 	private boolean lastIsScrollDown = false;
 	
 	private static final int[] ITEM_DRAWABLES_FUTURE = {
-		R.drawable.save,
-		R.drawable.sort_by_remind_time,
-		R.drawable.star_blue,
-		R.drawable.copy_c,
-		R.drawable.copy_v};
+		R.drawable.whether_save,
+		R.drawable.remind_time_3,
+		R.drawable.set_star,
+		R.drawable.edit_copy,
+		R.drawable.edit_paste};
 
 	private int saveId = -1;
+	
+	private WaveView editWaveView;
 	
 	private ObservableScrollView observableScrollView;
 
@@ -93,10 +95,16 @@ public class EditActivity extends FragmentActivity
 		
 		mContext = this;
 		
+		editWaveView = (WaveView)findViewById(R.id.edit_waveview);
+		editWaveView.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+		
 		titleEditText = (EditText)findViewById(R.id.edit_layout_title);
 		wordNumberTextView = (TextView)findViewById(R.id.word_number_textview);
 		createTimeTextView = (TextView)findViewById(R.id.create_time_textview);
 		contentEditText = (EditText)findViewById(R.id.edit_layout_content);
+		
+		titleEditText.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		contentEditText.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 		
 		observableScrollView = 
 				(ObservableScrollView)findViewById(R.id.editview_scrollview);

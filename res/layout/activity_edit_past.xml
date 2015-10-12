@@ -176,6 +176,7 @@
 				        >
 				        
 					    <TextView
+					        android:id="@+id/edit_past_text_view_0"
 					        android:text="Title"
 					        android:layout_width="wrap_content"
 					        android:layout_height="wrap_content"
@@ -222,6 +223,7 @@
 				        >
 				        
 				        <TextView
+				            android:id="@+id/edit_past_text_view_1"
 				            android:text="Date"
 				            android:layout_width="wrap_content"
 				            android:layout_height="wrap_content"
@@ -268,6 +270,7 @@
 				        >
 				        
 				        <TextView
+				            android:id="@+id/edit_past_text_view_2"
 				            android:text="Repeat"
 				            android:layout_width="wrap_content"
 				            android:layout_height="wrap_content"
@@ -312,6 +315,7 @@
 				        >
 				        
 				        <TextView
+				            android:id="@+id/edit_past_text_view_3"
 				            android:text="Remarks"
 				            android:layout_width="wrap_content"
 				            android:layout_height="wrap_content"
