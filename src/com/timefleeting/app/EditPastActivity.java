@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.text.style.ReplacementSpan;
 import android.util.Log;
@@ -31,6 +32,10 @@ import android.view.MenuItem;
 import android.view.TextureView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -118,6 +123,11 @@ public class EditPastActivity extends FragmentActivity
 	
 	private WaveView pastEditWaveView;
 	
+	private TranslateAnimation upTranslateAnimation;
+	private TranslateAnimation downTranslateAnimation;
+	
+	private LinearLayout pastEditWaveViewLinearLayout;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -126,8 +136,66 @@ public class EditPastActivity extends FragmentActivity
 		
 		mContext = this;
 		
+		pastEditWaveViewLinearLayout = (LinearLayout)findViewById(R.id.past_edit_wave_view_ly);
+		pastEditWaveViewLinearLayout.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+		
 		pastEditWaveView = (WaveView)findViewById(R.id.past_edit_waveview);
 		pastEditWaveView.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+
+		upTranslateAnimation = 
+				new TranslateAnimation(
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 1f,
+						Animation.RELATIVE_TO_SELF, 0f);
+		upTranslateAnimation.setDuration(10000);
+		downTranslateAnimation = 
+				new TranslateAnimation(
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 1f);
+		downTranslateAnimation.setDuration(10000);
+		
+		upTranslateAnimation.setAnimationListener(new AnimationListener() {
+		    @Override
+		    public void onAnimationStart(Animation animation) {
+
+		    }
+
+		    @Override
+		    public void onAnimationEnd(Animation animation) {
+		    	pastEditWaveView.startAnimation(downTranslateAnimation);
+		    }
+
+		    @Override
+		    public void onAnimationRepeat(Animation animation) {
+
+		    }
+		});
+		
+		downTranslateAnimation.setAnimationListener(new AnimationListener() {
+			
+			@Override
+			public void onAnimationStart(Animation animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				// TODO Auto-generated method stub
+				pastEditWaveView.startAnimation(upTranslateAnimation);
+			}
+		});
+		
+		pastEditWaveView.startAnimation(upTranslateAnimation);
 		
 		topTitleLinearLayout = (LinearLayout)findViewById(R.id.past_edit_layout_title);
 		topTitleLinearLayout.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
@@ -137,10 +205,15 @@ public class EditPastActivity extends FragmentActivity
 		repeatLinearLayout = (LinearLayout)findViewById(R.id.past_edit_date_ly);
 		remarksLinearLayout = (LinearLayout)findViewById(R.id.past_edit_text_ly);
 		
+		InputFilter[] titleFilters = { new LengthFilter(24) };  
+		InputFilter[] textFilters = { new LengthFilter(22) };  
+		
 		titleEditText = (EditText)findViewById(R.id.past_edit_title);
 		titleEditText.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		titleEditText.setFilters(titleFilters);
 		textEditText = (EditText)findViewById(R.id.past_edit_text);
 		textEditText.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		textEditText.setFilters(textFilters);
 		
 		dateTextView = (TextView)findViewById(R.id.past_edit_date);
 		dateTextView.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
@@ -404,7 +477,7 @@ public class EditPastActivity extends FragmentActivity
 			YoYo.with(Techniques.Shake)
 			.duration(2000)
 			.delay(GlobalSettings.TIP_ANIMATION_DELAY)
-			.playOn(titleEditText);
+			.playOn(titleLinearLayout);
 			Toast.makeText(mContext, "May I get a title?", Toast.LENGTH_SHORT).show();
 			return;
 		}

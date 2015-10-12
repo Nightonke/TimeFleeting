@@ -49,6 +49,8 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
     private List<Record> list;
     private MainActivity mActivity;
     
+    private int width;
+    
     SwipeLayout swipeLayout;
 
     private Record setTimeRecord;
@@ -76,6 +78,7 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
     @Override
     public View generateView(final int position, ViewGroup parent) {
         View v = LayoutInflater.from(mContext).inflate(R.layout.past_listview_item, null);
+        width = parent.getWidth();
         swipeLayout = (SwipeLayout)v.findViewById(getSwipeLayoutResourceId(position));
         swipeLayout.addSwipeListener(new SimpleSwipeListener() {
 			
@@ -91,6 +94,11 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
 				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
 				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
 				.playOn(arg0.findViewById(R.id.past_right_arrow));
+				
+				YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+				.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+				.playOn(arg0.findViewById(R.id.past_delete));
 			}
 		});
         
@@ -100,6 +108,12 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
     @Override
     public void fillValues(final int position, View convertView) {
     	
+    	LinearLayout buttonLinearLayout = (LinearLayout)convertView.findViewById(R.id.button_layout);
+    	buttonLinearLayout.getLayoutParams().width = (int)(width * 0.6);
+    	
+    	LinearLayout backColorLinearLayout = (LinearLayout)convertView.findViewById(R.id.past_back_color_ly);
+    	backColorLinearLayout.setBackgroundColor(Util.darkerColor(GlobalSettings.ITEM_BACKGROUND_COLOR, 1));
+    	
     	LinearLayout backLinearLayout = (LinearLayout)convertView.findViewById(R.id.past_back_ly);
     	backLinearLayout.setOnClickListener(new OnClickListener() {
 			
@@ -108,6 +122,9 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
 				closeAllItems();
 			}
 		});
+    	
+    	LinearLayout beTopColorLinearLayout = (LinearLayout)convertView.findViewById(R.id.past_be_top_color_ly);
+    	beTopColorLinearLayout.setBackgroundColor(Util.darkerColor(GlobalSettings.ITEM_BACKGROUND_COLOR, 2));
     	
     	LinearLayout beTopLinearLayout = (LinearLayout)convertView.findViewById(R.id.past_be_top_ly);
     	beTopLinearLayout.setOnClickListener(new OnClickListener() {
@@ -119,10 +136,25 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
 			}
 		});
     	
+    	LinearLayout deleteColorLinearLayout = (LinearLayout)convertView.findViewById(R.id.past_delete_color_ly);
+    	deleteColorLinearLayout.setBackgroundColor(Util.darkerColor(GlobalSettings.ITEM_BACKGROUND_COLOR, 3));
+    	
+    	LinearLayout deleteLinearLayout = (LinearLayout)convertView.findViewById(R.id.past_delete_ly);
+        deleteLinearLayout.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				int idToBeDeleted = TimeFleetingData.pastRecords.get(position).getId();
+				whetherDelete(idToBeDeleted, position);
+			}
+		});
+    	
     	TextView dateTextView = (TextView)convertView.findViewById(R.id.date);
     	TextView titleTextView = (TextView)convertView.findViewById(R.id.past_listview_item_title);
+    	titleTextView.setTextColor(GlobalSettings.ITEM_TITLE_TEXT_COLOR);
     	titleTextView.setText(list.get(position).getTitle());
     	TextView remindTimeTextView = (TextView)convertView.findViewById(R.id.past_listview_item_remind_time);
+    	remindTimeTextView.setTextColor(GlobalSettings.ITEM_CONTENT_TEXT_COLOR);
     	remindTimeTextView.setText(list.get(position).getRemindTime().substring(0, 10) + " " + dayOfWeek[calDayOfWeek(list.get(position).getRemindTime())]);
 
     	ImageView beTop = (ImageView)convertView.findViewById(R.id.past_be_top);  // the button
@@ -138,6 +170,7 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
     	WaveView waveView = (WaveView)convertView.findViewById(R.id.past_wave_view);
     	waveView.setBackgroundColor(GlobalSettings.ITEM_BACKGROUND_COLOR);
     	int remainDays = TimeFleetingData.calculateRemainDays(list.get(position));
+    	dateTextView.setTextColor(GlobalSettings.ITEM_REMAIN_TIME_TEXT_COLOR);
     	dateTextView.setText(String.valueOf(String.valueOf(remainDays)));
 		
     	int diff = 0;
@@ -205,4 +238,59 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
 		return date.getDay();
 	}
 
+	private void whetherDelete(final int id, final int position) {
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
+		View view = layoutInflater.inflate(R.layout.whether_delete, null);
+		builder.setView(view);
+		final AlertDialog dialog = builder.show();
+		dialog.setCanceledOnTouchOutside(true);
+		
+		LinearLayout whetherSaveLinearLayout = (LinearLayout)view.findViewById(R.id.whether_delete_logo);
+		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+		.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+		.playOn(whetherSaveLinearLayout);
+		
+		TextView cancelTextView = (TextView)view.findViewById(R.id.whether_delete_cancel);
+		TextView yesTextView = (TextView)view.findViewById(R.id.whether_delete_yes);
+		
+		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+		.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+		.playOn(cancelTextView);
+		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
+		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
+		.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+		.playOn(yesTextView);
+		
+		cancelTextView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				dialog.dismiss();
+				return;
+			}
+		});
+		
+		yesTextView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				int returnId = TimeFleetingData.deleteRecord(id);
+				if (returnId != -1) {
+					// delete successfully
+					Log.d("TimeFleeting", "Delete successfully");
+				} else {
+					// delete failed
+					Log.d("TimeFleeting", "Delete failed");
+				}
+				closeItem(position);
+				notifyDataSetChanged();
+				dialog.dismiss();
+			}
+		});
+	}
+	
 }

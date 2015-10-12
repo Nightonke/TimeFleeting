@@ -27,6 +27,7 @@
                 >
                 
                 <LinearLayout
+                    android:id="@+id/back_color_ly"
                     android:layout_width="0dp"
                     android:background="@color/future_listview_back"
                     android:layout_height="match_parent"
@@ -35,6 +36,7 @@
                     />
                 
                 <LinearLayout
+                    android:id="@+id/be_top_color_ly"
                     android:layout_width="0dp"
                     android:background="@color/future_listview_be_top"
                     android:layout_height="match_parent"
@@ -43,6 +45,7 @@
                     />
                 
                 <LinearLayout
+                    android:id="@+id/set_remind_time_color_ly"
                     android:layout_width="0dp"
                     android:background="@color/future_listview_set_remind_time"
                     android:layout_height="match_parent"
@@ -51,6 +54,7 @@
                     />
                 
                 <LinearLayout
+                    android:id="@+id/set_star_color_ly"
                     android:layout_width="0dp"
                     android:background="@color/future_listview_set_star"
                     android:layout_height="match_parent"
@@ -59,6 +63,7 @@
                     />
                 
                 <LinearLayout
+                    android:id="@+id/delete_color_ly"
                     android:layout_width="0dp"
                     android:background="@color/future_listview_delete"
                     android:layout_height="match_parent"

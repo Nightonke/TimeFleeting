@@ -2,6 +2,7 @@
 <LinearLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:wave="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/edit_wave_view_ly"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
@@ -18,7 +19,7 @@
             android:background="@color/viewpager_background"
             wave:above_wave_color="@color/viewpager_above_wave"
             wave:blow_wave_color="@color/viewpager_below_wave"
-            wave:progress="60"
+            wave:progress="90"
             wave:wave_height="little"
             wave:wave_hz="normal"
             wave:wave_length="middle" />
@@ -45,6 +46,7 @@
 			        android:textColorHint="#78C2C4"
 			        android:background="@null"
 			        android:layout_gravity="center_horizontal|top"
+			        android:gravity="center_horizontal|top"
 			        android:paddingTop="10dp"
                     android:paddingLeft="20dp"
                     android:paddingRight="20dp"

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:id="@+id/past_edit_wave_view_ly"
     >
     
     <LinearLayout
@@ -69,7 +70,7 @@
             android:background="@color/viewpager_background"
             wave:above_wave_color="@color/viewpager_above_wave"
             wave:blow_wave_color="@color/viewpager_below_wave"
-            wave:progress="60"
+            wave:progress="90"
             wave:wave_height="little"
             wave:wave_hz="normal"
             wave:wave_length="middle" />

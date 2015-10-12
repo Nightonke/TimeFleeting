@@ -123,7 +123,22 @@ public class GlobalSettings {
 	public static int ITEM_WAVE_COLOR;
 	
 	// default body background color
-	public static int DEFAULT_BODY_BACKGROUND_COLOR = Color.parseColor("#f4f4f4");
+	public static int DEFAULT_BODY_BACKGROUND_COLOR = Color.parseColor("#e5ffed");
 	// body background color
 	public static int BODY_BACKGROUND_COLOR;
+	
+	// default item title color
+	public static int DEFAULT_ITEM_TITLE_TEXT_COLOR = Color.parseColor("#004400");
+	// item title color
+	public static int ITEM_TITLE_TEXT_COLOR;
+	
+	// default item content color
+	public static int DEFAULT_ITEM_CONTENT_TEXT_COLOR = Color.parseColor("#006600");
+	// item content color
+	public static int ITEM_CONTENT_TEXT_COLOR;
+	
+	// default item remain time text color
+	public static int DEFAULT_ITEM_REMAIN_TIME_TEXT_COLOR = Color.parseColor("#ffffff");
+	// item remain time text color
+	public static int ITEM_REMAIN_TIME_TEXT_COLOR;
 }

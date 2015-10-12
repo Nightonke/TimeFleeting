@@ -70,6 +70,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -233,7 +234,10 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 	private String[] setColorSpinnerStrings = {"Title background color",
 											   "Title text color",
 											   "Item background color",
-											   "Body background color"};
+											   "Body background color",
+											   "Item title text color",
+											   "Item content text color",
+											   "Item remain days text color"};
 	
 	private LinearLayout menuRemindTimeLinearLayout;
 	private TextView menuRemindTimeTextView;
@@ -247,6 +251,16 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
     private float downX, downY, upX, upY;
     private float pastDownX, pastDownY, pastUpX, pastUpY;
 	
+    private TranslateAnimation menuUpTranslateAnimation;
+	private TranslateAnimation menuDownTranslateAnimation;
+	
+	private LinearLayout menuWaveViewLinearLayout;
+	
+	private TranslateAnimation bodyUpTranslateAnimation;
+	private TranslateAnimation bodyDownTranslateAnimation;
+	
+	private LinearLayout bodyWaveViewLinearLayout;
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -1361,8 +1375,121 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			}
 		});
         
+        menuWaveViewLinearLayout = (LinearLayout)findViewById(R.id.menu_wave_view_ly);
+        bodyWaveViewLinearLayout = (LinearLayout)findViewById(R.id.body_wave_view_ly);
+        
+        menuUpTranslateAnimation = 
+				new TranslateAnimation(
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 1f,
+						Animation.RELATIVE_TO_SELF, 0f);
+        menuUpTranslateAnimation.setDuration(15000);
+		menuDownTranslateAnimation = 
+				new TranslateAnimation(
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 1f);
+		menuDownTranslateAnimation.setDuration(15000);
+		
+		bodyUpTranslateAnimation = 
+				new TranslateAnimation(
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 1f,
+						Animation.RELATIVE_TO_SELF, 0f);
+		bodyUpTranslateAnimation.setDuration(12000);
+		bodyDownTranslateAnimation = 
+				new TranslateAnimation(
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 1f);
+		bodyDownTranslateAnimation.setDuration(12000);
+        
         bodyWaveView = (WaveView)findViewById(R.id.body_wave_view);
         menuWaveView = (WaveView)findViewById(R.id.menu_wave_view);
+        
+        menuUpTranslateAnimation.setAnimationListener(new AnimationListener() {
+		    @Override
+		    public void onAnimationStart(Animation animation) {
+
+		    }
+
+		    @Override
+		    public void onAnimationEnd(Animation animation) {
+		    	menuWaveView.startAnimation(menuDownTranslateAnimation);
+		    }
+
+		    @Override
+		    public void onAnimationRepeat(Animation animation) {
+
+		    }
+		});
+		
+		menuDownTranslateAnimation.setAnimationListener(new AnimationListener() {
+			
+			@Override
+			public void onAnimationStart(Animation animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				// TODO Auto-generated method stub
+				menuWaveView.startAnimation(menuUpTranslateAnimation);
+			}
+		});
+		
+		menuWaveView.startAnimation(menuUpTranslateAnimation);
+		
+		bodyUpTranslateAnimation.setAnimationListener(new AnimationListener() {
+		    @Override
+		    public void onAnimationStart(Animation animation) {
+
+		    }
+
+		    @Override
+		    public void onAnimationEnd(Animation animation) {
+		    	bodyWaveView.startAnimation(bodyDownTranslateAnimation);
+		    }
+
+		    @Override
+		    public void onAnimationRepeat(Animation animation) {
+
+		    }
+		});
+		
+		bodyDownTranslateAnimation.setAnimationListener(new AnimationListener() {
+			
+			@Override
+			public void onAnimationStart(Animation animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				// TODO Auto-generated method stub
+				bodyWaveView.startAnimation(bodyUpTranslateAnimation);
+			}
+		});
+		
+		bodyWaveView.startAnimation(bodyUpTranslateAnimation);
 	}
 	
 	private void setRemindTime() {
@@ -1508,12 +1635,25 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 					int position, long id) {
 				if (position == 0) {
 					colorPicker.setOldCenterColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
+					colorPicker.setColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
 				} else if (position == 1) {
 					colorPicker.setOldCenterColor(GlobalSettings.TITLE_TEXT_COLOR);
+					colorPicker.setColor(GlobalSettings.TITLE_TEXT_COLOR);
 				} else if (position == 2) {
 					colorPicker.setOldCenterColor(GlobalSettings.ITEM_BACKGROUND_COLOR);
+					colorPicker.setColor(GlobalSettings.ITEM_BACKGROUND_COLOR);
 				} else if (position == 3) {
 					colorPicker.setOldCenterColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+					colorPicker.setColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+				} else if (position == 4) {
+					colorPicker.setOldCenterColor(GlobalSettings.ITEM_TITLE_TEXT_COLOR);
+					colorPicker.setColor(GlobalSettings.ITEM_TITLE_TEXT_COLOR);
+				} else if (position == 5) {
+					colorPicker.setOldCenterColor(GlobalSettings.ITEM_CONTENT_TEXT_COLOR);
+					colorPicker.setColor(GlobalSettings.ITEM_CONTENT_TEXT_COLOR);
+				} else if (position == 6) {
+					colorPicker.setOldCenterColor(GlobalSettings.ITEM_REMAIN_TIME_TEXT_COLOR);
+					colorPicker.setColor(GlobalSettings.ITEM_REMAIN_TIME_TEXT_COLOR);
 				}
 				editor.putInt("SET_COLOR_POSITION", position);
 				editor.commit();
@@ -1576,12 +1716,20 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 		defaultColorButton.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 		
 		GlobalSettings.ITEM_BACKGROUND_COLOR = preferences.getInt("ITEM_BACKGROUND_COLOR", GlobalSettings.DEFAULT_ITEM_BACKGROUND_COLOR);
-		pastAdapter.notifyDataSetInvalidated();
-		mAdapter.notifyDataSetInvalidated();
 		
 		GlobalSettings.BODY_BACKGROUND_COLOR = preferences.getInt("BODY_BACKGROUND_COLOR", GlobalSettings.DEFAULT_BODY_BACKGROUND_COLOR);
 		bodyWaveView.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
 		menuWaveView.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+		
+		GlobalSettings.ITEM_TITLE_TEXT_COLOR = preferences.getInt("ITEM_TITLE_TEXT_COLOR", GlobalSettings.DEFAULT_ITEM_TITLE_TEXT_COLOR);
+		GlobalSettings.ITEM_CONTENT_TEXT_COLOR = preferences.getInt("ITEM_CONTENT_TEXT_COLOR", GlobalSettings.DEFAULT_ITEM_CONTENT_TEXT_COLOR);
+		GlobalSettings.ITEM_REMAIN_TIME_TEXT_COLOR = preferences.getInt("ITEM_REMAIN_TIME_TEXT_COLOR", GlobalSettings.DEFAULT_ITEM_REMAIN_TIME_TEXT_COLOR);
+		
+		pastAdapter.notifyDataSetInvalidated();
+		mAdapter.notifyDataSetInvalidated();
+		
+		menuWaveViewLinearLayout.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+		bodyWaveViewLinearLayout.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
 	}
 	
 	private void setDefaultColor() {
@@ -1589,10 +1737,16 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 		GlobalSettings.TITLE_TEXT_COLOR = GlobalSettings.DEFAULT_TITLE_TEXT_COLOR;
 		GlobalSettings.ITEM_BACKGROUND_COLOR = GlobalSettings.DEFAULT_ITEM_BACKGROUND_COLOR;
 		GlobalSettings.BODY_BACKGROUND_COLOR = GlobalSettings.DEFAULT_BODY_BACKGROUND_COLOR;
+		GlobalSettings.ITEM_TITLE_TEXT_COLOR = GlobalSettings.DEFAULT_ITEM_TITLE_TEXT_COLOR;
+		GlobalSettings.ITEM_CONTENT_TEXT_COLOR = GlobalSettings.DEFAULT_ITEM_CONTENT_TEXT_COLOR;
+		GlobalSettings.ITEM_REMAIN_TIME_TEXT_COLOR = GlobalSettings.DEFAULT_ITEM_REMAIN_TIME_TEXT_COLOR;
 		editor.putInt("TITLE_BACKGROUND_COLOR", GlobalSettings.DEFAULT_TITLE_BACKGROUND_COLOR);
 		editor.putInt("TITLE_TEXT_COLOR", GlobalSettings.DEFAULT_TITLE_TEXT_COLOR);
 		editor.putInt("ITEM_BACKGROUND_COLOR", GlobalSettings.DEFAULT_ITEM_BACKGROUND_COLOR);
 		editor.putInt("BODY_BACKGROUND_COLOR", GlobalSettings.DEFAULT_BODY_BACKGROUND_COLOR);
+		editor.putInt("ITEM_TITLE_TEXT_COLOR", GlobalSettings.DEFAULT_ITEM_TITLE_TEXT_COLOR);
+		editor.putInt("ITEM_CONTENT_TEXT_COLOR", GlobalSettings.DEFAULT_ITEM_CONTENT_TEXT_COLOR);
+		editor.putInt("ITEM_REMAIN_TIME_TEXT_COLOR", GlobalSettings.DEFAULT_ITEM_REMAIN_TIME_TEXT_COLOR);
 		editor.commit();
 	}
 	
@@ -1645,10 +1799,33 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			if (!allChange) {
 				GlobalSettings.BODY_BACKGROUND_COLOR = colorPicker.getColor();
 			}
+			Log.d("TimeFleeting", Color.red(GlobalSettings.BODY_BACKGROUND_COLOR) + "" + Color.green(GlobalSettings.BODY_BACKGROUND_COLOR) + Color.blue(GlobalSettings.BODY_BACKGROUND_COLOR));
 			bodyWaveView.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
 			menuWaveView.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+			menuWaveViewLinearLayout.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+			bodyWaveViewLinearLayout.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
 		}
-		
+		if (allChange || setColorSpinner.getSelectedItemPosition() == 4) {
+			if (!allChange) {
+				GlobalSettings.ITEM_TITLE_TEXT_COLOR = colorPicker.getColor();
+			}
+			pastAdapter.notifyDataSetInvalidated();
+			mAdapter.notifyDataSetInvalidated();
+		}
+		if (allChange || setColorSpinner.getSelectedItemPosition() == 5) {
+			if (!allChange) {
+				GlobalSettings.ITEM_CONTENT_TEXT_COLOR = colorPicker.getColor();
+			}
+			pastAdapter.notifyDataSetInvalidated();
+			mAdapter.notifyDataSetInvalidated();
+		}
+		if (allChange || setColorSpinner.getSelectedItemPosition() == 6) {
+			if (!allChange) {
+				GlobalSettings.ITEM_REMAIN_TIME_TEXT_COLOR = colorPicker.getColor();
+			}
+			pastAdapter.notifyDataSetInvalidated();
+			mAdapter.notifyDataSetInvalidated();
+		}
 	}
 	
 	private void saveChangeOfColor() {
@@ -1660,6 +1837,12 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			editor.putInt("ITEM_BACKGROUND_COLOR", GlobalSettings.ITEM_BACKGROUND_COLOR);
 		} else if (setColorSpinner.getSelectedItemPosition() == 3) {
 			editor.putInt("BODY_BACKGROUND_COLOR", GlobalSettings.BODY_BACKGROUND_COLOR);
+		} else if (setColorSpinner.getSelectedItemPosition() == 4) {
+			editor.putInt("ITEM_TITLE_TEXT_COLOR", GlobalSettings.ITEM_TITLE_TEXT_COLOR);
+		} else if (setColorSpinner.getSelectedItemPosition() == 5) {
+			editor.putInt("ITEM_CONTENT_TEXT_COLOR", GlobalSettings.ITEM_CONTENT_TEXT_COLOR);
+		} else if (setColorSpinner.getSelectedItemPosition() == 6) {
+			editor.putInt("ITEM_REMAIN_TIME_TEXT_COLOR", GlobalSettings.ITEM_REMAIN_TIME_TEXT_COLOR);
 		}
 		editor.commit();
 	}

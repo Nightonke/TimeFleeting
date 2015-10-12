@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.provider.Settings.Global;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,6 +32,7 @@ import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -87,6 +89,11 @@ public class EditActivity extends FragmentActivity
 	
 	private ObservableScrollView observableScrollView;
 
+	private TranslateAnimation upTranslateAnimation;
+	private TranslateAnimation downTranslateAnimation;
+	
+	private LinearLayout editWaveViewLinearLayout;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -95,10 +102,71 @@ public class EditActivity extends FragmentActivity
 		
 		mContext = this;
 		
+		editWaveViewLinearLayout = (LinearLayout)findViewById(R.id.edit_wave_view_ly);
+		editWaveViewLinearLayout.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+		
 		editWaveView = (WaveView)findViewById(R.id.edit_waveview);
 		editWaveView.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+
+		upTranslateAnimation = 
+				new TranslateAnimation(
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 1f,
+						Animation.RELATIVE_TO_SELF, 0f);
+		upTranslateAnimation.setDuration(10000);
+		downTranslateAnimation = 
+				new TranslateAnimation(
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 0f,
+						Animation.RELATIVE_TO_SELF, 1f);
+		downTranslateAnimation.setDuration(10000);
+		
+		upTranslateAnimation.setAnimationListener(new AnimationListener() {
+		    @Override
+		    public void onAnimationStart(Animation animation) {
+
+		    }
+
+		    @Override
+		    public void onAnimationEnd(Animation animation) {
+		    	editWaveView.startAnimation(downTranslateAnimation);
+		    }
+
+		    @Override
+		    public void onAnimationRepeat(Animation animation) {
+
+		    }
+		});
+		
+		downTranslateAnimation.setAnimationListener(new AnimationListener() {
+			
+			@Override
+			public void onAnimationStart(Animation animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				// TODO Auto-generated method stub
+				editWaveView.startAnimation(upTranslateAnimation);
+			}
+		});
+		
+		editWaveView.startAnimation(upTranslateAnimation);
+		
+		InputFilter[] textFilters = { new LengthFilter(20) };  
 		
 		titleEditText = (EditText)findViewById(R.id.edit_layout_title);
+		titleEditText.setFilters(textFilters);
 		wordNumberTextView = (TextView)findViewById(R.id.word_number_textview);
 		createTimeTextView = (TextView)findViewById(R.id.create_time_textview);
 		contentEditText = (EditText)findViewById(R.id.edit_layout_content);
@@ -216,15 +284,19 @@ public class EditActivity extends FragmentActivity
 				public void onClick(View v) {
 					if (menuPosition == 0) {
 						// save
+						rayMenu.closeMenu();
 						save(false);
 					} else if (menuPosition == 1) {
 						// set remind time
+						rayMenu.closeMenu();
 						setRemindTime();
 					} else if (menuPosition == 2) {
 						// set star
+						rayMenu.closeMenu();
 						setStar();
 					} else if (menuPosition == 3) {
 						// copy all
+						rayMenu.closeMenu();
 						ClipboardManager cmb = (ClipboardManager)
 								getSystemService(CLIPBOARD_SERVICE);
 						cmb.setText(contentEditText.getText().toString());
@@ -232,6 +304,7 @@ public class EditActivity extends FragmentActivity
 								Toast.LENGTH_SHORT).show();
 					} else if (menuPosition == 4) {
 						// statis
+						rayMenu.closeMenu();
 						if (contentEditText.isFocused()) {
 							// if focused
 							ClipboardManager cmb = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
@@ -354,6 +427,15 @@ public class EditActivity extends FragmentActivity
 	// back button
 	private void save(boolean isBack) {
 		
+		if (titleEditText.getText().toString().equals("")) {
+			YoYo.with(Techniques.Shake)
+			.duration(2000)
+			.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+			.playOn(titleEditText);
+			Toast.makeText(mContext, "May I get a title?", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		
 		try {
 			timeFleetingData = TimeFleetingData.getInstance(this);
 		} catch(IOException e) {
@@ -389,6 +471,8 @@ public class EditActivity extends FragmentActivity
 					beTop));
 			if (isBack) {
 				returnHome();
+			} else {
+				Toast.makeText(mContext, "Save successfully", Toast.LENGTH_SHORT).show();
 			}
 		} else {
 			// haven't click the save button
@@ -407,6 +491,8 @@ public class EditActivity extends FragmentActivity
 				isSaved = true;
 				if (isBack) {
 					returnHome();
+				} else {
+					Toast.makeText(mContext, "Save successfully", Toast.LENGTH_SHORT).show();
 				}
 			} else {
 				saveId = TimeFleetingData.saveRecord(new Record(
@@ -420,8 +506,11 @@ public class EditActivity extends FragmentActivity
 						statusString,
 						beTop));
 				isSaved = true;
+				isOld = true;
 				if (isBack) {
 					returnHome();
+				} else {
+					Toast.makeText(mContext, "Save successfully", Toast.LENGTH_SHORT).show();
 				}
 			}
 		}

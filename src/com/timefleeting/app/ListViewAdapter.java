@@ -107,6 +107,9 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
     @Override
     public void fillValues(final int position, View convertView) {
     	
+    	LinearLayout backColorLinearLayout = (LinearLayout)convertView.findViewById(R.id.back_color_ly);
+    	backColorLinearLayout.setBackgroundColor(Util.darkerColor(GlobalSettings.ITEM_BACKGROUND_COLOR, 1));
+    	
     	LinearLayout backLinearLayout = (LinearLayout)convertView.findViewById(R.id.back_ly);
     	backLinearLayout.setOnClickListener(new OnClickListener() {
 			
@@ -115,6 +118,9 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 				closeAllItems();
 			}
 		});
+    	
+    	LinearLayout beTopColorLinearLayout = (LinearLayout)convertView.findViewById(R.id.be_top_color_ly);
+    	beTopColorLinearLayout.setBackgroundColor(Util.darkerColor(GlobalSettings.ITEM_BACKGROUND_COLOR, 2));
     	
     	LinearLayout beTopLinearLayout = (LinearLayout)convertView.findViewById(R.id.be_top_ly);
     	beTopLinearLayout.setOnClickListener(new OnClickListener() {
@@ -126,6 +132,9 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 			}
 		});
     	
+    	LinearLayout setRemindTimeColorLinearLayout = (LinearLayout)convertView.findViewById(R.id.set_remind_time_color_ly);
+    	setRemindTimeColorLinearLayout.setBackgroundColor(Util.darkerColor(GlobalSettings.ITEM_BACKGROUND_COLOR, 3));
+    	
     	LinearLayout setTimeLinearLayout = (LinearLayout)convertView.findViewById(R.id.set_time_ly);
     	setTimeLinearLayout.setOnClickListener(new OnClickListener() {
 			
@@ -135,6 +144,9 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 			}
 		});
     	
+    	LinearLayout setStarColorLinearLayout = (LinearLayout)convertView.findViewById(R.id.set_star_color_ly);
+    	setStarColorLinearLayout.setBackgroundColor(Util.darkerColor(GlobalSettings.ITEM_BACKGROUND_COLOR, 4));
+    	
     	LinearLayout setStarLinearLayout = (LinearLayout)convertView.findViewById(R.id.set_star_ly);
         setStarLinearLayout.setOnClickListener(new OnClickListener() {
 			
@@ -143,6 +155,9 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 				setStar(position);
 			}
 		});
+        
+        LinearLayout deleteColorLinearLayout = (LinearLayout)convertView.findViewById(R.id.delete_color_ly);
+        deleteColorLinearLayout.setBackgroundColor(Util.darkerColor(GlobalSettings.ITEM_BACKGROUND_COLOR, 5));
         
         LinearLayout deleteLinearLayout = (LinearLayout)convertView.findViewById(R.id.delete_ly);
         deleteLinearLayout.setOnClickListener(new OnClickListener() {
@@ -155,12 +170,16 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 		});
     	
     	TextView titleTextView = (TextView)convertView.findViewById(R.id.listview_item_title);
+    	titleTextView.setTextColor(GlobalSettings.ITEM_TITLE_TEXT_COLOR);
     	titleTextView.setText(list.get(position).getTitle());
     	TextView contentTextView = (TextView)convertView.findViewById(R.id.listview_item_content);
+    	contentTextView.setTextColor(GlobalSettings.ITEM_CONTENT_TEXT_COLOR);
     	contentTextView.setText(list.get(position).getText());
     	TextView remindTimeTextView = (TextView)convertView.findViewById(R.id.listview_item_remind_time);
+    	remindTimeTextView.setTextColor(GlobalSettings.ITEM_CONTENT_TEXT_COLOR);
     	remindTimeTextView.setText(list.get(position).getRemindTime().substring(5, 16));
     	TextView createTimeTextView = (TextView)convertView.findViewById(R.id.listview_item_create_time);
+    	createTimeTextView.setTextColor(GlobalSettings.ITEM_CONTENT_TEXT_COLOR);
     	createTimeTextView.setText(list.get(position).getCreateTime().substring(5, 16));
     	String starString = list.get(position).getStar();
     	ImageView beTop = (ImageView)convertView.findViewById(R.id.be_top);
@@ -442,7 +461,7 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 		});
 	}
     
-private void whetherDelete(final int id, final int position) {
+    private void whetherDelete(final int id, final int position) {
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 		LayoutInflater layoutInflater = LayoutInflater.from(mContext);

@@ -3,6 +3,8 @@ package com.timefleeting.app;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +15,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class Splash extends Activity {
 
@@ -34,6 +37,26 @@ public class Splash extends Activity {
         LinearLayout splashLinearLayout = (LinearLayout)findViewById(R.id.splash_layout);
         splashLinearLayout.setBackgroundColor(GlobalSettings.ITEM_BACKGROUND_COLOR);
         
+        String version = "V";
+        
+        try {
+        	PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            version = pInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+        	e.printStackTrace();
+        }
+        
+        TextView appNameTextView = (TextView)findViewById(R.id.app_name);
+        appNameTextView.setTextColor(GlobalSettings.ITEM_BACKGROUND_COLOR);
+        appNameTextView.setText("Time Fleeting");
+        
+        TextView appVersionTextView = (TextView)findViewById(R.id.app_version);
+        appVersionTextView.setTextColor(GlobalSettings.ITEM_BACKGROUND_COLOR);
+        appVersionTextView.setText(version);
+        
+        TextView apperTextView = (TextView)findViewById(R.id.apper);
+        apperTextView.setTextColor(GlobalSettings.ITEM_BACKGROUND_COLOR);
+        
         AnimationSet animationSet = new AnimationSet(true);
 		TranslateAnimation translateAnimation = 
 				new TranslateAnimation(
@@ -54,6 +77,9 @@ public class Splash extends Activity {
 
     }
 
-    
+    @Override
+	public void onBackPressed() {
+//		super.onBackPressed();
+	}
 
 }
