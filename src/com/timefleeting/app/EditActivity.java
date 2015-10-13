@@ -94,6 +94,8 @@ public class EditActivity extends FragmentActivity
 	
 	private LinearLayout editWaveViewLinearLayout;
 	
+	private LinearLayout whetherSaveLinearLayout;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -348,12 +350,25 @@ public class EditActivity extends FragmentActivity
 		if (("".equals(titleString) && "".equals(contentString)) && !isSaved && !isRemind && !isStared) {
 			returnHome();
 		} else {
+			
+			if (titleEditText.getText().toString().equals("")) {
+				YoYo.with(Techniques.Shake)
+				.duration(2000)
+				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
+				.playOn(titleEditText);
+				Toast.makeText(mContext, "May I get a title?", Toast.LENGTH_SHORT).show();
+				return;
+			}
+			
 			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 			LayoutInflater layoutInflater = LayoutInflater.from(mContext);
 			View view = layoutInflater.inflate(R.layout.whether_save, null);
 			builder.setView(view);
 			final AlertDialog dialog = builder.show();
 			dialog.setCanceledOnTouchOutside(true);
+			
+			whetherSaveLinearLayout = (LinearLayout)view.findViewById(R.id.whether_save_ly);
+			whetherSaveLinearLayout.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
 			
 			LinearLayout whetherSaveLinearLayout = (LinearLayout)view.findViewById(R.id.whether_save_logo);
 			
@@ -640,6 +655,9 @@ public class EditActivity extends FragmentActivity
 		final AlertDialog dialog = builder.show();
 		dialog.setCanceledOnTouchOutside(true);
 		
+		LinearLayout setStarLinearLayout = (LinearLayout)view.findViewById(R.id.set_star_lyy);
+		setStarLinearLayout.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
+		
 		final TextView okTextView = (TextView)view.findViewById(R.id.set_star_ok);
 
 		final ImageView star1 = (ImageView)view.findViewById(R.id.star_1);
@@ -650,6 +668,7 @@ public class EditActivity extends FragmentActivity
 		star4.setVisibility(View.INVISIBLE);
 		star5.setVisibility(View.INVISIBLE);
 		final SeekBar seekBar = (SeekBar)view.findViewById(R.id.star_seekbar);
+		seekBar.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
 		seekBar.setProgress(2);
 		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 			

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/set_star_lyy"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
@@ -8,7 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:orientation="horizontal"
-        android:background="@color/set_star_background"
         >
         
         <ImageView
@@ -65,26 +65,24 @@
         android:max="4"
         android:paddingLeft="30dp"
         android:paddingRight="30dp"
-        android:progressDrawable="@drawable/apptheme_scrubber_progress_horizontal_holo_light"
-        android:thumb="@drawable/apptheme_scrubber_control_selector_holo_light"
-        android:background="@color/set_star_background"
+        android:progressDrawable="@drawable/myseekbar_scrubber_progress_horizontal_holo_light"
+        android:thumb="@drawable/myseekbar_scrubber_control_selector_holo_light"
         />    
         
      <TextView
          android:layout_width="match_parent"  
          android:layout_height="20dp"
-         android:background="@color/set_star_background"
          />   
     
      <TextView
          android:layout_width="match_parent"  
          android:layout_height="1dp"
+         android:background="#ffffff"
          />    
     
      <LinearLayout
          android:layout_width="match_parent"  
          android:layout_height="60dp"
-         android:background="@color/set_star_background"
          >
      
 	     <TextView

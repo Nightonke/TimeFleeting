@@ -382,6 +382,9 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 		final AlertDialog dialog = builder.show();
 		dialog.setCanceledOnTouchOutside(true);
 		
+		LinearLayout setStarLinearLayout = (LinearLayout)view.findViewById(R.id.set_star_lyy);
+		setStarLinearLayout.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
+		
 		final TextView okTextView = (TextView)view.findViewById(R.id.set_star_ok);
 
 		final ImageView star1 = (ImageView)view.findViewById(R.id.star_1);
@@ -392,6 +395,7 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 		star4.setVisibility(View.INVISIBLE);
 		star5.setVisibility(View.INVISIBLE);
 		final SeekBar seekBar = (SeekBar)view.findViewById(R.id.star_seekbar);
+		seekBar.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
 		seekBar.setProgress(2);
 		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 			
@@ -469,6 +473,9 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 		builder.setView(view);
 		final AlertDialog dialog = builder.show();
 		dialog.setCanceledOnTouchOutside(true);
+		
+		LinearLayout whetherDeleteLinearLayout = (LinearLayout)view.findViewById(R.id.whether_delete_lyy);
+		whetherDeleteLinearLayout.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
 		
 		LinearLayout whetherSaveLinearLayout = (LinearLayout)view.findViewById(R.id.whether_delete_logo);
 		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)

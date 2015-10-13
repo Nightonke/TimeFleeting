@@ -247,6 +247,9 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
 		final AlertDialog dialog = builder.show();
 		dialog.setCanceledOnTouchOutside(true);
 		
+		LinearLayout whetherDeleteLinearLayout = (LinearLayout)view.findViewById(R.id.whether_delete_lyy);
+		whetherDeleteLinearLayout.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
+		
 		LinearLayout whetherSaveLinearLayout = (LinearLayout)view.findViewById(R.id.whether_delete_logo);
 		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
 		.duration(GlobalSettings.TIP_ANIMATION_DURATION)

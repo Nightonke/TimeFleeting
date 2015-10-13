@@ -141,4 +141,7 @@ public class GlobalSettings {
 	public static int DEFAULT_ITEM_REMAIN_TIME_TEXT_COLOR = Color.parseColor("#ffffff");
 	// item remain time text color
 	public static int ITEM_REMAIN_TIME_TEXT_COLOR;
+	
+	// default language
+	public static boolean DEFAULT_IS_CHINESE = false;
 }

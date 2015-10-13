@@ -96,6 +96,8 @@ import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 
 public class MainActivity extends FragmentActivity implements OnTimeSetListener {
 	
+	private TextView menuAppNameTextView;
+	
 	private Button changeLanguageButton;
 	
 	private WaveView menuWaveView;
@@ -307,14 +309,6 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 
         editor = getSharedPreferences("Values", MODE_PRIVATE).edit();
         preferences = getSharedPreferences("Values", MODE_PRIVATE);
-
-        menuLayoutBackImageView = (ImageView)findViewById(R.id.menu_layout_back);
-        menuLayoutBackImageView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mMenuDrawer.toggleMenu(true);
-			}
-		});
         
 		mContext = this;
 		statusBarHeight = getStatusBarHeight();
@@ -325,39 +319,16 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			e.printStackTrace();
 		}
 		
-		initValues();
-		
 		mAdapter = new ListViewAdapter(TimeFleetingData.futureRecords, mContext);
 		mAdapter.setMode(Attributes.Mode.Single);
 		
 		pastAdapter = new PastListViewAdapter(TimeFleetingData.pastRecords, mContext);
 		pastAdapter.setMode(Attributes.Mode.Single);
 		
-		layoutInflater = getLayoutInflater().from(this);
-		setupJazziness(TransitionEffect.Tablet);
+		initValues();
 		
-		layoutTitleLinearLayout = (LinearLayout)findViewById(R.id.layout_title);
-		layoutTitleTextView = (TextView)findViewById(R.id.layout_title_text);
-		layoutTitleTextView.setText(GlobalSettings.FUTURE_TITLE);
-		layoutTitleImageView = (ImageView)findViewById(R.id.layout_title_imageview);
 		
-		layoutTitleTextView.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				mJazzy.setCurrentItem(1 - mJazzy.getCurrentItem(), true);
-			}
-		});
-		
-		layoutTitleImageView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setSort();
-			}
-		});
-		
-		menuTitleLinearLayout = (LinearLayout)findViewById(R.id.menu_title_layout);
-		
+
 		boolean whetherShownSplash = preferences.getBoolean("SHOWN_SPLASH", false);
 		
 		Bundle bundle = getIntent().getBundleExtra("BUNDLE");
@@ -468,9 +439,9 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			@Override
 			public void onPageSelected(int position) {
 				if (position == 0) {
-					layoutTitleTextView.setText(GlobalSettings.PAST_TITLE);
+					layoutTitleTextView.setText(Language.getTitleText(0));
 				} else {
-					layoutTitleTextView.setText(GlobalSettings.FUTURE_TITLE);
+					layoutTitleTextView.setText(Language.getTitleText(1));
 				}
 			}
 			
@@ -1050,6 +1021,8 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 	
 	private void initValues() {
 		
+		Language.isChinese = preferences.getBoolean("ISCHINESE", GlobalSettings.DEFAULT_IS_CHINESE);
+		
 		rayLinearLayout = (LinearLayout)findViewById(R.id.ray_layout);
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -1103,6 +1076,8 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 				}
 			});
 		}
+		
+		
 		
 		sortRayMenu = (RayMenu)findViewById(R.id.sort_ray_menu);
 		for (int i = 0; i < ITEM_SORT_RAY_MENU.length; i++) {
@@ -1175,6 +1150,31 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 				}
 			});
 		}
+		
+		layoutInflater = getLayoutInflater().from(this);
+		setupJazziness(TransitionEffect.Tablet);
+		
+		layoutTitleLinearLayout = (LinearLayout)findViewById(R.id.layout_title);
+		layoutTitleTextView = (TextView)findViewById(R.id.layout_title_text);
+		layoutTitleTextView.setText(GlobalSettings.FUTURE_TITLE);
+		layoutTitleImageView = (ImageView)findViewById(R.id.layout_title_imageview);
+		
+		layoutTitleTextView.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				mJazzy.setCurrentItem(1 - mJazzy.getCurrentItem(), true);
+			}
+		});
+		
+		layoutTitleImageView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				setSort();
+			}
+		});
+		
+		menuTitleLinearLayout = (LinearLayout)findViewById(R.id.menu_title_layout);
 		
 		intentService = new Intent(mContext, LongRunningService.class);
         intentService.setAction("TimeFleeting Reminder");
@@ -1310,7 +1310,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 		});
         
         spinner = (Spinner)findViewById(R.id.past_advanced_spinner);
-        spinnerArrayAdapter = new SpinnerArrayAdapter(mContext, spinnerStrings, 13);
+        spinnerArrayAdapter = new SpinnerArrayAdapter(mContext, Language.getAdvancedTimeDataText(), 13);
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(spinnerArrayAdapter);
         
@@ -1359,6 +1359,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			}
 		});
         
+        menuAppNameTextView = (TextView)findViewById(R.id.menu_app_name);
         showTextView0 = (TextView)findViewById(R.id.menu_text_view_0);
         showTextView1 = (TextView)findViewById(R.id.menu_text_view_1);
         showTextView2 = (TextView)findViewById(R.id.menu_text_view_2);
@@ -1500,8 +1501,14 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			public void onClick(View v) {
 				DatePickerDialog.isChinese = !DatePickerDialog.isChinese;
 				TimePickerDialog.isChinese = !TimePickerDialog.isChinese;
+				Language.isChinese = !Language.isChinese;
+				editor.putBoolean("ISCHINESE", Language.isChinese);
+				editor.commit();
+				setLanguage();
 			}
 		});
+		
+		setLanguage();
 	}
 	
 	private void setRemindTime() {
@@ -1726,6 +1733,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 		menuRemindTimeTextView.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 		setColorButton.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 		defaultColorButton.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		changeLanguageButton.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 		
 		GlobalSettings.ITEM_BACKGROUND_COLOR = preferences.getInt("ITEM_BACKGROUND_COLOR", GlobalSettings.DEFAULT_ITEM_BACKGROUND_COLOR);
 		
@@ -1799,6 +1807,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			menuRemindTimeTextView.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 			setColorButton.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 			defaultColorButton.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+			changeLanguageButton.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 		}
 		if (allChange || setColorSpinner.getSelectedItemPosition() == 2) {
 			if (!allChange) {
@@ -1857,6 +1866,22 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			editor.putInt("ITEM_REMAIN_TIME_TEXT_COLOR", GlobalSettings.ITEM_REMAIN_TIME_TEXT_COLOR);
 		}
 		editor.commit();
+	}
+	
+	private void setLanguage() {
+		menuAppNameTextView.setText(Language.getAppNameText());
+		showTextView0.setText(Language.getTodoNotificationText());
+		showTextView1.setText(Language.getMemoryNotificationText());
+		showTextView2.setText(Language.getVibrateText());
+		showTextView3.setText(Language.getSoundText());
+		showTextView4.setText(Language.getMemoryRemindTimeText());
+		showTextView5.setText(Language.getAdvancedTimeText());
+		setColorButton.setText(Language.getDrawMeText());
+		defaultColorButton.setText(Language.getOriginalMeText());
+		changeLanguageButton.setText(Language.getLanguageText());
+		spinnerArrayAdapter.notifyDataSetChanged();
+
+		layoutTitleTextView.setText(Language.getTitleText(mJazzy.getCurrentItem()));
 	}
 	
 }
