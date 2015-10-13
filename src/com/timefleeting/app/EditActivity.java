@@ -1,6 +1,5 @@
 package com.timefleeting.app;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -20,7 +19,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PointF;
 import android.os.Bundle;
-import android.provider.Settings.Global;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -51,7 +49,6 @@ public class EditActivity extends FragmentActivity
 			   ScrollViewListener  {
 
 	private Context mContext;
-	private TimeFleetingData timeFleetingData;
 	
 	private boolean isOld = false;
 	private String oldTitleString;
@@ -68,9 +65,6 @@ public class EditActivity extends FragmentActivity
 	private boolean changeStar = false;
 	private String starString = "0";
 	private String wordNumberString;
-	
-	private boolean oldRemindTimeChange = false;
-	private boolean oldStarChange = false;
 	
 	private TextView createTimeTextView;
 	private TextView wordNumberTextView;
@@ -151,19 +145,16 @@ public class EditActivity extends FragmentActivity
 			
 			@Override
 			public void onAnimationStart(Animation animation) {
-				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void onAnimationRepeat(Animation animation) {
-				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void onAnimationEnd(Animation animation) {
-				// TODO Auto-generated method stub
 				editWaveView.startAnimation(upTranslateAnimation);
 			}
 		});
@@ -180,34 +171,26 @@ public class EditActivity extends FragmentActivity
 		contentEditText = (EditText)findViewById(R.id.edit_layout_content);
 		contentEditText.setHint(Language.getEditFutureContentHintText());
 		
-contentEditText.setOnTouchListener(new OnTouchListener() {
-			
-			/** 拖拉照片模式 */
-	        private static final int MODE_DRAG = 1;
-	        /** 放大缩小照片模式 */
-	        private static final int MODE_ZOOM = 2;
-	        /**  不支持Matrix */ 
-	        private static final int MODE_UNABLE=3;
-	        /**   最大缩放级别*/ 
-	        float mMaxScale=6;
-	        /**   双击时的缩放级别*/ 
-	        float mDobleClickScale=2;
-	        private int mMode = 0;// 
-	        /**  缩放开始时的手指间距 */ 
-	        private float mStartDis;
-	        /**   当前Matrix*/ 
+		contentEditText.setOnTouchListener(new OnTouchListener() {
 
-	        /** 用于记录开始时候的坐标位置 */
+	        private static final int MODE_DRAG = 1;
+
+	        private static final int MODE_ZOOM = 2;
+
+	        private static final int MODE_UNABLE=3;
+
+	        private int mMode = 0;
+
+	        private float mStartDis;
+
 	        private PointF startPoint = new PointF();
 			
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				switch (event.getActionMasked()) {
 	            case MotionEvent.ACTION_DOWN:
-	                //设置拖动模式
 	                mMode=MODE_DRAG;
 	                startPoint.set(event.getX(), event.getY());
-	               // isMatrixEnable();
 	                break;
 	            case MotionEvent.ACTION_UP:
 	            case MotionEvent.ACTION_CANCEL:
@@ -216,7 +199,6 @@ contentEditText.setOnTouchListener(new OnTouchListener() {
 	                if (mMode == MODE_ZOOM) {
 	                    setZoomMatrix(event);
 	                }else if (mMode==MODE_DRAG) {
-//	                    setDragMatrix(event);
 	                }
 	                break;
 	            case MotionEvent.ACTION_POINTER_DOWN:
@@ -234,18 +216,16 @@ contentEditText.setOnTouchListener(new OnTouchListener() {
 			private float distance(MotionEvent event) {
 	            float dx = event.getX(1) - event.getX(0);
 	            float dy = event.getY(1) - event.getY(0);
-	            /** 使用勾股定理返回两点之间的距离 */
 	            return (float) Math.sqrt(dx * dx + dy * dy);
 	        }
 			
 			private void setZoomMatrix(MotionEvent event) {
-	            //只有同时触屏两个点的时候才执行
 	            if(event.getPointerCount()<2) return;
-	            float endDis = distance(event);// 结束距离
-	            if (endDis > 10f) { // 两个手指并拢在一起的时候像素大于10
-	                float scale = endDis / mStartDis;// 得到缩放倍数
+	            float endDis = distance(event);
+	            if (endDis > 10f) {
+	                float scale = endDis / mStartDis;
 	                Log.d("TimeFleeting", "SCALE: " + scale);
-	                mStartDis=endDis;//重置距离
+	                mStartDis=endDis;
 	                float newSize = contentEditText.getTextSize() * scale;
 	                Log.d("TimeFleeting", "New Size: " + newSize);
 	                if (newSize > 100) {
@@ -535,13 +515,7 @@ contentEditText.setOnTouchListener(new OnTouchListener() {
 		}
 		
 		Toast.makeText(mContext, Language.getToastSaveSuccessfullyText(), Toast.LENGTH_SHORT).show();
-		
-		try {
-			timeFleetingData = TimeFleetingData.getInstance(this);
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-		
+
 		String titleString = titleEditText.getText().toString();
 		String contentString = contentEditText.getText().toString();
 
@@ -837,7 +811,6 @@ contentEditText.setOnTouchListener(new OnTouchListener() {
 				starString = String.valueOf(seekBar.getProgress() + 1);
 				isStared = true;
 				if (isOld) {
-					oldStarChange = true;
 					changeStar = true;
 				}
 			}

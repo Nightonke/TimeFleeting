@@ -257,4 +257,8 @@ public class Language {
 		return reverse ? (isChinese ? "按优先级倒着来排序" : "Sort by level reversely") : (isChinese ? "按优先级排序" : "Sort by level");
 	}
 	
+	public static String getNotificationPostText() {
+		return isChinese ? "快到啦！" : " is coming soon!";
+	}
+	
 }

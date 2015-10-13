@@ -290,6 +290,7 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
 				notifyDataSetChanged();
 				dialog.dismiss();
 				Toast.makeText(mContext, Language.getToastDeleteText(), Toast.LENGTH_SHORT).show();
+				
 			}
 		});
 	}

@@ -526,6 +526,7 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 				notifyDataSetChanged();
 				dialog.dismiss();
 				Toast.makeText(mContext, Language.getToastDeleteText(), Toast.LENGTH_SHORT).show();
+				
 			}
 		});
 	}

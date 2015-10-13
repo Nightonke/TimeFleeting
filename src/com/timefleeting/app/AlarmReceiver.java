@@ -8,28 +8,33 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 public class AlarmReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		int id = intent.getIntExtra("ID", -1);
-		String titleString = intent.getStringExtra("TITLE");
-		String contentString = intent.getStringExtra("CONTENT");
+		String titleString = intent.getStringExtra("Title");
+		String contentString = intent.getStringExtra("Content");
 		String tagString = intent.getStringExtra("TAG");
 		
 		if (tagString.equals("MEMORY")) {
-			titleString += " is coming soon!";
+			titleString += Language.getNotificationPostText();
 		}
 		
 		Log.d("TimeFleeting", contentString);
 		
 		Intent broadcastIntent = new Intent(context, RecoverNotification.class);
-		broadcastIntent.putExtra("TITLE", intent.getStringExtra("TITLE"));
-		broadcastIntent.putExtra("CONTENT", intent.getStringExtra("CONTENT"));
-		broadcastIntent.putExtra("REMINDTIME", intent.getStringExtra("REMINDTIME"));
+		broadcastIntent.putExtra("ID", intent.getIntExtra("ID", -1));
+		broadcastIntent.putExtra("Title", intent.getStringExtra("Title"));
+		broadcastIntent.putExtra("Content", intent.getStringExtra("Content"));
+		broadcastIntent.putExtra("RemindTime", intent.getStringExtra("RemindTime"));
+		broadcastIntent.putExtra("CreateTime", intent.getStringExtra("CreateTime"));
+		broadcastIntent.putExtra("Star", intent.getStringExtra("Star"));
+		broadcastIntent.putExtra("Status", intent.getStringExtra("Status"));
+		broadcastIntent.putExtra("Top", intent.getIntExtra("Top", 0));
 		broadcastIntent.putExtra("Type", intent.getStringExtra("Type"));
+		broadcastIntent.putExtra("TAG", intent.getStringExtra("TAG"));
 		
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, broadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -63,7 +68,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 		mNotificationManager.notify(id, mBuilder.build());
 		
 		Log.d("TimeFleeting", "Get " + titleString);
-//		Toast.makeText(context, "Get " + titleString, Toast.LENGTH_LONG).show();
+
 	}
 
 }

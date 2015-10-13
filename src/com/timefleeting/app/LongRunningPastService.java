@@ -47,10 +47,14 @@ public class LongRunningPastService extends Service {
 		}
 		for (int j = 0; j < remindList.size(); j++) {
 			i.putExtra("ID", remindList.get(j).id);
-			i.putExtra("TITLE", remindList.get(j).title);
-			i.putExtra("CONTENT", remindList.get(j).content);
-			i.putExtra("REMINDTIME", remindList.get(j).remindTime);
+			i.putExtra("Title", remindList.get(j).title);
+			i.putExtra("Content", remindList.get(j).content);
+			i.putExtra("RemindTime", remindList.get(j).remindTime);
+			i.putExtra("CreateTime", remindList.get(j).createTime);
+			i.putExtra("Star", remindList.get(j).star);
+			i.putExtra("Status", remindList.get(j).status);
 			i.putExtra("Type", remindList.get(j).type);
+			i.putExtra("Top", remindList.get(j).Top);
 			i.putExtra("TAG", "MEMORY");
 			PendingIntent pi = PendingIntent.getBroadcast(this, remindList.get(j).id + GlobalSettings.REMIND_PAST_LIST.size(), i, 0);
 			manager.set(AlarmManager.RTC_WAKEUP, remindList.get(j).triggerAtTime, pi);

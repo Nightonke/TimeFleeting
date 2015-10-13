@@ -95,6 +95,7 @@ import com.fourmob.datetimepicker.date.DatePickerDialog;
 import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 
 public class MainActivity extends FragmentActivity implements OnTimeSetListener {
+
 	
 	private TextView apperEmailTextView;
 	private TextView apperCopyrightTextView;
@@ -519,14 +520,6 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 		// sort by the remain time default
 		TimeFleetingData.sortPastRecordsByRemainTime();
 		
-		if (TimeFleetingData.pastRecords.size() > 0) {
-			TextView tipsTextView = (TextView)v2.findViewById(R.id.layout_2_tips);
-			tipsTextView.setVisibility(View.INVISIBLE);
-		} else {
-			TextView tipsTextView = (TextView)v2.findViewById(R.id.layout_2_tips);
-			tipsTextView.setVisibility(View.VISIBLE);
-		}
-		
 		// on list item click listener
 		pastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -749,15 +742,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 
 		// sort by the create time default
 		TimeFleetingData.sortFutureRecordByCreateTimeReversely();
-		
-		if (TimeFleetingData.futureRecords.size() > 0) {
-			TextView tipsTextView = (TextView)v1.findViewById(R.id.layout_1_tips);
-			tipsTextView.setVisibility(View.INVISIBLE);
-		} else {
-			TextView tipsTextView = (TextView)v1.findViewById(R.id.layout_1_tips);
-			tipsTextView.setVisibility(View.VISIBLE);
-		}
-		
+
 		// on list item click listener
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
