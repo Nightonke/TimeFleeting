@@ -338,6 +338,7 @@
 				            android:layout_height="wrap_content"
 				            android:textSize="20sp"
 				            android:maxLines="1"
+				            android:singleLine="true"
 				            android:hint="Click to input remarks"
 				            android:textColorHint="#78C2C4"
 				            android:layout_gravity="right|center_vertical"

@@ -21,6 +21,9 @@ public class GlobalSettings {
 	// the minute time of a day to remind
 	public static int REMIND_MINUTE = 28;
 	
+	// a year
+	public static long A_YEAR = 265;
+	
 	// a week
 	public static long A_WEEK = 7 * 24 * 60 * 60 * 1000;
 	

@@ -96,6 +96,9 @@ import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 
 public class MainActivity extends FragmentActivity implements OnTimeSetListener {
 	
+	private TextView apperEmailTextView;
+	private TextView apperCopyrightTextView;
+	
 	private TextView menuAppNameTextView;
 	
 	private Button changeLanguageButton;
@@ -228,20 +231,6 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 	private LinearLayout menuAdvancedTimeLinearLayout;
 	private Spinner spinner;
 	private SpinnerArrayAdapter spinnerArrayAdapter;
-	
-	private String[] spinnerStrings = {"1 day",
-									   "3 days",
-									   "1 week",
-									   "2 weeks",
-									   "1 month"};
-	
-	private String[] setColorSpinnerStrings = {"Title background color",
-											   "Title text color",
-											   "Item background color",
-											   "Body background color",
-											   "Item title text color",
-											   "Item content text color",
-											   "Item remain days text color"};
 	
 	private LinearLayout menuRemindTimeLinearLayout;
 	private TextView menuRemindTimeTextView;
@@ -454,6 +443,20 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 				pastAdapter.closeAllItems();
 				mPagerPosition = position;
                 mPagerOffsetPixels = positionOffsetPixels;
+                if (!rayMenuShown) {
+                	AnimationSet animationSet = new AnimationSet(true);
+    				TranslateAnimation translateAnimation = 
+    						new TranslateAnimation(
+    								Animation.RELATIVE_TO_SELF, 0f,
+    								Animation.RELATIVE_TO_SELF, 0f,
+    								Animation.RELATIVE_TO_SELF, 1f,
+    								Animation.RELATIVE_TO_SELF, 0f);
+    				translateAnimation.setDuration(1000);
+    				animationSet.addAnimation(translateAnimation);
+    				animationSet.setFillAfter(true);
+    				rayMenu.startAnimation(animationSet);
+    				rayMenuShown = true;
+                }
 			}
 			
 			@Override
@@ -1092,6 +1095,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 						if (menuPosition == 0) {
 							sortRayMenu.closeMenu();
 							sortRayMenuExpand = false;
+							Toast.makeText(mContext, Language.getToastSortByRemainTimeText(!TimeFleetingData.pastIsSortByRemainTimeReversely), Toast.LENGTH_SHORT).show();
 							if (TimeFleetingData.pastIsSortByRemainTimeReversely) {
 								TimeFleetingData.sortPastRecordsByRemainTime();
 							} else {
@@ -1101,17 +1105,25 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 						} else if (menuPosition == 1) {
 							sortRayMenu.closeMenu();
 							sortRayMenuExpand = false;
+							Toast.makeText(mContext, Language.getToastSortByRemindTimeText(!TimeFleetingData.pastIsSortByRemindTimeReversely), Toast.LENGTH_SHORT).show();
 							if (TimeFleetingData.pastIsSortByRemindTimeReversely) {
 								TimeFleetingData.sortPastRecordsByRemindTime();
 							} else {
 								TimeFleetingData.sortPastRecordsByRemindTimeReversely();
 							}
 							pastAdapter.notifyDataSetChanged();
-						}
+						} else if (menuPosition == 2) {
+							sortRayMenu.closeMenu();
+							sortRayMenuExpand = false;
+						} else if (menuPosition == 3) {
+							sortRayMenu.closeMenu();
+							sortRayMenuExpand = false;
+						} 
 					} else if (mJazzy.getCurrentItem() == 1) {
 						if (menuPosition == 0) {
 							sortRayMenu.closeMenu();
 							sortRayMenuExpand = false;
+							Toast.makeText(mContext, Language.getToastSortByCreateTimeText(!TimeFleetingData.isSortedByCreateTimeReversely), Toast.LENGTH_SHORT).show();
 							if (TimeFleetingData.isSortedByCreateTimeReversely) {
 								TimeFleetingData.sortFutureRecordByCreateTime();
 							} else {
@@ -1121,6 +1133,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 						} else if (menuPosition == 1) {
 							sortRayMenu.closeMenu();
 							sortRayMenuExpand = false;
+							Toast.makeText(mContext, Language.getToastSortByRemindTimeText(!TimeFleetingData.isSortedByRemindTimeReversely), Toast.LENGTH_SHORT).show();
 							if (!TimeFleetingData.isSortedByRemindTimeReversely) {
 								TimeFleetingData.sortFutureRecordByRemindTimeReversely();
 							} else {
@@ -1130,6 +1143,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 						} else if (menuPosition == 2) {
 							sortRayMenu.closeMenu();
 							sortRayMenuExpand = false;
+							Toast.makeText(mContext, Language.getToastSortByTitleText(!TimeFleetingData.isSortedByTitleReversely), Toast.LENGTH_SHORT).show();
 							if (!TimeFleetingData.isSortedByTitleReversely) {
 								TimeFleetingData.sortFutureRecordByTitleReversely();
 							} else {
@@ -1139,6 +1153,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 						} else if (menuPosition == 3) {
 							sortRayMenu.closeMenu();
 							sortRayMenuExpand = false;
+							Toast.makeText(mContext, Language.getToastSortByStarText(!TimeFleetingData.isSortedByStarReversely), Toast.LENGTH_SHORT).show();
 							if (!TimeFleetingData.isSortedByStarReversely) {
 								TimeFleetingData.sortFutureRecordByStarReversely();
 							} else {
@@ -1310,46 +1325,14 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 		});
         
         spinner = (Spinner)findViewById(R.id.past_advanced_spinner);
-        spinnerArrayAdapter = new SpinnerArrayAdapter(mContext, Language.getAdvancedTimeDataText(), 13);
+        Language.setAdvancedTimeDataText();
+        spinnerArrayAdapter = new SpinnerArrayAdapter(mContext, Language.advancedTimeDataText, 13);
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(spinnerArrayAdapter);
         
-        spinner.setSelection(preferences.getInt("AHEAD_DAYS_POSITION", 2));
+        spinner.setSelection(preferences.getInt("AHEAD_DAYS_POSITION", 2), true);
+        spinner.setOnItemSelectedListener(spinnerOnItemSelectedListener);
 
-        spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view,
-					int position, long id) {
-				if (spinnerInitialization) {
-					spinnerInitialization = false;
-					return;
-				}
-				if (position == 0) {
-					GlobalSettings.AHEAD_DAYS = 1;
-				} else if (position == 1) {
-					GlobalSettings.AHEAD_DAYS = 3;
-				} else if (position == 2) {
-					GlobalSettings.AHEAD_DAYS = 7;
-				} else if (position == 3) {
-					GlobalSettings.AHEAD_DAYS = 14;
-				} else if (position == 4) {
-					GlobalSettings.AHEAD_DAYS = 30;
-				}
-				editor.putInt("AHEAD_DAYS_POSITION", position);
-				editor.commit();
-				initPastReminds();
-				LongRunningPastService.remindList = GlobalSettings.REMIND_PAST_LIST;
-				stopService(intentPastService);
-				startService(intentPastService);
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-				
-			}
-		});
-        
         setColorButton = (Button)findViewById(R.id.set_color_button);
         setColorButton.setOnClickListener(new OnClickListener() {
 			
@@ -1509,6 +1492,9 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 		});
 		
 		setLanguage();
+		
+		apperEmailTextView = (TextView)findViewById(R.id.apper_email);
+		apperCopyrightTextView = (TextView)findViewById(R.id.apper_copyright);
 	}
 	
 	private void setRemindTime() {
@@ -1575,7 +1561,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			remind.content = TimeFleetingData.pastRecords.get(i).getText();
 			Date remindDate = new Date(System.currentTimeMillis());
 			Date currentDate = new Date(System.currentTimeMillis());
-			currentDate.setSeconds(0);
+//			currentDate.setSeconds(0);
 			int days = TimeFleetingData.calculateRemainDays(TimeFleetingData.pastRecords.get(i));
 			if (days <= GlobalSettings.AHEAD_DAYS) {
 				days = 0;
@@ -1641,7 +1627,7 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 		colorPicker.addValueBar(valueBar);
 
 		setColorSpinner = (Spinner)view.findViewById(R.id.set_color_spinner);
-        setColorSpinnerArrayAdapter = new SpinnerArrayAdapter(mContext, setColorSpinnerStrings, 15);
+        setColorSpinnerArrayAdapter = new SpinnerArrayAdapter(mContext, Language.colorDataText, 15);
         setColorSpinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         setColorSpinner.setAdapter(setColorSpinnerArrayAdapter);
         
@@ -1750,6 +1736,9 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 		
 		menuWaveViewLinearLayout.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
 		bodyWaveViewLinearLayout.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
+		
+		apperEmailTextView.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		apperCopyrightTextView.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 	}
 	
 	private void setDefaultColor() {
@@ -1808,6 +1797,8 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 			setColorButton.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 			defaultColorButton.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 			changeLanguageButton.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+			apperEmailTextView.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+			apperCopyrightTextView.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 		}
 		if (allChange || setColorSpinner.getSelectedItemPosition() == 2) {
 			if (!allChange) {
@@ -1879,9 +1870,55 @@ public class MainActivity extends FragmentActivity implements OnTimeSetListener 
 		setColorButton.setText(Language.getDrawMeText());
 		defaultColorButton.setText(Language.getOriginalMeText());
 		changeLanguageButton.setText(Language.getLanguageText());
+		
+		Language.setAdvancedTimeDataText();
+		spinnerArrayAdapter = new SpinnerArrayAdapter(mContext, Language.advancedTimeDataText, 13);
+		spinner.setAdapter(spinnerArrayAdapter);
+		spinner.setSelection(preferences.getInt("AHEAD_DAYS_POSITION", 2), true);
+        spinner.setOnItemSelectedListener(spinnerOnItemSelectedListener);
 		spinnerArrayAdapter.notifyDataSetChanged();
-
+		
+		Language.setColorDataText();
+		
 		layoutTitleTextView.setText(Language.getTitleText(mJazzy.getCurrentItem()));
+		
+		pastAdapter.notifyDataSetInvalidated();
+		
+		Language.setRepeatDataText();
 	}
+	
+	private OnItemSelectedListener spinnerOnItemSelectedListener = new OnItemSelectedListener() {
+
+		@Override
+		public void onItemSelected(AdapterView<?> parent, View view,
+				int position, long id) {
+			if (spinnerInitialization) {
+				spinnerInitialization = false;
+				return;
+			}
+			if (position == 0) {
+				GlobalSettings.AHEAD_DAYS = 1;
+			} else if (position == 1) {
+				GlobalSettings.AHEAD_DAYS = 3;
+			} else if (position == 2) {
+				GlobalSettings.AHEAD_DAYS = 7;
+			} else if (position == 3) {
+				GlobalSettings.AHEAD_DAYS = 14;
+			} else if (position == 4) {
+				GlobalSettings.AHEAD_DAYS = 30;
+			}
+			editor.putInt("AHEAD_DAYS_POSITION", position);
+			editor.commit();
+			initPastReminds();
+			LongRunningPastService.remindList = GlobalSettings.REMIND_PAST_LIST;
+			stopService(intentPastService);
+			startService(intentPastService);
+		}
+
+		@Override
+		public void onNothingSelected(AdapterView<?> parent) {
+			
+		}
+	};
 	
 }

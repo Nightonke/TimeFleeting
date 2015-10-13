@@ -18,6 +18,7 @@ import android.app.AlertDialog;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.provider.Settings.Global;
 import android.support.v4.app.FragmentActivity;
@@ -25,8 +26,11 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
@@ -107,6 +111,7 @@ public class EditActivity extends FragmentActivity
 		editWaveViewLinearLayout = (LinearLayout)findViewById(R.id.edit_wave_view_ly);
 		editWaveViewLinearLayout.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
 		
+		
 		editWaveView = (WaveView)findViewById(R.id.edit_waveview);
 		editWaveView.setBackgroundColor(GlobalSettings.BODY_BACKGROUND_COLOR);
 
@@ -169,9 +174,90 @@ public class EditActivity extends FragmentActivity
 		
 		titleEditText = (EditText)findViewById(R.id.edit_layout_title);
 		titleEditText.setFilters(textFilters);
+		titleEditText.setHint(Language.getEditFutureTitleHintText());
 		wordNumberTextView = (TextView)findViewById(R.id.word_number_textview);
 		createTimeTextView = (TextView)findViewById(R.id.create_time_textview);
 		contentEditText = (EditText)findViewById(R.id.edit_layout_content);
+		contentEditText.setHint(Language.getEditFutureContentHintText());
+		
+contentEditText.setOnTouchListener(new OnTouchListener() {
+			
+			/** 拖拉照片模式 */
+	        private static final int MODE_DRAG = 1;
+	        /** 放大缩小照片模式 */
+	        private static final int MODE_ZOOM = 2;
+	        /**  不支持Matrix */ 
+	        private static final int MODE_UNABLE=3;
+	        /**   最大缩放级别*/ 
+	        float mMaxScale=6;
+	        /**   双击时的缩放级别*/ 
+	        float mDobleClickScale=2;
+	        private int mMode = 0;// 
+	        /**  缩放开始时的手指间距 */ 
+	        private float mStartDis;
+	        /**   当前Matrix*/ 
+
+	        /** 用于记录开始时候的坐标位置 */
+	        private PointF startPoint = new PointF();
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				switch (event.getActionMasked()) {
+	            case MotionEvent.ACTION_DOWN:
+	                //设置拖动模式
+	                mMode=MODE_DRAG;
+	                startPoint.set(event.getX(), event.getY());
+	               // isMatrixEnable();
+	                break;
+	            case MotionEvent.ACTION_UP:
+	            case MotionEvent.ACTION_CANCEL:
+	                break;
+	            case MotionEvent.ACTION_MOVE:
+	                if (mMode == MODE_ZOOM) {
+	                    setZoomMatrix(event);
+	                }else if (mMode==MODE_DRAG) {
+//	                    setDragMatrix(event);
+	                }
+	                break;
+	            case MotionEvent.ACTION_POINTER_DOWN:
+	                if(mMode==MODE_UNABLE) return true;
+	                mMode=MODE_ZOOM;
+	                mStartDis = distance(event);
+	                break;
+	            default:
+	                break;
+	            }
+
+				return false;
+			}
+			
+			private float distance(MotionEvent event) {
+	            float dx = event.getX(1) - event.getX(0);
+	            float dy = event.getY(1) - event.getY(0);
+	            /** 使用勾股定理返回两点之间的距离 */
+	            return (float) Math.sqrt(dx * dx + dy * dy);
+	        }
+			
+			private void setZoomMatrix(MotionEvent event) {
+	            //只有同时触屏两个点的时候才执行
+	            if(event.getPointerCount()<2) return;
+	            float endDis = distance(event);// 结束距离
+	            if (endDis > 10f) { // 两个手指并拢在一起的时候像素大于10
+	                float scale = endDis / mStartDis;// 得到缩放倍数
+	                Log.d("TimeFleeting", "SCALE: " + scale);
+	                mStartDis=endDis;//重置距离
+	                float newSize = contentEditText.getTextSize() * scale;
+	                Log.d("TimeFleeting", "New Size: " + newSize);
+	                if (newSize > 100) {
+	                	newSize = 100;
+	                }
+	                if (newSize < 20) {
+	                	newSize = 20;
+	                }
+	                contentEditText.setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
+	            }
+	        }
+		});
 		
 		titleEditText.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 		contentEditText.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
@@ -200,7 +286,7 @@ public class EditActivity extends FragmentActivity
 			saveId = intent.getIntExtra("ID", -1);
 			
 			wordNumberString = String.valueOf(oldContentString.length()) 
-					+ GlobalSettings.WORD_COUNTER_POSTFIX;
+					+ Language.getEditFutureWordText();
 			wordNumberTextView.setText(wordNumberString);
 		} else {
 			SimpleDateFormat formatter = 
@@ -215,7 +301,7 @@ public class EditActivity extends FragmentActivity
 			isRemind = false;
 			isStared = false;
 			wordNumberTextView.setText("0 " 
-					+ GlobalSettings.WORD_COUNTER_POSTFIX);
+					+ Language.getEditFutureWordText());
 		}
 
 		createTimeTextView.setText("---" + createTimeString);
@@ -246,7 +332,7 @@ public class EditActivity extends FragmentActivity
 					int count) {
 				wordNumberString = String.valueOf(
 						contentEditText.getText().toString().length()) 
-						+ GlobalSettings.WORD_COUNTER_POSTFIX;
+						+ Language.getEditFutureWordText();
 				wordNumberTextView.setText(wordNumberString);
 				isSaved = false;
 			}
@@ -302,7 +388,7 @@ public class EditActivity extends FragmentActivity
 						ClipboardManager cmb = (ClipboardManager)
 								getSystemService(CLIPBOARD_SERVICE);
 						cmb.setText(contentEditText.getText().toString());
-						Toast.makeText(mContext, "Copied", 
+						Toast.makeText(mContext, Language.getToastCopiedText(), 
 								Toast.LENGTH_SHORT).show();
 					} else if (menuPosition == 4) {
 						// statis
@@ -316,7 +402,7 @@ public class EditActivity extends FragmentActivity
 									+ contentEditText.getText().toString().substring(cursorPosition, contentEditText.getText().toString().length());
 							contentEditText.setText(newString);
 							contentEditText.setSelection(cursorPosition + cmb.getText().toString().length());
-							wordNumberString = String.valueOf(contentEditText.getText().toString().length()) + "---";
+							wordNumberString = String.valueOf(contentEditText.getText().toString().length()) + Language.getEditFutureWordText();
 							wordNumberTextView.setText(wordNumberString);
 							isSaved = false;
 						} else if (titleEditText.isFocused()) {
@@ -356,7 +442,7 @@ public class EditActivity extends FragmentActivity
 				.duration(2000)
 				.delay(GlobalSettings.TIP_ANIMATION_DELAY)
 				.playOn(titleEditText);
-				Toast.makeText(mContext, "May I get a title?", Toast.LENGTH_SHORT).show();
+				Toast.makeText(mContext, Language.getToastGetTitle(), Toast.LENGTH_SHORT).show();
 				return;
 			}
 			
@@ -372,20 +458,17 @@ public class EditActivity extends FragmentActivity
 			
 			LinearLayout whetherSaveLinearLayout = (LinearLayout)view.findViewById(R.id.whether_save_logo);
 			
+			TextView whetherSaveTextView = (TextView)view.findViewById(R.id.whether_save_text);
 			TextView tipTextView = (TextView)view.findViewById(R.id.whether_save_tip);
 			TextView cancelTextView = (TextView)view.findViewById(R.id.whether_save_cancel);
 			TextView noTextView = (TextView)view.findViewById(R.id.whether_save_no);
 			TextView sureTextView = (TextView)view.findViewById(R.id.whether_save_sure);
 			
-			if (isRemind && isStared) {
-				tipTextView.setText(GlobalSettings.TIP_WHETHER_SAVE_ISREMIND_ISSTARED);
-			} else if (!isRemind && isStared) {
-				tipTextView.setText(GlobalSettings.TIP_WHETHER_SAVE_ISNOTREMIND_ISSTARED);
-			} else if (isRemind && !isStared) {
-				tipTextView.setText(GlobalSettings.TIP_WHETHER_SAVE_ISREMIND_ISNOTSTARED);
-			} else {
-				tipTextView.setText(GlobalSettings.TIP_WHETHER_SAVE_ISNOTREMIND_ISNOTSTARED);
-			}
+			whetherSaveTextView.setText(Language.getSaveText());
+			tipTextView.setText(Language.getSaveTip(isRemind, isStared));
+			cancelTextView.setText(Language.getSaveCancelText());
+			noTextView.setText(Language.getSaveNoText());
+			sureTextView.setText(Language.getSaveYesText());
 			
 			YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
 			.duration(GlobalSettings.TIP_ANIMATION_DURATION)
@@ -447,9 +530,11 @@ public class EditActivity extends FragmentActivity
 			.duration(2000)
 			.delay(GlobalSettings.TIP_ANIMATION_DELAY)
 			.playOn(titleEditText);
-			Toast.makeText(mContext, "May I get a title?", Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext, Language.getToastGetTitle(), Toast.LENGTH_SHORT).show();
 			return;
 		}
+		
+		Toast.makeText(mContext, Language.getToastSaveSuccessfullyText(), Toast.LENGTH_SHORT).show();
 		
 		try {
 			timeFleetingData = TimeFleetingData.getInstance(this);
@@ -487,7 +572,7 @@ public class EditActivity extends FragmentActivity
 			if (isBack) {
 				returnHome();
 			} else {
-				Toast.makeText(mContext, "Save successfully", Toast.LENGTH_SHORT).show();
+//				Toast.makeText(mContext, Language.getToastSaveSuccessfullyText(), Toast.LENGTH_SHORT).show();
 			}
 		} else {
 			// haven't click the save button
@@ -507,7 +592,7 @@ public class EditActivity extends FragmentActivity
 				if (isBack) {
 					returnHome();
 				} else {
-					Toast.makeText(mContext, "Save successfully", Toast.LENGTH_SHORT).show();
+//					Toast.makeText(mContext, Language.getToastSaveSuccessfullyText(), Toast.LENGTH_SHORT).show();
 				}
 			} else {
 				saveId = TimeFleetingData.saveRecord(new Record(
@@ -525,7 +610,7 @@ public class EditActivity extends FragmentActivity
 				if (isBack) {
 					returnHome();
 				} else {
-					Toast.makeText(mContext, "Save successfully", Toast.LENGTH_SHORT).show();
+//					Toast.makeText(mContext, Language.getToastSaveSuccessfullyText(), Toast.LENGTH_SHORT).show();
 				}
 			}
 		}
@@ -659,7 +744,8 @@ public class EditActivity extends FragmentActivity
 		setStarLinearLayout.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
 		
 		final TextView okTextView = (TextView)view.findViewById(R.id.set_star_ok);
-
+		okTextView.setText(Language.getOKText());
+		
 		final ImageView star1 = (ImageView)view.findViewById(R.id.star_1);
 		final ImageView star2 = (ImageView)view.findViewById(R.id.star_2);
 		final ImageView star3 = (ImageView)view.findViewById(R.id.star_3);

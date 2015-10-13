@@ -27,7 +27,8 @@
 	    <com.timefleeting.app.ObservableScrollView
 	        android:id="@+id/editview_scrollview"
 	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
+	        android:layout_height="wrap_content"
+	        android:scrollbars="@null"
 	        >
 	        
 	        <LinearLayout
@@ -89,6 +90,7 @@
 			        android:id="@+id/edit_layout_content"
 			        android:layout_width="match_parent"
 			        android:layout_height="wrap_content"
+			        android:minHeight="300dp"
 			        android:singleLine="false"
 			        android:textSize="20sp"
 			        android:hint="Content"
@@ -99,6 +101,7 @@
 	                android:paddingBottom="20dp"
 	                android:textColor="@color/future_listview_title"
                     android:textCursorDrawable="@null"
+                    android:gravity="top|left"
 			        />
 	            
 	        </LinearLayout>

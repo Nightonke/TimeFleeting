@@ -386,6 +386,7 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 		setStarLinearLayout.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
 		
 		final TextView okTextView = (TextView)view.findViewById(R.id.set_star_ok);
+		okTextView.setText(Language.getOKText());
 
 		final ImageView star1 = (ImageView)view.findViewById(R.id.star_1);
 		final ImageView star2 = (ImageView)view.findViewById(R.id.star_2);
@@ -477,6 +478,9 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 		LinearLayout whetherDeleteLinearLayout = (LinearLayout)view.findViewById(R.id.whether_delete_lyy);
 		whetherDeleteLinearLayout.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
 		
+		TextView textView = (TextView)view.findViewById(R.id.delete_text);
+		textView.setText(Language.getDeleteText());
+		
 		LinearLayout whetherSaveLinearLayout = (LinearLayout)view.findViewById(R.id.whether_delete_logo);
 		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
 		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
@@ -484,7 +488,9 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 		.playOn(whetherSaveLinearLayout);
 		
 		TextView cancelTextView = (TextView)view.findViewById(R.id.whether_delete_cancel);
+		cancelTextView.setText(Language.getDeleteNoText());
 		TextView yesTextView = (TextView)view.findViewById(R.id.whether_delete_yes);
+		yesTextView.setText(Language.getDeleteYesText());
 		
 		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
 		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
@@ -519,6 +525,7 @@ public class ListViewAdapter extends BaseSwipeAdapter implements OnDateSetListen
 				closeItem(position);
 				notifyDataSetChanged();
 				dialog.dismiss();
+				Toast.makeText(mContext, Language.getToastDeleteText(), Toast.LENGTH_SHORT).show();
 			}
 		});
 	}

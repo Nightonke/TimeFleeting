@@ -86,27 +86,12 @@ public class EditPastActivity extends FragmentActivity
 	private String dateString;
 	private String oldDateString;
 	
-	private String[] dataStrings = {"Every year", 
-									"Every month",
-									"Every week",
-									"Every hundred days",
-									"Every thousand days",
-									"Don't repeat"};
-	
 	private String[] repeatType = {"PAST_Y",
 								   "PAST_M",
 								   "PAST_W",
 								   "PAST_H",
 								   "PAST_T",
 								   "PAST_N"};
-	
-	private String[] dayOfWeek = {"Sunday",
-			                      "Monday",
-			                      "Tuesday",
-			                      "Wednesday",
-			                      "Thursday",
-			                      "Friday",
-			                      "Saturday"};
 	
 	private ArrayAdapter<String> arr_adapter;
 	
@@ -211,9 +196,11 @@ public class EditPastActivity extends FragmentActivity
 		titleEditText = (EditText)findViewById(R.id.past_edit_title);
 		titleEditText.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 		titleEditText.setFilters(titleFilters);
+		titleEditText.setHint(Language.getEditPastTitleHintText());
 		textEditText = (EditText)findViewById(R.id.past_edit_text);
 		textEditText.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
 		textEditText.setFilters(textFilters);
+		textEditText.setHint(Language.getEditPastRemarksHintText());
 		
 		dateTextView = (TextView)findViewById(R.id.past_edit_date);
 		dateTextView.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
@@ -228,12 +215,18 @@ public class EditPastActivity extends FragmentActivity
 		
 		editPastTextView0 = (TextView)findViewById(R.id.edit_past_text_view_0);
 		editPastTextView0.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		editPastTextView0.setText(Language.getEditPastTitleText());
 		editPastTextView1 = (TextView)findViewById(R.id.edit_past_text_view_1);
 		editPastTextView1.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		editPastTextView1.setText(Language.getEditPastDateText());
 		editPastTextView2 = (TextView)findViewById(R.id.edit_past_text_view_2);
 		editPastTextView2.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		editPastTextView2.setText(Language.getEditPastRepeatText());
 		editPastTextView3 = (TextView)findViewById(R.id.edit_past_text_view_3);
 		editPastTextView3.setTextColor(GlobalSettings.TITLE_TEXT_COLOR);
+		editPastTextView3.setText(Language.getEditPastRemarksText());
+		
+		((TextView)findViewById(R.id.past_edit_top_title)).setText(Language.getEditPastTitleLayoutText(isOld));
 		
 		scrollView = (TopBottomScrollView)findViewById(R.id.tb_scrollview);
 		
@@ -278,7 +271,7 @@ public class EditPastActivity extends FragmentActivity
 		
 		spinner = (Spinner)findViewById(R.id.past_edit_spinner);
         
-        arr_adapter= new SpinnerArrayAdapter(mContext, dataStrings, 20);
+        arr_adapter= new SpinnerArrayAdapter(mContext, Language.repeatDataText, 20);
         arr_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(arr_adapter);
         
@@ -300,7 +293,7 @@ public class EditPastActivity extends FragmentActivity
 				
 				infoRemainTextView.setText(String.valueOf(TimeFleetingData.calculateRemainDays(tempRecord)));
 				
-				dateTextView.setText(dateTextView.getText().toString().substring(0,  10) + " " + dayOfWeek[calDayOfWeek(dateString)]);
+				dateTextView.setText(dateTextView.getText().toString().substring(0,  10) + " " + Language.getDayOfWeekText(calDayOfWeek(dateString)));
 			}
 
 			@Override
@@ -388,9 +381,9 @@ public class EditPastActivity extends FragmentActivity
 			
 			saveId = getIntent().getIntExtra("ID", -1);
 			
-			dateTextView.setText(dateTextView.getText().toString().substring(0,  10) + " " + dayOfWeek[calDayOfWeek(getIntent().getStringExtra("RemindTime"))]);
+			dateTextView.setText(dateTextView.getText().toString().substring(0,  10) + " " + Language.getDayOfWeekText(calDayOfWeek(getIntent().getStringExtra("RemindTime"))));
 			
-			((TextView)findViewById(R.id.past_edit_top_title)).setText("Change memory");
+			((TextView)findViewById(R.id.past_edit_top_title)).setText(Language.getEditPastTitleLayoutText(isOld));
 
 			YoYo.with(Techniques.Shake)
 			.duration(2000)
@@ -404,7 +397,7 @@ public class EditPastActivity extends FragmentActivity
 			
 		} else {
 			dateString = createTimeString;
-			dateTextView.setText(dateString.substring(0,  10) + " " + dayOfWeek[calDayOfWeek(dateString)]);
+			dateTextView.setText(dateString.substring(0,  10) + " " + Language.getDayOfWeekText(calDayOfWeek(dateString)));
 			infoLinearLayout.getLayoutParams().height = 0;
 			saveId = -1;
 		}
@@ -469,7 +462,7 @@ public class EditPastActivity extends FragmentActivity
 		
 		infoRemainTextView.setText(String.valueOf(TimeFleetingData.calculateRemainDays(tempRecord)));
 		
-		dateTextView.setText(dateTextView.getText().toString().substring(0,  10) + " " + dayOfWeek[calDayOfWeek(dateString)]);
+		dateTextView.setText(dateTextView.getText().toString().substring(0,  10) + " " + Language.getDayOfWeekText(calDayOfWeek(dateString)));
 	}
 	
 	private void save() {
@@ -478,9 +471,10 @@ public class EditPastActivity extends FragmentActivity
 			.duration(2000)
 			.delay(GlobalSettings.TIP_ANIMATION_DELAY)
 			.playOn(titleLinearLayout);
-			Toast.makeText(mContext, "May I get a title?", Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext, Language.getToastGetTitle(), Toast.LENGTH_SHORT).show();
 			return;
 		}
+		Toast.makeText(mContext, Language.getToastSaveSuccessfullyText(), Toast.LENGTH_SHORT).show();
 		TimeFleetingData.saveRecord(new Record(
 				saveId,
 				titleEditText.getText().toString(),

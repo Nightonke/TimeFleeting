@@ -56,14 +56,6 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
     private Record setTimeRecord;
     private String newRemindTimeString;
     
-    private String[] dayOfWeek = {"Sunday",
-						            "Monday",
-						            "Tuesday",
-						            "Wednesday",
-						            "Thursday",
-						            "Friday",
-						            "Saturday"};
-    
     public PastListViewAdapter(List<Record> list, Context mContext) {
     	this.list = list;
         this.mContext = mContext;
@@ -155,7 +147,7 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
     	titleTextView.setText(list.get(position).getTitle());
     	TextView remindTimeTextView = (TextView)convertView.findViewById(R.id.past_listview_item_remind_time);
     	remindTimeTextView.setTextColor(GlobalSettings.ITEM_CONTENT_TEXT_COLOR);
-    	remindTimeTextView.setText(list.get(position).getRemindTime().substring(0, 10) + " " + dayOfWeek[calDayOfWeek(list.get(position).getRemindTime())]);
+    	remindTimeTextView.setText(list.get(position).getRemindTime().substring(0, 10) + " " + Language.getDayOfWeekText(calDayOfWeek(list.get(position).getRemindTime())));
 
     	ImageView beTop = (ImageView)convertView.findViewById(R.id.past_be_top);  // the button
     	ImageView beTopLogo = (ImageView)convertView.findViewById(R.id.past_listview_item_betop);
@@ -174,14 +166,14 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
     	dateTextView.setText(String.valueOf(String.valueOf(remainDays)));
 		
     	int diff = 0;
-		if (remainDays > GlobalSettings.REMIND_DAYS) {
+		if (remainDays > GlobalSettings.A_YEAR) {
 			diff = 0;
-		} else if (remainDays <= GlobalSettings.REMIND_DAYS) {
-			diff = GlobalSettings.REMIND_DAYS - remainDays;
+		} else if (remainDays <= GlobalSettings.A_YEAR) {
+			diff = (int)GlobalSettings.A_YEAR - remainDays;
 		}
     	
 		// add a default height to make the wave be able to be seen
-		int progress = (int)(diff * 1.0 / GlobalSettings.REMIND_DAYS * 100) + GlobalSettings.DEFAULT_WAVE_HEIGHT;
+		int progress = (int)(diff * 1.0 / GlobalSettings.A_YEAR * 100) + GlobalSettings.DEFAULT_WAVE_HEIGHT;
 		waveView.setProgress(progress);
     }
 
@@ -250,6 +242,9 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
 		LinearLayout whetherDeleteLinearLayout = (LinearLayout)view.findViewById(R.id.whether_delete_lyy);
 		whetherDeleteLinearLayout.setBackgroundColor(GlobalSettings.TITLE_BACKGROUND_COLOR);
 		
+		TextView textView = (TextView)view.findViewById(R.id.delete_text);
+		textView.setText(Language.getDeleteText());
+		
 		LinearLayout whetherSaveLinearLayout = (LinearLayout)view.findViewById(R.id.whether_delete_logo);
 		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
 		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
@@ -257,7 +252,9 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
 		.playOn(whetherSaveLinearLayout);
 		
 		TextView cancelTextView = (TextView)view.findViewById(R.id.whether_delete_cancel);
+		cancelTextView.setText(Language.getDeleteNoText());
 		TextView yesTextView = (TextView)view.findViewById(R.id.whether_delete_yes);
+		yesTextView.setText(Language.getDeleteYesText());
 		
 		YoYo.with(GlobalSettings.TIP_ANIMATION_STYLE)
 		.duration(GlobalSettings.TIP_ANIMATION_DURATION)
@@ -292,6 +289,7 @@ public class PastListViewAdapter extends BaseSwipeAdapter {
 				closeItem(position);
 				notifyDataSetChanged();
 				dialog.dismiss();
+				Toast.makeText(mContext, Language.getToastDeleteText(), Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
